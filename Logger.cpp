@@ -45,5 +45,6 @@ void Logger::Log(const char* level, const char* fmt, va_list args) {
 		fprintf(file, "[%s/%s]: ", m_modname, level);
 		vfprintf(file, fmt, args);
 		fputc('\n', file);
+		fflush(file);
 	}
 }

@@ -19,6 +19,12 @@
     <Filter Include="源文件\minhook">
       <UniqueIdentifier>{3c22a109-8ee4-425c-ad28-500fed784167}</UniqueIdentifier>
     </Filter>
+    <Filter Include="头文件\virtools">
+      <UniqueIdentifier>{d96ea6cd-b0b3-43f7-9bda-c5313b4126e7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\virtools">
+      <UniqueIdentifier>{6c938c17-6abb-4594-9304-15e8c6cce07b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -44,6 +50,60 @@
     </ClCompile>
     <ClCompile Include="Logger.cpp">
       <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="virtools\CKBaseManager.cpp">
+      <Filter>源文件\virtools</Filter>
+    </ClCompile>
+    <ClCompile Include="virtools\CKInputManager.cpp">
+      <Filter>源文件\virtools</Filter>
+    </ClCompile>
+    <ClCompile Include="virtools\CKTimeManager.cpp">
+      <Filter>源文件\virtools</Filter>
+    </ClCompile>
+    <ClCompile Include="virtools\CKObject.cpp">
+      <Filter>源文件\virtools</Filter>
+    </ClCompile>
+    <ClCompile Include="virtools\CKContext.cpp">
+      <Filter>源文件\virtools</Filter>
+    </ClCompile>
+    <ClCompile Include="virtools\CKParameter.cpp">
+      <Filter>源文件\virtools</Filter>
+    </ClCompile>
+    <ClCompile Include="virtools\CKParameterIn.cpp">
+      <Filter>源文件\virtools</Filter>
+    </ClCompile>
+    <ClCompile Include="virtools\CKParameterOperation.cpp">
+      <Filter>源文件\virtools</Filter>
+    </ClCompile>
+    <ClCompile Include="virtools\XString.cpp">
+      <Filter>源文件\virtools</Filter>
+    </ClCompile>
+    <ClCompile Include="virtools\CKBehaviorIO.cpp">
+      <Filter>源文件\virtools</Filter>
+    </ClCompile>
+    <ClCompile Include="virtools\CKSceneObject.cpp">
+      <Filter>源文件\virtools</Filter>
+    </ClCompile>
+    <ClCompile Include="virtools\CKBeObject.cpp">
+      <Filter>源文件\virtools</Filter>
+    </ClCompile>
+    <ClCompile Include="virtools\CKDataArray.cpp">
+      <Filter>源文件\virtools</Filter>
+    </ClCompile>
+    <ClCompile Include="virtools\CKGlobals.cpp">
+      <Filter>源文件\virtools</Filter>
+    </ClCompile>
+    <ClCompile Include="virtools\CKGroup.cpp">
+      <Filter>源文件\virtools</Filter>
+    </ClCompile>
+    <ClCompile Include="virtools\CKLevel.cpp">
+      <Filter>源文件\virtools</Filter>
+    </ClCompile>
+    <ClCompile Include="virtools\CKMaterial.cpp">
+      <Filter>源文件\virtools</Filter>
+    </ClCompile>
+    <ClCompile Include="virtools\CKMesh.cpp">
+      <Filter>源文件\virtools</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -83,5 +143,133 @@
     <ClInclude Include="BuildVer.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="virtools\CKdefines2.h">
+      <Filter>头文件\virtools</Filter>
+    </ClInclude>
+    <ClInclude Include="virtools\CKEnums.h">
+      <Filter>头文件\virtools</Filter>
+    </ClInclude>
+    <ClInclude Include="virtools\CKError.h">
+      <Filter>头文件\virtools</Filter>
+    </ClInclude>
+    <ClInclude Include="virtools\CKTypes.h">
+      <Filter>头文件\virtools</Filter>
+    </ClInclude>
+    <ClInclude Include="virtools\CKBaseManager.h">
+      <Filter>头文件\virtools</Filter>
+    </ClInclude>
+    <ClInclude Include="virtools\CKDef.h">
+      <Filter>头文件\virtools</Filter>
+    </ClInclude>
+    <ClInclude Include="virtools\CKAll.h">
+      <Filter>头文件\virtools</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Version.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="virtools\CKInputManager.h">
+      <Filter>头文件\virtools</Filter>
+    </ClInclude>
+    <ClInclude Include="virtools\XString.h">
+      <Filter>头文件\virtools</Filter>
+    </ClInclude>
+    <ClInclude Include="virtools\XUtil.h">
+      <Filter>头文件\virtools</Filter>
+    </ClInclude>
+    <ClInclude Include="virtools\Vx2dVector.h">
+      <Filter>头文件\virtools</Filter>
+    </ClInclude>
+    <ClInclude Include="virtools\VxVector.h">
+      <Filter>头文件\virtools</Filter>
+    </ClInclude>
+    <ClInclude Include="virtools\VxMatrix.h">
+      <Filter>头文件\virtools</Filter>
+    </ClInclude>
+    <ClInclude Include="virtools\VxQuaternion.h">
+      <Filter>头文件\virtools</Filter>
+    </ClInclude>
+    <ClInclude Include="virtools\VxMathDefines.h">
+      <Filter>头文件\virtools</Filter>
+    </ClInclude>
+    <ClInclude Include="virtools\CKTimeManager.h">
+      <Filter>头文件\virtools</Filter>
+    </ClInclude>
+    <ClInclude Include="virtools\CKObject.h">
+      <Filter>头文件\virtools</Filter>
+    </ClInclude>
+    <ClInclude Include="virtools\CKContext.h">
+      <Filter>头文件\virtools</Filter>
+    </ClInclude>
+    <ClInclude Include="virtools\CKParameter.h">
+      <Filter>头文件\virtools</Filter>
+    </ClInclude>
+    <ClInclude Include="virtools\CKParameterIn.h">
+      <Filter>头文件\virtools</Filter>
+    </ClInclude>
+    <ClInclude Include="virtools\XBitArray.h">
+      <Filter>头文件\virtools</Filter>
+    </ClInclude>
+    <ClInclude Include="virtools\CKParameterOperation.h">
+      <Filter>头文件\virtools</Filter>
+    </ClInclude>
+    <ClInclude Include="virtools\XArray.h">
+      <Filter>头文件\virtools</Filter>
+    </ClInclude>
+    <ClInclude Include="virtools\XSArray.h">
+      <Filter>头文件\virtools</Filter>
+    </ClInclude>
+    <ClInclude Include="virtools\XObjectArray.h">
+      <Filter>头文件\virtools</Filter>
+    </ClInclude>
+    <ClInclude Include="virtools\CKGlobals.h">
+      <Filter>头文件\virtools</Filter>
+    </ClInclude>
+    <ClInclude Include="virtools\XHashTable.h">
+      <Filter>头文件\virtools</Filter>
+    </ClInclude>
+    <ClInclude Include="virtools\XSHashTable.h">
+      <Filter>头文件\virtools</Filter>
+    </ClInclude>
+    <ClInclude Include="virtools\XClassArray.h">
+      <Filter>头文件\virtools</Filter>
+    </ClInclude>
+    <ClInclude Include="virtools\XHashFun.h">
+      <Filter>头文件\virtools</Filter>
+    </ClInclude>
+    <ClInclude Include="virtools\CKSceneObject.h">
+      <Filter>头文件\virtools</Filter>
+    </ClInclude>
+    <ClInclude Include="virtools\CKBehaviorIO.h">
+      <Filter>头文件\virtools</Filter>
+    </ClInclude>
+    <ClInclude Include="virtools\CKBeObject.h">
+      <Filter>头文件\virtools</Filter>
+    </ClInclude>
+    <ClInclude Include="virtools\CKDataArray.h">
+      <Filter>头文件\virtools</Filter>
+    </ClInclude>
+    <ClInclude Include="virtools\CKGroup.h">
+      <Filter>头文件\virtools</Filter>
+    </ClInclude>
+    <ClInclude Include="virtools\CKLevel.h">
+      <Filter>头文件\virtools</Filter>
+    </ClInclude>
+    <ClInclude Include="virtools\VxColor.h">
+      <Filter>头文件\virtools</Filter>
+    </ClInclude>
+    <ClInclude Include="virtools\CKMaterial.h">
+      <Filter>头文件\virtools</Filter>
+    </ClInclude>
+    <ClInclude Include="virtools\CKMesh.h">
+      <Filter>头文件\virtools</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Resource.rc">
+      <Filter>资源文件</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>

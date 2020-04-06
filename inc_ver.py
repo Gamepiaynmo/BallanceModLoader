@@ -6,4 +6,4 @@ with open('BuildVer.h', 'r') as fin:
 version += 1
 
 with open('BuildVer.h', 'w') as fout:
-	fout.write('#define BML_BUILD_VER ' + str(version))
+	fout.write('#define BML_BUILD_VER ' + str(version) + '\n')

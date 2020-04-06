@@ -4,7 +4,7 @@
 
 Player::StepFunc Player::m_step = &Player::Step;
 Player::ProcessFunc Player::m_process = &Player::Process;
-const UINT STEP_ADDR = 0x00401BF0, PROCESS_ADDR = 0x004057A0;
+const CKDWORD STEP_ADDR = 0x00401BF0, PROCESS_ADDR = 0x004057A0;
 
 ModLoader::ModLoader() {
 	m_instance = this;
@@ -62,6 +62,9 @@ void ModLoader::Init() {
 }
 
 void ModLoader::Release() {
+	if (m_loaded)
+		Unload();
+
 	m_inited = false;
 
 	m_logger->Info("Releasing Mod Loader");
@@ -79,7 +82,7 @@ void ModLoader::Release() {
 }
 
 // Game Loop
-UINT Player::Step() {
+CKDWORD Player::Step() {
 	return ModLoader::m_instance->Step((this->*m_step)());
 }
 
@@ -89,7 +92,7 @@ void Player::Process() {
 	ModLoader::m_instance->Process();
 }
 
-UINT ModLoader::Step(UINT stop) {
+CKDWORD ModLoader::Step(CKDWORD result) {
 #ifdef _DEBUG
 	// Press E to exit
 	if (GetKeyState('E') < 0)
@@ -105,7 +108,8 @@ UINT ModLoader::Step(UINT stop) {
 		}
 	}
 
-	if (!stop) {
+	if (!result) {
+		m_logger->Info("Ballance is exiting");
 		Unload();
 		return 0;
 	}

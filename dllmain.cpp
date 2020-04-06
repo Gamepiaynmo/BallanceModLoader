@@ -1,5 +1,6 @@
 ﻿#include "BMLAll.h"
 #include <Windows.h>
+#include "virtools/CKAll.h"
 
 ModLoader *ModLoader::m_instance = nullptr;
 
@@ -34,19 +35,19 @@ public:
 
 private:
 	const char* m_str;
-	short m_len, m_alloc;
+	CKWORD m_len, m_alloc;
 };
 
 struct CKPluginInfo {
-	UINT m_GUID[4] = { 0 };
-	UINT m_Extension = 0;
+	CKDWORD m_GUID[2] = { 0x6229385d, 0x197331db };
+	CKDWORD m_Extension = 0;
 	XStringDef m_Description = "Ballance Mod Loader";
 	XStringDef m_Author = "Gamepiaynmo";
 	XStringDef m_Summary = "Mod Loader for Ballance";
-	DWORD m_Version = BML_MAJOR_VER << 16 | BML_MINOR_VER << 8 | BML_BUILD_VER;
-	DWORD m_InitInstanceFct = 0;
-	DWORD m_Type = 4;
-	DWORD m_ExitInstanceFct = 0;
+	CKDWORD m_Version = BML_MAJOR_VER << 16 | BML_MINOR_VER << 8 | BML_BUILD_VER;
+	CKDWORD m_InitInstanceFct = 0;
+	CKDWORD m_Type = 4;
+	CKDWORD m_ExitInstanceFct = 0;
 } g_pInfo;
 
 EXTERN_C_START

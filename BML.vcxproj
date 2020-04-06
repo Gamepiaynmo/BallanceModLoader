@@ -30,14 +30,14 @@
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>NotSet</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>NotSet</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
@@ -72,14 +72,14 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>D:\Program Files (x86)\Ballance\Plugins</OutDir>
+    <OutDir>D:\Program Files (x86)\Ballance\Plugins\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>D:\Program Files (x86)\Ballance\Plugins</OutDir>
+    <OutDir>D:\Program Files (x86)\Ballance\Plugins\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
@@ -88,10 +88,12 @@
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
-      <SDLCheck>true</SDLCheck>
+      <SDLCheck>false</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;BML_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <StructMemberAlignment>Default</StructMemberAlignment>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -123,16 +125,19 @@
       <WarningLevel>Level3</WarningLevel>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <SDLCheck>true</SDLCheck>
+      <SDLCheck>false</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;BML_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <StructMemberAlignment>Default</StructMemberAlignment>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <Optimization>MinSpace</Optimization>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
     </Link>
     <PreBuildEvent>
@@ -167,6 +172,24 @@
     <ClCompile Include="minhook\hook.c" />
     <ClCompile Include="minhook\trampoline.c" />
     <ClCompile Include="ModLoader.cpp" />
+    <ClCompile Include="virtools\CKBaseManager.cpp" />
+    <ClCompile Include="virtools\CKBehaviorIO.cpp" />
+    <ClCompile Include="virtools\CKBeObject.cpp" />
+    <ClCompile Include="virtools\CKContext.cpp" />
+    <ClCompile Include="virtools\CKDataArray.cpp" />
+    <ClCompile Include="virtools\CKGlobals.cpp" />
+    <ClCompile Include="virtools\CKGroup.cpp" />
+    <ClCompile Include="virtools\CKInputManager.cpp" />
+    <ClCompile Include="virtools\CKLevel.cpp" />
+    <ClCompile Include="virtools\CKMaterial.cpp" />
+    <ClCompile Include="virtools\CKMesh.cpp" />
+    <ClCompile Include="virtools\CKObject.cpp" />
+    <ClCompile Include="virtools\CKParameter.cpp" />
+    <ClCompile Include="virtools\CKParameterIn.cpp" />
+    <ClCompile Include="virtools\CKParameterOperation.cpp" />
+    <ClCompile Include="virtools\CKSceneObject.cpp" />
+    <ClCompile Include="virtools\CKTimeManager.cpp" />
+    <ClCompile Include="virtools\XString.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BMLAll.h" />
@@ -181,6 +204,50 @@
     <ClInclude Include="minhook\MinHook.h" />
     <ClInclude Include="minhook\trampoline.h" />
     <ClInclude Include="ModLoader.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="Version.h" />
+    <ClInclude Include="virtools\CKAll.h" />
+    <ClInclude Include="virtools\CKBehaviorIO.h" />
+    <ClInclude Include="virtools\CKBeObject.h" />
+    <ClInclude Include="virtools\CKContext.h" />
+    <ClInclude Include="virtools\CKDataArray.h" />
+    <ClInclude Include="virtools\CKDef.h" />
+    <ClInclude Include="virtools\CKBaseManager.h" />
+    <ClInclude Include="virtools\CKdefines2.h" />
+    <ClInclude Include="virtools\CKEnums.h" />
+    <ClInclude Include="virtools\CKError.h" />
+    <ClInclude Include="virtools\CKGlobals.h" />
+    <ClInclude Include="virtools\CKGroup.h" />
+    <ClInclude Include="virtools\CKInputManager.h" />
+    <ClInclude Include="virtools\CKLevel.h" />
+    <ClInclude Include="virtools\CKMaterial.h" />
+    <ClInclude Include="virtools\CKMesh.h" />
+    <ClInclude Include="virtools\CKObject.h" />
+    <ClInclude Include="virtools\CKParameter.h" />
+    <ClInclude Include="virtools\CKParameterIn.h" />
+    <ClInclude Include="virtools\CKParameterOperation.h" />
+    <ClInclude Include="virtools\CKSceneObject.h" />
+    <ClInclude Include="virtools\CKTimeManager.h" />
+    <ClInclude Include="virtools\CKTypes.h" />
+    <ClInclude Include="virtools\Vx2dVector.h" />
+    <ClInclude Include="virtools\VxColor.h" />
+    <ClInclude Include="virtools\VxMathDefines.h" />
+    <ClInclude Include="virtools\VxMatrix.h" />
+    <ClInclude Include="virtools\VxQuaternion.h" />
+    <ClInclude Include="virtools\VxVector.h" />
+    <ClInclude Include="virtools\XArray.h" />
+    <ClInclude Include="virtools\XBitArray.h" />
+    <ClInclude Include="virtools\XClassArray.h" />
+    <ClInclude Include="virtools\XHashFun.h" />
+    <ClInclude Include="virtools\XHashTable.h" />
+    <ClInclude Include="virtools\XObjectArray.h" />
+    <ClInclude Include="virtools\XSArray.h" />
+    <ClInclude Include="virtools\XSHashTable.h" />
+    <ClInclude Include="virtools\XString.h" />
+    <ClInclude Include="virtools\XUtil.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Resource.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

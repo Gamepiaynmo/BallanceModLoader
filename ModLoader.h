@@ -3,6 +3,7 @@
 #include "IBML.h"
 #include <cstdio>
 #include <Windows.h>
+#include "virtools/CKAll.h"
 
 class ModLoader : public IBML {
 public:
@@ -17,7 +18,7 @@ public:
 	void Load();
 	void Unload();
 
-	UINT Step(UINT stop);
+	CKDWORD Step(CKDWORD result);
 	void Process();
 
 	bool Inited() { return m_inited; }
@@ -34,11 +35,11 @@ private:
 
 class Player {
 public:
-	UINT Step();
+	CKDWORD Step();
 	void Process();
 
 	typedef void (Player::* ProcessFunc)();
 	static ProcessFunc m_process;
-	typedef UINT (Player::* StepFunc)();
+	typedef CKDWORD(Player::* StepFunc)();
 	static StepFunc m_step;
 };
