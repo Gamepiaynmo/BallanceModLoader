@@ -11,8 +11,6 @@
 #define _CKGLOBALS_H "$Id:$"
 
 #include "CKDef.h"
-#include "CKDefines2.h"
-#include "XHashTable.h"
 #include "XBitArray.h"
 
 typedef XHashTable<CKObjectDeclaration*,CKGUID>::Iterator XObjDeclHashTableIt;		

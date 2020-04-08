@@ -3,9 +3,7 @@
 #include <Windows.h>
 #include <cstdio>
 
-Logger::Logger(const char* modname) : m_modname(modname) {
-
-}
+Logger::Logger(const char* modname) : m_modname(modname) {}
 
 void Logger::Info(const char* fmt, ...) {
 	va_list args;

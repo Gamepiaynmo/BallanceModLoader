@@ -2,8 +2,6 @@
 
 #include "CKDef.h"
 #include "CKBeObject.h"
-#include "VxColor.h"
-#include "XArray.h"
 
 class CKShader;
 class CKMaterialShader;

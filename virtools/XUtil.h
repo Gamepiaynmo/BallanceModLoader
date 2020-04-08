@@ -96,28 +96,7 @@ typedef unsigned int XDWORD;
 #endif
 
 #ifndef VX_EXPORT
-	#ifdef VX_LIB
-	
-		#define VX_EXPORT  
-	#else
-		#ifdef VX_API
-			#ifdef WIN32
-				#define VX_EXPORT __declspec(dllexport)	// VC++ export option  {secret}
-			#elif macintosh
-				#define VX_EXPORT __declspec(export)	// CodeWarrior export pragma {secret}
-					#elif _LINUX
-							#define VX_EXPORT
-			#endif	
-		#else
-			#ifdef WIN32
-				#define VX_EXPORT __declspec(dllimport)	// VC++ export option  {secret}
-			#elif macintosh
-				#define VX_EXPORT __declspec(import)	// CodeWarrior export pragma {secret}
-					#elif _LINUX
-							#define VX_EXPORT
-			#endif	
-		#endif
-	#endif
+#define VX_EXPORT
 #endif
 
 #ifdef WIN32

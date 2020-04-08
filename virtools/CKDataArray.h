@@ -3,8 +3,6 @@
 #include "CKDef.h"
 #include "CKBeObject.h"
 #include "CKGlobals.h"
-#include "XArray.h"
-#include "XSArray.h"
 
 typedef XSArray<CKDWORD> CKDataRow;
 

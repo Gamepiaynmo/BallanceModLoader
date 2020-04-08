@@ -2,7 +2,6 @@
 
 #include "CKDef.h"
 #include "CKBeObject.h"
-#include "XObjectArray.h"
 
 class BML_EXPORT CKLevel : public CKBeObject {
 public:

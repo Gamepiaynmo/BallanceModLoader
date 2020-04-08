@@ -38,7 +38,7 @@ Remarks:
 
 See Also : XBaseString.
 ************************************************/
-class BML_EXPORT XBaseString
+class XBaseString
 {
 	friend class XString;
 public:
@@ -150,7 +150,7 @@ Remarks:
 
 See Also : XBaseString.
 ************************************************/
-class BML_EXPORT XString : public XBaseString
+class XString : public XBaseString
 {
 public:
 

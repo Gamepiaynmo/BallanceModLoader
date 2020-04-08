@@ -110,7 +110,7 @@ public:
 					// we search for the element in the other array
 					if(a.Find(*t) == a.m_End) {
 						// the element is not in the other array, we copy it to the newone
-						*temp = *it;
+						*temp = *t; // t was it
 						++temp;
 					}
 				}

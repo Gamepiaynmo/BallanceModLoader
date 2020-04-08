@@ -12,14 +12,19 @@
 #define NAKED __declspec(naked)
 #define UNDEFINED throw "Unimplemented function called."
 
-#include "XUtil.h"
-#include "XString.h"
-
 #include "VxMathDefines.h"
+#include "VxMutex.h"
+#include "VxAllocator.h"
 #include "VxQuaternion.h"
 #include "Vx2dVector.h"
 #include "VxMatrix.h"
 #include "VxVector.h"
+#include "VxColor.h"
+#include "VxRect.h"
+#include "VxMath.h"
+
+#include "XUtil.h"
+#include "XString.h"
 
 #define JUMP(ADDR) \
 	static CKDWORD addr = ADDR; \

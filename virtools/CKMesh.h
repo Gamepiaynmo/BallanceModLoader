@@ -3,7 +3,6 @@
 #include "CKDef.h"
 #include "CKBeObject.h"
 #include "CKMaterial.h"
-#include "XObjectArray.h"
 
 enum ChannelType {
     CHANNELTYPE_MATERIAL = 0,
@@ -30,13 +29,9 @@ public:
     void SetFlags(CKDWORD Flags);
     BYTE* GetModifierVertices(CKDWORD* Stride);
     int GetModifierVertexCount();
-    void GetModifierVertex(int iIndex, VxVector* oPosition);
-    void SetModifierVertex(int iIndex, VxVector* iPosition);
     void ModifierVertexMove(CKBOOL RebuildNormals, CKBOOL RebuildFaceNormals);
     BYTE* GetModifierUVs(CKDWORD* Stride, int channel = -1);
     int GetModifierUVCount(int channel = -1);
-    void GetModifierUV(int iIndex, float* oU, float* oV, int channel = -1);
-    void SetModifierUV(int iIndex, float iU, float iV, int channel = -1);
     void ModifierUVMove(int Channel = -1);
     int GetVertexCount();
     CKBOOL SetVertexCount(int Count);
@@ -119,7 +114,6 @@ public:
     void SetRenderCallBack(CK_MESHRENDERCALLBACK Function, void* Argument);
     void SetDefaultRenderCallBack();
     void RemoveAllCallbacks();
-    const XObjectPointerArray& ComputeMaterialList();
     int GetMaterialCount();
     CKMaterial* GetMaterial(int index);
     int GetVertexWeightsCount();

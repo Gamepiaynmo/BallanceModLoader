@@ -31,6 +31,10 @@ private:
 
 	FILE* m_logfile = nullptr;
 	Logger* m_logger = nullptr;
+
+	CKContext* m_context;
+	CKInputManager* m_inputManager;
+	CKTimeManager* m_timeManager;
 };
 
 class Player {

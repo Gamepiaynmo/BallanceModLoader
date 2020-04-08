@@ -17,7 +17,7 @@ Remarks:
 	o This class  define a set of bit flags that may be treated as a virtual array but are stored in an efficient manner. 
 	o The class has methods to set, clear and return the i-th bit, resize the array, etc.
 ************************************************/
-class BML_EXPORT XBitArray  
+class XBitArray  
 {
 public:
 	XBitArray(int initialsize = 1) {

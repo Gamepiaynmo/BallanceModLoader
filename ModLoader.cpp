@@ -93,11 +93,6 @@ void Player::Process() {
 }
 
 CKDWORD ModLoader::Step(CKDWORD result) {
-#ifdef _DEBUG
-	// Press E to exit
-	if (GetKeyState('E') < 0)
-		return 0;
-#endif
 	if (!m_loaded) {
 		Load();
 		if (!m_loaded) {
@@ -120,11 +115,27 @@ CKDWORD ModLoader::Step(CKDWORD result) {
 void ModLoader::Load() {
 	m_logger->Info("Loading Mod Loader");
 
+	m_context = GetCKContext(0);
+	m_logger->Info("Get CKContext pointer 0x%08x", m_context);
+
+	m_timeManager = m_context->GetTimeManager();
+	m_logger->Info("Get Time Manager pointer 0x%08x", m_timeManager);
+
+	m_inputManager = static_cast<CKInputManager*>(m_context->GetManagerByGuid(INPUT_MANAGER_GUID));
+	m_logger->Info("Get Input Manager pointer 0x%08x", m_inputManager);
+
 	m_loaded = true;
 }
 
 void ModLoader::Process() {
+	m_timeManager->SetTimeScaleFactor(0.5f);
 
+	if (m_context->GetObjectsCountByClassID(CKCID_SPRITE) > 0) {
+		CKSprite* ent = static_cast<CKSprite*>(m_context->GetObject(m_context->GetObjectsListByClassID(CKCID_SPRITE)[0]));
+		auto res = ent->GetSlotCount();
+		res = ent->GetCurrentSlot();
+		m_logger->Info(ent->GetName());
+	}
 }
 
 void ModLoader::Unload() {

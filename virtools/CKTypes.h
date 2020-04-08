@@ -146,11 +146,31 @@ class CKParameterManager;
 class CKAttributeManager;
 class CKPathManager;
 class CKVariableManager;
-class CKSceneObjectDesc;
 
+class CKSceneObjectDesc {
 
+public:
+	CKSceneObjectDesc() { m_Object = 0; m_InitialValue = NULL; m_Global = 0; };
 
+	BOOL ActiveAtStart() { return m_Flags & CK_SCENEOBJECT_START_ACTIVATE; }
+	BOOL DeActiveAtStart() { return m_Flags & CK_SCENEOBJECT_START_DEACTIVATE; }
+	BOOL NothingAtStart() { return m_Flags & CK_SCENEOBJECT_START_LEAVE; }
+	BOOL ResetAtStart() { return m_Flags & CK_SCENEOBJECT_START_RESET; }
+	BOOL IsActive() { return m_Flags & CK_SCENEOBJECT_ACTIVE; }
 
+public:
+	CK_ID			m_Object;
+	CKStateChunk* m_InitialValue;
+	union {
+		DWORD		m_Global;
+		DWORD		m_Flags;
+	};
+};
+
+class XObjectArray;
+class XObjectPointerArray;
+class XSObjectArray;
+class XSObjectPointerArray;
 
 /*******************************************************************************
 Summary: Structure containing informations about a .cmo or .nmo file.
@@ -335,7 +355,7 @@ See also: Pre-Registred Parameter Types,ParameterOperation Types
 // GG : Slightly modified the guid definition to make it compile on CodeWarrior
 // (issue with anonymous unions).
 
-struct BML_EXPORT CKGUID {
+struct CKGUID {
 					union
 					{
 						struct

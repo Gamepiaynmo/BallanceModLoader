@@ -25,6 +25,8 @@
 
 #endif
 
+struct VxColor;
+
 /***************************************************
 Summary: Converts 4 floats to a DWORD ARGB color  
 

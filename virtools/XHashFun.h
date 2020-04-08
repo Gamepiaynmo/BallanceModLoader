@@ -57,7 +57,7 @@ struct XEqualXStringI
 
 struct XEqualStringI
 {
-  int operator()(const char* iS1,const char* iS2) const { return !stricmp(iS1,iS2); }
+  int operator()(const char* iS1,const char* iS2) const { return !_stricmp(iS1,iS2); }
 };
 
 /************************************************

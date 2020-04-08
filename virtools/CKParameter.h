@@ -2,7 +2,6 @@
 
 #include "CKDef.h"
 #include "CKObject.h"
-#include "XBitArray.h"
 
 struct CKPluginEntry;
 
@@ -15,7 +14,7 @@ typedef void (*CK_PARAMETERSAVELOADFUNCTION)(CKParameter* param, CKStateChunk** 
 typedef int (*CK_PARAMETERSTRINGFUNCTION)(CKParameter* param, CKSTRING ValueString, CKBOOL ReadFromString);
 typedef WIN_HANDLE(*CK_PARAMETERUICREATORFUNCTION)(CKParameter* param, WIN_HANDLE ParentWindow, CKRECT* rect);
 
-struct BML_EXPORT CKParameterTypeDesc {
+struct CKParameterTypeDesc {
 	CKParameterType Index;
 	CKGUID Guid;
 	CKGUID DerivedFrom;
