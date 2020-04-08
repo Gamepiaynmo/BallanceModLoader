@@ -8,8 +8,7 @@ class CKSkin;
 #define CKRENDER_UPDATEEXTENTS 0x00000FF
 #define CKRENDER_DONTSETMATRIX 0x0000100
 
-struct VxIntersectionDesc
-{
+struct VxIntersectionDesc {
 	CK3dEntity* Object;
 	CK2dEntity* Sprite;
 	VxVector IntersectionPoint;

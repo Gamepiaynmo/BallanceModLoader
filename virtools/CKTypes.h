@@ -247,20 +247,136 @@ to perform 3D and2D rendering (see  Vx2DCapsDesc & Vx3DCapsDesc)
 
 See Also: CKRenderManager::GetRenderDriverDescription,CKRenderManager::GetRenderDriverCount
 ****************************************************************/
-/*
-struct VxDriverDesc
+typedef struct VxDisplayMode
 {
-	XString DriverDesc;			// Driver Description
-	XString DriverName;			// Driver Name
-	BOOL IsHardware;			// Is Driver Hardware
+	int Width;			// Width in pixel of the display mode.
+	int Height;			// Height in pixel of the display mode.
+	int	Bpp;			// Number of bits per pixel.
+	int RefreshRate;	// Refresh rate in Hertz.
+} VxDisplayMode;
 
-	XArray<VxDisplayMode> DisplayModes;		// Fullscreen display modes supported ( see  VxDisplayMode)
-	XSArray<VxImageDescEx> TextureFormats;		// Texture formats supported by the driver (see VxImageDescEx)
+typedef enum CKRST_RSTFAMILY {
+	CKRST_DIRECTX = 0UL,
+	CKRST_OPENGL = 1UL,
+	CKRST_SOFT = 3UL,
+	CKRST_ALCHEMY = 5UL,
+	CKRST_UNKNOWN = 4UL
+} CKRST_RSTFAMILY;
+typedef struct Vx2DCapsDesc
+{
+	CKRST_RSTFAMILY	Family;						// Precises the type of driver implementation : CKRST_DIRECTX,CKRST_OPENGL,CKRST_SOFT or CKRST_UNKNOWN
+	DWORD 			MaxVideoMemory;				// Maximum video memory (Minus size already allocated for current display) 
+	DWORD 			AvailableVideoMemory;		// Available video memory
+	DWORD			Caps;						// General Caps
+} Vx2DCapsDesc;
 
-	Vx2DCapsDesc Caps2D;		// 2d Capabilities
-	Vx3DCapsDesc Caps3D;		// 3d Capabilities	
+typedef struct Vx3DCapsDesc
+{
+	DWORD	DevCaps;							// Unused
+	DWORD	RenderBpps;							// Supported pixel formats for a 3D device (combination of VxBpps)
+	DWORD	ZBufferBpps;						// Supported pixel format for Zbuffer (combination of VxBpps)
+	DWORD	StencilBpps;						// Supported pixel format for Stencil buffer (combination of VxBpps)
+	DWORD   StencilCaps;						// Stencil Caps CKRST_STENCILCAPS
+	DWORD	MinTextureWidth;					// Min Width allowed for a texture
+	DWORD	MinTextureHeight;					// Min Height allowed for a texture
+	DWORD	MaxTextureWidth;					// Max Width allowed for a texture
+	DWORD	MaxTextureHeight;					// Max Height allowed for a texture
+	DWORD	MaxClipPlanes;						// Max number of clip planes
+	DWORD	VertexCaps;							// Vertex Processing Caps : CKRST_VTXCAPS
+	DWORD	MaxActiveLights;					// Max simulteanous active lights
+	DWORD	MaxNumberBlendStage;				// Max number of blend Stages
+	DWORD	MaxNumberTextureStage;				// Max simulteanous textures
+	DWORD	MaxTextureRatio;					// Max W/H ratio
+
+	DWORD   TextureFilterCaps;					// Texture Filtering Caps CKRST_TFILTERCAPS		
+	DWORD   TextureAddressCaps;					// Texture Addressing Caps CKRST_TADDRESSCAPS
+	DWORD   TextureCaps;						// Texture Caps	CKRST_TEXTURECAPS
+	DWORD	MiscCaps;							// Misc Caps CKRST_MISCCAPS
+	DWORD	AlphaCmpCaps;						// Alpha compare function caps CKRST_CMPCAPS
+	DWORD	ZCmpCaps;							// Z compare function caps	CKRST_CMPCAPS
+	DWORD	RasterCaps;							// Rasterization Caps CKRST_RASTERCAPS
+	DWORD	SrcBlendCaps;						// Source Blend Caps CKRST_BLENDCAPS
+	DWORD	DestBlendCaps;						// Destination Blend Caps CKRST_BLENDCAPS
+	DWORD   CKRasterizerSpecificCaps;			// Specific to CKRasterizers CKRST_SPECIFICCAPS
+	DWORD   MaxIndexedBlendMatrices;			// Number of indexed Matrices	
+	DWORD   MaxVertexCountPerCall;				// Max Number of vertex that can be stored in a vertex buffer	
+} Vx3DCapsDesc;
+
+struct VxImageDescEx {
+	int		Size;				// Size of the structure
+	DWORD	Flags;				// Reserved for special formats (such as compressed ) 0 otherwise
+
+	int		Width;				// Width in pixel of the image
+	int		Height;				// Height in pixel of the image
+	union {
+		int		BytesPerLine;		// Pitch (width in bytes) of the image
+		int		TotalImageSize;		// For compressed image (DXT1...) the total size of the image
+	};
+	int		BitsPerPixel;		// Number of bits per pixel
+	union {
+		DWORD	RedMask;			// Mask for Red component
+		DWORD   BumpDuMask;			// Mask for Bump Du component
+	};
+	union {
+		DWORD	GreenMask;			// Mask for Green component	
+		DWORD	BumpDvMask;			// Mask for Bump Dv component
+	};
+	union {
+		DWORD	BlueMask;			// Mask for Blue component
+		DWORD   BumpLumMask;		// Mask for Luminance component
+
+	};
+	DWORD	AlphaMask;			// Mask for Alpha component
+	union {
+		short	BytesPerColorEntry;	// ColorMap Stride
+		short	Depth;				// Depth for Volume Texture
+	};
+	short	ColorMapEntries;	// If other than 0 image is palletized
+
+	BYTE* ColorMap;			// Palette colors
+	BYTE* Image;				// Image
+
+public:
+	VxImageDescEx()
+	{
+		Size = sizeof(VxImageDescEx);
+		memset((BYTE*)this + 4, 0, Size - 4);
+	}
+
+	void Set(const VxImageDescEx& desc)
+	{
+		Size = sizeof(VxImageDescEx);
+		if (desc.Size < Size) memset((BYTE*)this + 4, 0, Size - 4);
+		if (desc.Size > Size) return;
+		memcpy((BYTE*)this + 4, (BYTE*)&desc + 4, desc.Size - 4);
+	}
+	BOOL HasAlpha() {
+		return ((AlphaMask != 0) || (Flags >= _DXT1));
+	}
+
+
+	int operator == (const VxImageDescEx& desc)
+	{
+		return (Size == desc.Size &&
+			Height == desc.Height && Width == desc.Width &&
+			BitsPerPixel == desc.BitsPerPixel && BytesPerLine == desc.BytesPerLine &&
+			RedMask == desc.RedMask && GreenMask == desc.GreenMask &&
+			BlueMask == desc.BlueMask && AlphaMask == desc.AlphaMask &&
+			BytesPerColorEntry == desc.BytesPerColorEntry && ColorMapEntries == desc.ColorMapEntries);
+	}
+
+	int operator != (const VxImageDescEx& desc)
+	{
+		return (Size != desc.Size ||
+			Height != desc.Height || Width != desc.Width ||
+			BitsPerPixel != desc.BitsPerPixel || BytesPerLine != desc.BytesPerLine ||
+			RedMask != desc.RedMask || GreenMask != desc.GreenMask ||
+			BlueMask != desc.BlueMask || AlphaMask != desc.AlphaMask ||
+			BytesPerColorEntry != desc.BytesPerColorEntry || ColorMapEntries != desc.ColorMapEntries);
+	}
+
 };
-*/
+
 
 /******************************************************
 Summary: Intersection description.
@@ -275,17 +391,7 @@ the point of origin of the ray (in the referential given in CK3dEntity::RayInter
 See Also: CK3dEntity::RayIntersection, CKRenderContext::Pick
 *****************************************************/
 /*
-struct VxIntersectionDesc
-{
-	CK3dEntity* Object;				// Object intersected 
-	CK2dEntity* Sprite;				// Sprite intersected 
-	VxVector	IntersectionPoint;	// Intersection point in local coordinates
-	VxVector	IntersectionNormal; // Normal at the intersection point
-	float		TexU;				// U texture coordinate at intersection point
-	float		TexV;				// V texture coordinate at intersection point
-	float		Distance;			// Distance
-	int			FaceIndex;			// Index of the face intersecting with ray or picking
-};
+
 */
 
 
@@ -551,25 +657,8 @@ o When an effect is enabled on a material (CKMaterial::SetEffect) it may overrid
 o This structure holds a description of an effect to display to the user.
 See also: VX_EFFECT,CKRenderManager::AddEffect,CKRenderManager::GetEffectDescription,CKMaterial::SetEffect,CKMaterial::GetEffect
 ******************************************************************/
-/*
-typedef struct VxEffectDescription {
-	VX_EFFECT				EffectIndex;		// Index of this effect ( when using CKRenderManager::AddEffect the return value is the index of the newly added effect) so this member is ignored.
-	XString					Summary;			// A short name that will be used for enumeration creation (eg. "Bump Map")
-	XString					Description;		// A longer description that will appear in the interface to explain the effect to the user...
-	XString					DescImage;			// A image file that can be use to be displayed in the interface
-	int						MaxTextureCount;	// Number of textures that can be set on the material (CKMaterial::SetTexture)
-	int						NeededTextureCoordsCount;	// Number of texture coordinates that must be set on the mesh  for this effect to work (this is directly related to the number of channel you should set on the mesh that will use this effect)
-	XString					Tex1Description;	// A short description for texture 1
-	XString					Tex2Description;	// A short description for texture 2
-	XString					Tex3Description;	// A short description for texture 3
-	CK_EFFECTCALLBACK		SetCallback;		// A callback function that will be called to setup the effect if NULL the effect is likely to be hardcoded in render engine
-	void*					CallbackArg;		// Arguments that will be given to the callback function	
-	CKGUID					ParameterType;
-	XString					ParameterDescription;
-	XString					ParameterDefaultValue;					
-	VxEffectDescription():CallbackArg(NULL),SetCallback(NULL),MaxTextureCount(0),EffectIndex(VXEFFECT_NONE),ParameterType(0,0) {}
-} VxEffectDescription;
-*/
+
+
 
 
 /******************************************************
@@ -648,7 +737,49 @@ typedef struct CKUICallbackStruct {
 
 /******************************************************************************************************
 *******************************************************************************************************/
+typedef struct CKEnumStruct {
+public:
+	// Summary:Returns the number of enumeration values
+	int GetNumEnums() { return 	NbData; }
+	// Summary:Returns the value of the index th enumeration element
+	int GetEnumValue(int index) { return Vals[index]; }
+	// Summary:Returns the description string of the index th enumeration element.
+	CKSTRING GetEnumDescription(int index) { return Desc[index]; }
+public:
+	int		  NbData;
+	int* Vals;
+	CKSTRING* Desc;
+} CKEnumStruct;
 
+
+typedef struct CKFlagsStruct {
+public:
+	// Summary:Returns the number of flag values
+	int GetNumFlags() { return 	NbData; }
+	// Summary:Returns the value of the index th flag (usually 1,2,4,etc..)
+	int GetFlagValue(int index) { return Vals[index]; }
+	// Summary:Returns the description string of the index th flag
+	CKSTRING GetFlagDescription(int index) { return Desc[index]; }
+public:
+	int			NbData;
+	int* Vals;
+	CKSTRING* Desc;
+} CKFlagsStruct;
+
+
+typedef struct CKStructStruct {
+public:
+	// Summary:Returns the number of sub parameters in the structure
+	int GetNumSubParam() { return 	NbData; }
+	// Summary:Returns the CKGUID of the index th sub parameter in the structure
+	CKGUID& GetSubParamGuid(int index) { return Guids[index]; }
+	// Summary:Returns the description string of the index th sub parameter in the structure
+	CKSTRING GetSubParamDescription(int index) { return Desc[index]; }
+public:
+	int			NbData;
+	CKGUID* Guids;
+	CKSTRING* Desc;
+} CKStructStruct;
 
 
 

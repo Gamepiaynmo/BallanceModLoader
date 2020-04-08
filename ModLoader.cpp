@@ -128,14 +128,24 @@ void ModLoader::Load() {
 }
 
 void ModLoader::Process() {
-	m_timeManager->SetTimeScaleFactor(0.5f);
+	m_timeManager->SetTimeScaleFactor(3.0f);
 
+	/*
 	if (m_context->GetObjectsCountByClassID(CKCID_SPRITE) > 0) {
 		CKSprite* ent = static_cast<CKSprite*>(m_context->GetObject(m_context->GetObjectsListByClassID(CKCID_SPRITE)[0]));
 		auto res = ent->GetSlotCount();
 		res = ent->GetCurrentSlot();
 		m_logger->Info(ent->GetName());
 	}
+
+	CKRenderManager* renderManager = m_context->GetRenderManager();
+
+	renderManager->DrawAABB(renderManager->GetRenderContext(0), VxBbox(10), 0xffffffff);
+
+	int count = renderManager->GetEffectCount();
+	auto desc = renderManager->GetEffectDescription(1);
+	m_logger->Info(desc.Description.Str());
+	*/
 }
 
 void ModLoader::Unload() {

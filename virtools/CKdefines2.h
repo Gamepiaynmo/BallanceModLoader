@@ -15,6 +15,9 @@
 // These flags are only used when saving an Object state not when saving to file
 //***********************************************************//
 
+#define CKOBJID(x)	   (x ? x->GetID() : 0)
+#define CKCHECKID(x) if (!m_Context->GetObject(x))	x = 0;		
+#define CKCHECK(x) if (x && x->IsToBeDeleted())		x = NULL;	
 
 #define CK_STATESAVE_ALL				0xFFFFFFFF			
 
