@@ -132,6 +132,7 @@
       <StructMemberAlignment>Default</StructMemberAlignment>
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <Optimization>MinSpace</Optimization>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -183,6 +184,7 @@
     <ClCompile Include="virtools\CKBeObject.cpp" />
     <ClCompile Include="virtools\CKBitmapData.cpp" />
     <ClCompile Include="virtools\CKCamera.cpp" />
+    <ClCompile Include="virtools\CKCollisionManager.cpp" />
     <ClCompile Include="virtools\CKContext.cpp" />
     <ClCompile Include="virtools\CKDataArray.cpp" />
     <ClCompile Include="virtools\CKGlobals.cpp" />
@@ -243,6 +245,7 @@
     <ClInclude Include="virtools\CKBeObject.h" />
     <ClInclude Include="virtools\CKBitmapData.h" />
     <ClInclude Include="virtools\CKCamera.h" />
+    <ClInclude Include="virtools\CKCollisionManager.h" />
     <ClInclude Include="virtools\CKContext.h" />
     <ClInclude Include="virtools\CKDataArray.h" />
     <ClInclude Include="virtools\CKDef.h" />

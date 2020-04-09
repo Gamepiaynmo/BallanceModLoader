@@ -183,6 +183,9 @@
     <ClCompile Include="virtools\CKRenderContext.cpp">
       <Filter>源文件\virtools</Filter>
     </ClCompile>
+    <ClCompile Include="virtools\CKCollisionManager.cpp">
+      <Filter>源文件\virtools</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BMLAll.h">
@@ -444,6 +447,9 @@
       <Filter>头文件\virtools</Filter>
     </ClInclude>
     <ClInclude Include="virtools\XSmartPtr.h">
+      <Filter>头文件\virtools</Filter>
+    </ClInclude>
+    <ClInclude Include="virtools\CKCollisionManager.h">
       <Filter>头文件\virtools</Filter>
     </ClInclude>
   </ItemGroup>

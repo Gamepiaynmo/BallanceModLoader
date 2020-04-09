@@ -15,6 +15,7 @@
 #include "CKBaseManager.h"
 #include "CKAttributeManager.h"
 #include "CKBehaviorManager.h"
+#include "CKCollisionManager.h"
 #include "CKInputManager.h"
 #include "CKMessageManager.h"
 #include "CKParameterManager.h"
