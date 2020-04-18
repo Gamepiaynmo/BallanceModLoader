@@ -45,9 +45,19 @@ public:
 	virtual CKTimeManager* GetTimeManager() override { return m_timeManager; }
 
 	void OpenModsMenu();
-
 	void OnModifyConfig(IMod* mod, CKSTRING category, CKSTRING key, IProperty* prop) { mod->OnModifyConfig(category, key, prop); }
+
 	virtual void OnStartMenu() override;
+	virtual void OnExitGame() override;
+	virtual void OnLoadLevel() override;
+	virtual void OnStartLevel() override;
+	virtual void OnResetLevel() override;
+	virtual void OnPauseLevel() override;
+	virtual void OnUnpauseLevel() override;
+	virtual void OnExitLevel() override;
+	virtual void OnNextLevel() override;
+	virtual void OnDead() override;
+	virtual void OnEndLevel() override;
 
 private:
 	bool m_inited = false;

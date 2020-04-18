@@ -15,6 +15,7 @@ namespace ScriptHelper {
 	CKBehaviorLink* CreateLink(CKBehavior* script, CKBehaviorIO* in, CKBehaviorIO* out);
 
 	CKBehavior* CreateBB(CKBehavior* script, CKGUID guid, bool target = false);
+	void InsertBB(CKBehavior* script, CKBehaviorLink* link, CKBehavior* beh, int inPos = 0, int outPos = 0);
 	CKParameterLocal* CreateLocalParameter(CKBehavior* script, CKSTRING name, CKGUID type);
 
 	CKBehaviorLink* FindNextLink(CKBehavior* script, CKBehavior* beh, CKSTRING name = nullptr, int inPos = -1, int outPos = -1,

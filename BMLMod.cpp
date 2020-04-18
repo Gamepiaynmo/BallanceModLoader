@@ -15,11 +15,51 @@ void BMLMod::OnLoadScript(CKSTRING filename, CKBehavior* script) {
 void BMLMod::OnEditScript_Base_EventHandler(CKBehavior* script) {
 	CKBehavior* som = FindFirstBB(script, "Switch On Message", false, 2, 11, 11, 0);
 
-	// Add Start Menu Hook
+	GetLogger()->Info("Insert message Start Menu Hook");
 	CreateLink(script, FindEndOfChain(script, FindNextBB(script, som, nullptr, 0, 0)), CreateBB(script, BML_ONSTARTMENU_GUID));
+
+	GetLogger()->Info("Insert message Exit Game Hook");
+	InsertBB(script, FindNextLink(script, FindNextBB(script, som, nullptr, 1, 0)), CreateBB(script, BML_ONEXITGAME_GUID));
+
+	GetLogger()->Info("Insert message Load Level Hook");
+	CreateLink(script, FindEndOfChain(script, FindNextBB(script, som, nullptr, 2, 0)), CreateBB(script, BML_ONLOADLEVEL_GUID));
+
+	GetLogger()->Info("Insert message Start Level Hook");
+	CreateLink(script, FindEndOfChain(script, FindNextBB(script, som, nullptr, 3, 0)), CreateBB(script, BML_ONSTARTLEVEL_GUID));
+
+	GetLogger()->Info("Insert message Reset Level Hook");
+	CreateLink(script, FindEndOfChain(script, FindNextBB(script, som, nullptr, 4, 0)), CreateBB(script, BML_ONRESETLEVEL_GUID));
+
+	GetLogger()->Info("Insert message Pause Level Hook");
+	CreateLink(script, FindEndOfChain(script, FindNextBB(script, som, nullptr, 5, 0)), CreateBB(script, BML_ONPAUSELEVEL_GUID));
+
+	GetLogger()->Info("Insert message Unpause Level Hook");
+	CreateLink(script, FindEndOfChain(script, FindNextBB(script, som, nullptr, 6, 0)), CreateBB(script, BML_ONUNPAUSELEVEL_GUID));
+
+	CKBehavior* bs = FindNextBB(script, FindFirstBB(script, "DeleteCollisionSurfaces"));
+
+	GetLogger()->Info("Insert message Exit Level Hook");
+	CreateLink(script, FindEndOfChain(script, FindNextBB(script, bs, nullptr, 0, 0)), CreateBB(script, BML_ONEXITLEVEL_GUID));
+
+	GetLogger()->Info("Insert message Next Level Hook");
+	CreateLink(script, FindEndOfChain(script, FindNextBB(script, bs, nullptr, 1, 0)), CreateBB(script, BML_ONNEXTLEVEL_GUID));
+
+	GetLogger()->Info("Insert message Dead Hook");
+	CreateLink(script, FindEndOfChain(script, FindNextBB(script, som, nullptr, 9, 0)), CreateBB(script, BML_ONDEAD_GUID));
+
+	CKBehavior* hs = FindFirstBB(script, "Highscore");
+	hs->AddOutput("Out");
+	FindBB(hs, [hs](CKBehavior* beh) {
+		CreateLink(hs, beh, hs->GetOutput(0));
+		return true;
+		}, "Activate Script", false);
+	GetLogger()->Info("Insert message End Level Hook");
+	CreateLink(script, hs, CreateBB(script, BML_ONENDLEVEL_GUID));
 }
 
 void BMLMod::OnEidtScript_Menu_MainMenu(CKBehavior* script) {
+	GetLogger()->Info("Start to insert Mods Button into Main Menu");
+
 	char but_name[] = "M_Main_But_X";
 	CK2dEntity* buttons[6] = { 0 };
 	CKContext* context = m_bml->GetCKContext();
@@ -109,30 +149,44 @@ void BMLMod::OnEidtScript_Menu_MainMenu(CKBehavior* script) {
 	CKBehavior* exit = FindFirstBB(script, "Exit", false, 1, 0);
 	CreateLink(script, graph, modsmenu, 4, 0);
 	CreateLink(script, modsmenu, exit, 0, 0);
+
+	GetLogger()->Info("Mods Button inserted");
 }
 
 void BMLMod::OnLoad() {
-	IProperty* property;
+	GetConfig()->SetCategoryComment("Misc", "Miscellaneous");
+	m_skipAnim = GetConfig()->GetProperty("Misc", "SkipLoadingAnim");
+	m_skipAnim->SetComment("Skip the Loading Animation");
+	m_skipAnim->SetDefaultBoolean(true);
 
-	GetConfig()->SetCategoryComment("test_cate", "Test Cate 1");
-	property = GetConfig()->GetProperty("test_cate", "str_key");
-	property->SetComment("Test String");
-	property->SetDefaultString("Test");
-
-	property = GetConfig()->GetProperty("test_cate", "bool_key");
-	property->SetComment("Test Boolean");
-	property->SetDefaultBoolean(false);
-
-	GetConfig()->SetCategoryComment("cate2", "Test Cate 2");
-	property = GetConfig()->GetProperty("cate2", "float_key");
-	property->SetComment("Floatttttttttt");
-	property->SetDefaultFloat(100);
-
-	property = GetConfig()->GetProperty("cate2", "int_key");
-	property->SetComment("Integerrrrrrrrrr");
-	property->SetDefaultInteger(200);
+	m_skipSpeed = m_skipAnim->GetBoolean();
+	if (m_skipSpeed)
+		GetLogger()->Info("Speed up to skip Loading Animation");
 }
 
 void BMLMod::OnProcess() {
-	m_bml->GetTimeManager()->SetTimeScaleFactor(10.0f);
+	if (m_skipSpeed)
+		m_bml->GetTimeManager()->SetTimeScaleFactor(100.0f);
+}
+
+void BMLMod::OnStartMenu() {
+	if (m_skipSpeed) {
+		m_skipSpeed = false;
+		m_bml->GetTimeManager()->SetTimeScaleFactor(1.0f);
+		GetLogger()->Info("Loading Animation ended, stop speeding up");
+
+		// Fix Ball Pieces
+		CKContext* context = m_bml->GetCKContext();
+		CKScene* scene = context->GetCurrentScene();
+		static_cast<CKBehavior*>(context->GetObjectByNameAndClass("Balls_Init", CKCID_BEHAVIOR))->Activate();
+		for (CKSTRING group_name : { "Ball_Paper_Pieces", "Ball_Stone_Pieces", "Ball_Wood_Pieces" }) {
+			CKGroup* group = static_cast<CKGroup*>(context->GetObjectByNameAndClass(group_name, CKCID_GROUP));
+			int cnt = group->GetObjectCount();
+			for (int i = 0; i < cnt; i++) {
+				CKBeObject* obj = group->GetObject(i);
+				CKStateChunk* chunk = scene->GetObjectInitialValue(obj);
+				if (chunk) CKReadObjectState(obj, chunk);
+			}
+		}
+	}
 }

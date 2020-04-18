@@ -14,11 +14,14 @@ public:
 	virtual CKSTRING GetDescription() override { return "Implementation of functions provided by Ballance Mod Loader."; }
 
 	virtual void OnLoad() override;
-
 	virtual void OnLoadScript(CKSTRING filename, CKBehavior* script) override;
 	virtual void OnProcess() override;
+	virtual void OnStartMenu() override;
 
 private:
 	void OnEditScript_Base_EventHandler(CKBehavior* script);
 	void OnEidtScript_Menu_MainMenu(CKBehavior* script);
+
+	IProperty* m_skipAnim;
+	bool m_skipSpeed = false;
 };

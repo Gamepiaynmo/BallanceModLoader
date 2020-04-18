@@ -22,4 +22,14 @@ public:
 	virtual CKTimeManager* GetTimeManager() = 0;
 
 	virtual void OnStartMenu() = 0;
+	virtual void OnExitGame() = 0;
+	virtual void OnLoadLevel() = 0;
+	virtual void OnStartLevel() = 0;
+	virtual void OnResetLevel() = 0;
+	virtual void OnPauseLevel() = 0;
+	virtual void OnUnpauseLevel() = 0;
+	virtual void OnExitLevel() = 0;
+	virtual void OnNextLevel() = 0;
+	virtual void OnDead() = 0;
+	virtual void OnEndLevel() = 0;
 };

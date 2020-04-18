@@ -59,6 +59,11 @@ namespace ScriptHelper {
 		return beh;
 	}
 
+	void InsertBB(CKBehavior* script, CKBehaviorLink* link, CKBehavior* beh, int inPos, int outPos) {
+		CreateLink(script, beh, link->GetOutBehaviorIO(), outPos);
+		link->SetOutBehaviorIO(beh->GetInput(inPos));
+	}
+
 	CKParameterLocal* CreateLocalParameter(CKBehavior* script, CKSTRING name, CKGUID type) {
 		return script->CreateLocalParameter(name, type);
 	}

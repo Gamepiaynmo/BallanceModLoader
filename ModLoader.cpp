@@ -247,3 +247,63 @@ void ModLoader::OnStartMenu() {
 	for (IMod* mod : m_instance->m_mods)
 		mod->OnStartMenu();
 }
+
+void ModLoader::OnExitGame() {
+	m_logger->Info("On message Exit Game");
+	for (IMod* mod : m_instance->m_mods)
+		mod->OnExitGame();
+}
+
+void ModLoader::OnLoadLevel() {
+	m_logger->Info("On message Load Level");
+	for (IMod* mod : m_instance->m_mods)
+		mod->OnLoadLevel();
+}
+
+void ModLoader::OnStartLevel() {
+	m_logger->Info("On message Start Level");
+	for (IMod* mod : m_instance->m_mods)
+		mod->OnStartLevel();
+}
+
+void ModLoader::OnResetLevel() {
+	m_logger->Info("On message Reset Level");
+	for (IMod* mod : m_instance->m_mods)
+		mod->OnResetLevel();
+}
+
+void ModLoader::OnPauseLevel() {
+	m_logger->Info("On message Pause Level");
+	for (IMod* mod : m_instance->m_mods)
+		mod->OnPauseLevel();
+}
+
+void ModLoader::OnUnpauseLevel() {
+	m_logger->Info("On message Unpause Level");
+	for (IMod* mod : m_instance->m_mods)
+		mod->OnUnpauseLevel();
+}
+
+void ModLoader::OnExitLevel() {
+	m_logger->Info("On message Exit Level");
+	for (IMod* mod : m_instance->m_mods)
+		mod->OnExitLevel();
+}
+
+void ModLoader::OnNextLevel() {
+	m_logger->Info("On message Next Level");
+	for (IMod* mod : m_instance->m_mods)
+		mod->OnNextLevel();
+}
+
+void ModLoader::OnDead() {
+	m_logger->Info("On message Dead");
+	for (IMod* mod : m_instance->m_mods)
+		mod->OnDead();
+}
+
+void ModLoader::OnEndLevel() {
+	m_logger->Info("On message End Level");
+	for (IMod* mod : m_instance->m_mods)
+		mod->OnEndLevel();
+}

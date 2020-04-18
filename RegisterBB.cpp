@@ -203,6 +203,87 @@ void RegisterBBs(XObjectDeclarationArray* reg) {
 			return false;
 		})->Build());
 	CKStoreDeclaration(reg, (new HookBuilder())
+		->SetName("BML OnExitGame")
+		->SetDescription("BML Hook on Message Exit Game.")
+		->SetGuid(BML_ONEXITGAME_GUID)
+		->SetProcessFunction([](HookParams* params) {
+			ModLoader::m_instance->OnExitGame();
+			return false;
+			})->Build());
+	CKStoreDeclaration(reg, (new HookBuilder())
+		->SetName("BML OnLoadLevel")
+		->SetDescription("BML Hook on Message Load Level.")
+		->SetGuid(BML_ONLOADLEVEL_GUID)
+		->SetProcessFunction([](HookParams* params) {
+			ModLoader::m_instance->OnLoadLevel();
+			return false;
+			})->Build());
+	CKStoreDeclaration(reg, (new HookBuilder())
+		->SetName("BML OnStartLevel")
+		->SetDescription("BML Hook on Message Start Level.")
+		->SetGuid(BML_ONSTARTLEVEL_GUID)
+		->SetProcessFunction([](HookParams* params) {
+			ModLoader::m_instance->OnStartLevel();
+			return false;
+			})->Build());
+	CKStoreDeclaration(reg, (new HookBuilder())
+		->SetName("BML OnResetLevel")
+		->SetDescription("BML Hook on Message Reset Level.")
+		->SetGuid(BML_ONRESETLEVEL_GUID)
+		->SetProcessFunction([](HookParams* params) {
+			ModLoader::m_instance->OnResetLevel();
+			return false;
+			})->Build());
+	CKStoreDeclaration(reg, (new HookBuilder())
+		->SetName("BML OnPauseLevel")
+		->SetDescription("BML Hook on Message Pause Level.")
+		->SetGuid(BML_ONPAUSELEVEL_GUID)
+		->SetProcessFunction([](HookParams* params) {
+			ModLoader::m_instance->OnPauseLevel();
+			return false;
+			})->Build());
+	CKStoreDeclaration(reg, (new HookBuilder())
+		->SetName("BML OnUnpauseLevel")
+		->SetDescription("BML Hook on Message Unpause Level.")
+		->SetGuid(BML_ONUNPAUSELEVEL_GUID)
+		->SetProcessFunction([](HookParams* params) {
+			ModLoader::m_instance->OnUnpauseLevel();
+			return false;
+			})->Build());
+	CKStoreDeclaration(reg, (new HookBuilder())
+		->SetName("BML OnExitLevel")
+		->SetDescription("BML Hook on Message Exit Level.")
+		->SetGuid(BML_ONEXITLEVEL_GUID)
+		->SetProcessFunction([](HookParams* params) {
+			ModLoader::m_instance->OnExitLevel();
+			return false;
+			})->Build());
+	CKStoreDeclaration(reg, (new HookBuilder())
+		->SetName("BML OnNextLevel")
+		->SetDescription("BML Hook on Message Next Level.")
+		->SetGuid(BML_ONNEXTLEVEL_GUID)
+		->SetProcessFunction([](HookParams* params) {
+			ModLoader::m_instance->OnNextLevel();
+			return false;
+			})->Build());
+	CKStoreDeclaration(reg, (new HookBuilder())
+		->SetName("BML OnDead")
+		->SetDescription("BML Hook on Message Dead.")
+		->SetGuid(BML_ONDEAD_GUID)
+		->SetProcessFunction([](HookParams* params) {
+			ModLoader::m_instance->OnDead();
+			return false;
+			})->Build());
+	CKStoreDeclaration(reg, (new HookBuilder())
+		->SetName("BML OnEndLevel")
+		->SetDescription("BML Hook on Message End Level.")
+		->SetGuid(BML_ONENDLEVEL_GUID)
+		->SetProcessFunction([](HookParams* params) {
+			ModLoader::m_instance->OnEndLevel();
+			return false;
+			})->Build());
+
+	CKStoreDeclaration(reg, (new HookBuilder())
 		->SetName("BML ModsMenu")
 		->SetDescription("Show BML Mods Menu.")
 		->SetGuid(BML_MODSMENU_GUID)

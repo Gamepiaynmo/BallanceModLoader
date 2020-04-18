@@ -28,6 +28,16 @@ public:
 	virtual void OnRender(CK_RENDER_FLAGS flags) {};
 
 	virtual void OnStartMenu() {};
+	virtual void OnExitGame() {};
+	virtual void OnLoadLevel() {};
+	virtual void OnStartLevel() {};
+	virtual void OnResetLevel() {};
+	virtual void OnPauseLevel() {};
+	virtual void OnUnpauseLevel() {};
+	virtual void OnExitLevel() {};
+	virtual void OnNextLevel() {};
+	virtual void OnDead() {};
+	virtual void OnEndLevel() {};
 
 protected:
 	virtual ILogger* GetLogger() final;
