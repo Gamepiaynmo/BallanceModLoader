@@ -10,6 +10,7 @@ public:
 	void Activate(CKBOOL Active = TRUE);
 	CKBOOL IsActive();
 	CKBehavior* GetOwner();
+	XSObjectPointerArray* GetLinks();
 
 protected:
 	CKBehaviorIO() {};

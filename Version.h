@@ -1,7 +1,7 @@
 #pragma once
 
 #define BML_MAJOR_VER 0
-#define BML_MINOR_VER 0
+#define BML_MINOR_VER 1
 #include "BuildVer.h"
 #define TOSTRING2(arg) #arg
 #define TOSTRING(arg) TOSTRING2(arg)

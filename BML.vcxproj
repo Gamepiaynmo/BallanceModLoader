@@ -71,15 +71,15 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LinkIncremental>true</LinkIncremental>
-    <OutDir>D:\Program Files (x86)\Ballance\Plugins\</OutDir>
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>D:\Program Files (x86)\Ballance\BuildingBlocks\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>D:\Program Files (x86)\Ballance\Plugins\</OutDir>
+    <OutDir>D:\Program Files (x86)\Ballance\BuildingBlocks\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
@@ -88,12 +88,14 @@
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
-      <SDLCheck>false</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;BML_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <StructMemberAlignment>Default</StructMemberAlignment>
-      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <SupportJustMyCode>false</SupportJustMyCode>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -125,20 +127,19 @@
       <WarningLevel>Level3</WarningLevel>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <SDLCheck>false</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;BML_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <StructMemberAlignment>Default</StructMemberAlignment>
-      <BufferSecurityCheck>true</BufferSecurityCheck>
       <Optimization>MinSpace</Optimization>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
     </Link>
     <PreBuildEvent>
@@ -165,14 +166,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="BMLMod.cpp" />
+    <ClCompile Include="Config.cpp" />
     <ClCompile Include="dllmain.cpp" />
-    <ClCompile Include="IBML.cpp" />
+    <ClCompile Include="IMod.cpp" />
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="minhook\buffer.c" />
     <ClCompile Include="minhook\hde\hde32.c" />
     <ClCompile Include="minhook\hook.c" />
     <ClCompile Include="minhook\trampoline.c" />
     <ClCompile Include="ModLoader.cpp" />
+    <ClCompile Include="RegisterBB.cpp" />
+    <ClCompile Include="ScriptHelper.cpp" />
     <ClCompile Include="virtools\CK2dEntity.cpp" />
     <ClCompile Include="virtools\CK3dEntity.cpp" />
     <ClCompile Include="virtools\CKAttributeManager.cpp" />
@@ -221,9 +226,14 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BMLAll.h" />
+    <ClInclude Include="BMLMod.h" />
     <ClInclude Include="BuildVer.h" />
+    <ClInclude Include="Config.h" />
     <ClInclude Include="Export.h" />
     <ClInclude Include="IBML.h" />
+    <ClInclude Include="IConfig.h" />
+    <ClInclude Include="ILogger.h" />
+    <ClInclude Include="IMod.h" />
     <ClInclude Include="Logger.h" />
     <ClInclude Include="minhook\buffer.h" />
     <ClInclude Include="minhook\hde\hde32.h" />
@@ -232,7 +242,9 @@
     <ClInclude Include="minhook\MinHook.h" />
     <ClInclude Include="minhook\trampoline.h" />
     <ClInclude Include="ModLoader.h" />
+    <ClInclude Include="RegisterBB.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="ScriptHelper.h" />
     <ClInclude Include="Version.h" />
     <ClInclude Include="virtools\CK2dEntity.h" />
     <ClInclude Include="virtools\CK3dEntity.h" />

@@ -38,6 +38,8 @@
 	__asm mov eax, [ecx] \
 	__asm mov eax, [eax + OFFSET] \
 	__asm jmp eax
+#define GETVADDR(OBJ, OFFSET) \
+	(*reinterpret_cast<CKDWORD*>(*reinterpret_cast<BYTE*>(OBJ) + OFFSET))
 
 #define GET_MEMPTR(OFFSET, TYPE) \
 	reinterpret_cast<TYPE*>(reinterpret_cast<BYTE*>(this) + OFFSET)

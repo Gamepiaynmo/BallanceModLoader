@@ -9,19 +9,19 @@ NAKED int CKBehaviorPrototype::DeclareOutput(CKSTRING name) {
 }
 
 NAKED int CKBehaviorPrototype::DeclareInParameter(CKSTRING name, CKGUID guid_type, CKSTRING defaultval) {
-	JUMPV(0x0c);
-}
-
-NAKED int CKBehaviorPrototype::DeclareInParameter(CKSTRING name, CKGUID guid_type, void* defaultval, int valsize) {
 	JUMPV(0x08);
 }
 
+NAKED int CKBehaviorPrototype::DeclareInParameter(CKSTRING name, CKGUID guid_type, void* defaultval, int valsize) {
+	JUMPV(0x0c);
+}
+
 NAKED int CKBehaviorPrototype::DeclareOutParameter(CKSTRING name, CKGUID guid_type, CKSTRING defaultval) {
-	JUMPV(0x14);
+	JUMPV(0x10);
 }
 
 NAKED int CKBehaviorPrototype::DeclareOutParameter(CKSTRING name, CKGUID guid_type, void* defaultval, int valsize) {
-	JUMPV(0x10);
+	JUMPV(0x14);
 }
 
 NAKED int CKBehaviorPrototype::DeclareLocalParameter(CKSTRING name, CKGUID guid_type, CKSTRING defaultval) {

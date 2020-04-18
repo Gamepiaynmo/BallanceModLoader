@@ -45,7 +45,7 @@ typedef unsigned int CK_ID;
 //----------------------------------------------------------////
 
 
-typedef char* CKSTRING;			
+typedef const char* CKSTRING;
 typedef char CKCHAR;			
 typedef unsigned short* CKUSTRING;	
 typedef unsigned short CKUCHAR;		

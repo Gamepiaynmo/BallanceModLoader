@@ -1307,6 +1307,7 @@ typedef enum CK_PLUGIN_TYPE {
 //		Preregistred parameter types						////
 //----------------------------------------------------------////
 
+#define CKDEFINEGUID(x,y) CKGUID(x,y)
 
 #define CKPGUID_NONE			CKDEFINEGUID(0x1cb10760,0x419f50c5)
 

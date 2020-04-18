@@ -124,6 +124,7 @@ Arguments:
 See Also:Main Steps of Building Block Creation
 *************************************************/
 #define RegisterBehavior(reg,fct) CKObjectDeclaration *fct(); CKStoreDeclaration(reg,fct());
+typedef XArray<CKObjectDeclaration*> XObjectDeclarationArray;
 
 //----------------------------------------------------------
 // Class Hierarchy Management
@@ -263,6 +264,55 @@ void CKRemapObjectParameterValue(CKContext *ckContext,CK_ID oldID,CK_ID newID,CK
 
 typedef XArray<CKObjectDeclaration*> XObjectDeclarationArray;
 void CKStoreDeclaration(XObjectDeclarationArray* reg,CKObjectDeclaration *a);
+
+typedef CKERROR(*CK_INITINSTANCEFCT)	(CKContext* context);
+typedef CK_INITINSTANCEFCT CK_EXITINSTANCEFCT;
+struct CKFileExtension
+{
+	// Ctor
+	CKFileExtension() { memset(m_Data, 0, 4); }
+	CKFileExtension(const char* s) {
+		if (!s) m_Data[0] = 0;
+		else {
+			if (s[0] == '.')
+				s = &s[1];
+			int len = strlen(s);
+			if (len > 3) len = 3;
+			memcpy(m_Data, s, len);
+			m_Data[len] = '\0';
+		}
+	}
+
+	int operator==(const CKFileExtension& s) {
+		return !_strcmpi(m_Data, s.m_Data);
+	}
+
+	operator char* () { return m_Data; }
+	operator const char* () { return m_Data; }
+
+	// Members secret
+	char m_Data[4];
+};
+struct CKPluginInfo {
+	CKGUID				m_GUID;
+	CKFileExtension		m_Extension;
+	XString				m_Description;
+	XString				m_Author;
+	XString				m_Summary;
+	DWORD				m_Version;
+	CK_INITINSTANCEFCT	m_InitInstanceFct;
+	CK_PLUGIN_TYPE		m_Type;
+	CK_EXITINSTANCEFCT	m_ExitInstanceFct;
+
+	CKPluginInfo() {
+		m_InitInstanceFct = NULL;
+		m_ExitInstanceFct = NULL;
+	}
+
+	CKPluginInfo(CKGUID guid, CKFileExtension ext, const char* iDesc, const char* iAuthor, const char* iSummary, DWORD version, CK_INITINSTANCEFCT Initfct, CK_EXITINSTANCEFCT Exitfct, CK_PLUGIN_TYPE type)
+		:m_GUID(guid), m_Extension(ext), m_Description(iDesc), m_Author(iAuthor), m_Summary(iSummary), m_Version(version), m_InitInstanceFct(Initfct), m_ExitInstanceFct(Exitfct), m_Type(type) {
+	}
+};
 
 //-------- CKClass Registration 
 #define CKCLASSNOTIFYFROM(cls1,cls2) CKClassNeedNotificationFrom(cls1::m_ClassID,cls2::m_ClassID)

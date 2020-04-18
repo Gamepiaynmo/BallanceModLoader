@@ -23,6 +23,10 @@ CKBehavior* CKBehaviorIO::GetOwner() {
 	RETURN_MEM(0x1c, CKBehavior*);
 }
 
+XSObjectPointerArray* CKBehaviorIO::GetLinks() {
+	RETURN_MEMPTR(0x14, XSObjectPointerArray);
+}
+
 
 NAKED CKERROR CKBehaviorLink::SetOutBehaviorIO(CKBehaviorIO* ckbioin) {
 	JUMP(0x24006BDA);
@@ -33,11 +37,11 @@ NAKED CKERROR CKBehaviorLink::SetInBehaviorIO(CKBehaviorIO* ckbioout) {
 }
 
 CKBehaviorIO* CKBehaviorLink::GetOutBehaviorIO() {
-	RETURN_MEM(0x1c, CKBehaviorIO*);
+	RETURN_MEM(0x20, CKBehaviorIO*);
 }
 
 CKBehaviorIO* CKBehaviorLink::GetInBehaviorIO() {
-	RETURN_MEM(0x18, CKBehaviorIO*);
+	RETURN_MEM(0x1c, CKBehaviorIO*);
 }
 
 int CKBehaviorLink::GetActivationDelay() {
@@ -49,13 +53,13 @@ void CKBehaviorLink::SetActivationDelay(int delay) {
 }
 
 void CKBehaviorLink::ResetActivationDelay() {
-	SET_MEM(0x14, short, GET_MEM(0x16, short));
+	SET_MEM(0x14, short, GET_MEM(0x18, short));
 }
 
 void CKBehaviorLink::SetInitialActivationDelay(int delay) {
-	SET_MEM(0x16, short, delay);
+	SET_MEM(0x18, short, delay);
 }
 
 int CKBehaviorLink::GetInitialActivationDelay() {
-	RETURN_MEM(0x16, short);
+	RETURN_MEM(0x18, short);
 }

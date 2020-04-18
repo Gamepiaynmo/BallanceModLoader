@@ -25,17 +25,14 @@
     <Filter Include="源文件\virtools">
       <UniqueIdentifier>{6c938c17-6abb-4594-9304-15e8c6cce07b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="头文件\implement">
+      <UniqueIdentifier>{70779d1e-c1f2-4388-b93f-4ee7c1caf1b4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\implement">
+      <UniqueIdentifier>{4d5a42d9-1fc3-4d80-98b1-8bf5786674d7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="dllmain.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="IBML.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="ModLoader.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="minhook\hde\hde32.c">
       <Filter>源文件\minhook</Filter>
     </ClCompile>
@@ -47,9 +44,6 @@
     </ClCompile>
     <ClCompile Include="minhook\trampoline.c">
       <Filter>源文件\minhook</Filter>
-    </ClCompile>
-    <ClCompile Include="Logger.cpp">
-      <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="virtools\CKBaseManager.cpp">
       <Filter>源文件\virtools</Filter>
@@ -186,15 +180,36 @@
     <ClCompile Include="virtools\CKCollisionManager.cpp">
       <Filter>源文件\virtools</Filter>
     </ClCompile>
+    <ClCompile Include="ModLoader.cpp">
+      <Filter>源文件\implement</Filter>
+    </ClCompile>
+    <ClCompile Include="Logger.cpp">
+      <Filter>源文件\implement</Filter>
+    </ClCompile>
+    <ClCompile Include="dllmain.cpp">
+      <Filter>源文件\implement</Filter>
+    </ClCompile>
+    <ClCompile Include="ScriptHelper.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="BMLMod.cpp">
+      <Filter>源文件\implement</Filter>
+    </ClCompile>
+    <ClCompile Include="IMod.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Config.cpp">
+      <Filter>源文件\implement</Filter>
+    </ClCompile>
+    <ClCompile Include="RegisterBB.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BMLAll.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="IBML.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="ModLoader.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="minhook\buffer.h">
@@ -216,9 +231,6 @@
       <Filter>头文件\minhook</Filter>
     </ClInclude>
     <ClInclude Include="Export.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Logger.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="BuildVer.h">
@@ -244,9 +256,6 @@
     </ClInclude>
     <ClInclude Include="virtools\CKAll.h">
       <Filter>头文件\virtools</Filter>
-    </ClInclude>
-    <ClInclude Include="resource.h">
-      <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Version.h">
       <Filter>头文件</Filter>
@@ -451,6 +460,36 @@
     </ClInclude>
     <ClInclude Include="virtools\CKCollisionManager.h">
       <Filter>头文件\virtools</Filter>
+    </ClInclude>
+    <ClInclude Include="ModLoader.h">
+      <Filter>头文件\implement</Filter>
+    </ClInclude>
+    <ClInclude Include="Logger.h">
+      <Filter>头文件\implement</Filter>
+    </ClInclude>
+    <ClInclude Include="ILogger.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>头文件\implement</Filter>
+    </ClInclude>
+    <ClInclude Include="ScriptHelper.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="IMod.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="BMLMod.h">
+      <Filter>头文件\implement</Filter>
+    </ClInclude>
+    <ClInclude Include="IConfig.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Config.h">
+      <Filter>头文件\implement</Filter>
+    </ClInclude>
+    <ClInclude Include="RegisterBB.h">
+      <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
