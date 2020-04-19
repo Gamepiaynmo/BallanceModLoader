@@ -1,6 +1,8 @@
 #include "BMLMod.h"
 #include "ScriptHelper.h"
 #include "RegisterBB.h"
+#include "ExecuteBB.h"
+#include <map>
 
 using namespace ScriptHelper;
 
@@ -8,8 +10,11 @@ void BMLMod::OnLoadScript(CKSTRING filename, CKBehavior* script) {
 	if (!strcmp(script->GetName(), "Event_handler"))
 		OnEditScript_Base_EventHandler(script);
 
+	if (!strcmp(script->GetName(), "Menu_Init"))
+		OnEditScript_Menu_MenuInit(script);
+
 	if (!strcmp(script->GetName(), "Menu_Main"))
-		OnEidtScript_Menu_MainMenu(script);
+		OnEditScript_Menu_MainMenu(script);
 }
 
 void BMLMod::OnEditScript_Base_EventHandler(CKBehavior* script) {
@@ -57,7 +62,38 @@ void BMLMod::OnEditScript_Base_EventHandler(CKBehavior* script) {
 	CreateLink(script, hs, CreateBB(script, BML_ONENDLEVEL_GUID));
 }
 
-void BMLMod::OnEidtScript_Menu_MainMenu(CKBehavior* script) {
+void BMLMod::OnEditScript_Menu_MenuInit(CKBehavior* script) {
+	m_bml->AddTimer(1u, [this]() {
+		CKBehavior* script = static_cast<CKBehavior*>(m_bml->GetCKContext()->GetObjectByNameAndClass("Menu_Init", CKCID_BEHAVIOR));
+		CKBehavior* fonts = FindFirstBB(script, "Fonts", false);
+		CKBehavior* bbs[7] = { 0 };
+		int cnt = 0;
+		FindBB(fonts, [&bbs, &cnt](CKBehavior* beh) {
+			bbs[cnt++] = beh;
+			return true;
+			}, "TT CreateFontEx", false);
+
+		std::map<std::string, ExecuteBB::FontType> fontid;
+		fontid["GameFont_01"] = ExecuteBB::GAMEFONT_01;
+		fontid["GameFont_02"] = ExecuteBB::GAMEFONT_02;
+		fontid["GameFont_03"] = ExecuteBB::GAMEFONT_03;
+		fontid["GameFont_03a"] = ExecuteBB::GAMEFONT_03A;
+		fontid["GameFont_04"] = ExecuteBB::GAMEFONT_04;
+		fontid["GameFont_Credits_Small"] = ExecuteBB::GAMEFONT_CREDITS_SMALL;
+		fontid["GameFont_Credits_Big"] = ExecuteBB::GAMEFONT_CREDITS_BIG;
+
+		for (int i = 0; i < 7; i++) {
+			int font;
+			bbs[i]->GetOutputParameterValue(0, &font);
+			ExecuteBB::InitFont(fontid[static_cast<CKSTRING>(bbs[i]->GetInputParameterReadDataPtr(0))], font);
+		}
+
+		m_cmd2dText = ExecuteBB::Create2DText(m_cmdBar, ExecuteBB::GAMEFONT_CREDITS_BIG, "/Command", 1, { 2, 5, 2, 2 });
+
+		});
+}
+
+void BMLMod::OnEditScript_Menu_MainMenu(CKBehavior* script) {
 	GetLogger()->Info("Start to insert Mods Button into Main Menu");
 
 	char but_name[] = "M_Main_But_X";
@@ -113,7 +149,7 @@ void BMLMod::OnEidtScript_Menu_MainMenu(CKBehavior* script) {
 	up_ps->CreateInputParameter("pIn 5", CKPGUID_INT)->SetDirectSource(pin); up_ps->AddInput("In 5");
 	down_ps->CreateInputParameter("pIn 5", CKPGUID_INT)->SetDirectSource(pin); down_ps->AddInput("In 5");
 
-	CKBehavior* text2d = CreateBB(graph, CKGUID(0x55b29fe, 0x662d5ca0), true);
+	CKBehavior* text2d = CreateBB(graph, VT_TEXT2D, true);
 	CKBehavior* pushbutton = CreateBB(graph, TT_PUSHBUTTON2, true);
 	CKBehavior* text2dref = FindFirstBB(graph, "2D Text");
 	CKBehavior* nop = FindFirstBB(graph, "Nop");
@@ -149,6 +185,17 @@ void BMLMod::OnEidtScript_Menu_MainMenu(CKBehavior* script) {
 	CKBehavior* exit = FindFirstBB(script, "Exit", false, 1, 0);
 	CreateLink(script, graph, modsmenu, 4, 0);
 	CreateLink(script, modsmenu, exit, 0, 0);
+	CKBehavior* keyboard = FindFirstBB(graph, "Keyboard");
+	FindBB(keyboard, [keyboard](CKBehavior* beh) {
+		int key;
+		beh->GetInputParameterValue(0, &key);
+		if (key == CKKEY_ESCAPE) {
+			key = 5;
+			FindNextBB(keyboard, beh)->GetInputParameter(0)->GetDirectSource()->SetValue(&key, sizeof(key));
+			return false;
+		}
+		return true;
+		}, "Secure Key", false);
 
 	GetLogger()->Info("Mods Button inserted");
 }
@@ -162,11 +209,35 @@ void BMLMod::OnLoad() {
 	m_skipSpeed = m_skipAnim->GetBoolean();
 	if (m_skipSpeed)
 		GetLogger()->Info("Speed up to skip Loading Animation");
+
+	m_cmdBg = static_cast<CKMaterial*>(m_bml->GetCKContext()->CreateObject(CKCID_MATERIAL, "M_Command_Bg"));
+	m_bml->GetCKContext()->GetCurrentLevel()->AddObject(m_cmdBg);
+	m_cmdBg->EnableAlphaBlend();
+	m_cmdBg->SetSourceBlend(VXBLEND_SRCALPHA);
+	m_cmdBg->SetDestBlend(VXBLEND_INVSRCALPHA);
+	m_cmdBg->SetDiffuse(VxColor(0, 0, 0, 100));
+
+	m_cmdBar = static_cast<CK2dEntity*>(m_bml->GetCKContext()->CreateObject(CKCID_2DENTITY, "M_Command_Bar"));
+	m_bml->GetCKContext()->GetCurrentLevel()->AddObject(m_cmdBar);
+	m_cmdBar->SetMaterial(m_cmdBg);
+	m_cmdBar->SetHomogeneousCoordinates();
+	m_cmdBar->SetPosition(Vx2DVector(0.02f, 0.94f), true);
+	m_cmdBar->SetSize(Vx2DVector(0.95f, 0.025f), true);
 }
 
 void BMLMod::OnProcess() {
 	if (m_skipSpeed)
 		m_bml->GetTimeManager()->SetTimeScaleFactor(100.0f);
+
+	bool slashDown = m_bml->GetInputManager()->IsKeyDown(CKKEY_SLASH);
+	if (slashDown && !m_slashDown)
+		m_cmdTyping = !m_cmdTyping;
+	m_slashDown = slashDown;
+
+	if (m_cmd2dText && m_cmdTyping) {
+		m_cmd2dText->ActivateInput(0);
+		m_cmd2dText->Execute(0);
+	}
 }
 
 void BMLMod::OnStartMenu() {
@@ -178,7 +249,6 @@ void BMLMod::OnStartMenu() {
 		// Fix Ball Pieces
 		CKContext* context = m_bml->GetCKContext();
 		CKScene* scene = context->GetCurrentScene();
-		static_cast<CKBehavior*>(context->GetObjectByNameAndClass("Balls_Init", CKCID_BEHAVIOR))->Activate();
 		for (CKSTRING group_name : { "Ball_Paper_Pieces", "Ball_Stone_Pieces", "Ball_Wood_Pieces" }) {
 			CKGroup* group = static_cast<CKGroup*>(context->GetObjectByNameAndClass(group_name, CKCID_GROUP));
 			int cnt = group->GetObjectCount();

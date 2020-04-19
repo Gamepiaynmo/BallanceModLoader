@@ -22,3 +22,5 @@ void RegisterBBs(XObjectDeclarationArray* reg);
 #define BML_MODSMENU_GUID CKGUID(0x6ac12ce,0x52dc6e9d)
 
 #define TT_PUSHBUTTON2 CKGUID(0x14d325d1, 0x6748654e)
+
+#define VT_TEXT2D CKGUID(0x55b29fe,0x662d5ca0)

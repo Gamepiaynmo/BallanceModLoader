@@ -42,6 +42,6 @@ public:
 	CKERROR Merge(CKLevel* mergedLevel, CKBOOL asScene);
 
 protected:
-	CKLevel();
-	~CKLevel();
+	CKLevel() {};
+	~CKLevel() {};
 };

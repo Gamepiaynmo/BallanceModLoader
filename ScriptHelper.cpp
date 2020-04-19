@@ -45,8 +45,8 @@ namespace ScriptHelper {
 
 	CKBehaviorLink* CreateLink(CKBehavior* script, CKBehaviorIO* in, CKBehaviorIO* out) {
 		CKBehaviorLink* link = static_cast<CKBehaviorLink*>(script->GetCKContext()->CreateObject(CKCID_BEHAVIORLINK));
-		link->SetInBehaviorIO(in);
-		link->SetOutBehaviorIO(out);
+		auto res = link->SetInBehaviorIO(in);
+		res = link->SetOutBehaviorIO(out);
 		script->AddSubBehaviorLink(link);
 		return link;
 	}
@@ -66,6 +66,25 @@ namespace ScriptHelper {
 
 	CKParameterLocal* CreateLocalParameter(CKBehavior* script, CKSTRING name, CKGUID type) {
 		return script->CreateLocalParameter(name, type);
+	}
+
+	CKParameter* CreateParamObject(CKBehavior* script, CKGUID guid, CKSTRING name, CKObject* value) {
+		return CreateParamValue<CK_ID>(script, guid, name, CKOBJID(value));
+	}
+
+	CKParameter* CreateParamString(CKBehavior* script, CKSTRING name, CKSTRING value) {
+		CKParameter* param = CreateLocalParameter(script, name, CKPGUID_STRING);
+		param->SetStringValue(value);
+		return param;
+	}
+
+	void SetParamObject(CKParameter* param, CKObject* value) {
+		CK_ID obj = CKOBJID(value);
+		SetParamValue(param, obj);
+	}
+
+	void SetParamString(CKParameter* param, CKSTRING value) {
+		param->SetStringValue(value);
 	}
 
 	CKBehaviorLink* FindNextLink(CKBehavior* script, CKBehavior* beh, CKSTRING name, int inPos, int outPos,

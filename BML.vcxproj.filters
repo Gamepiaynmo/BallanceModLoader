@@ -204,6 +204,12 @@
     <ClCompile Include="RegisterBB.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="Timer.cpp">
+      <Filter>源文件\implement</Filter>
+    </ClCompile>
+    <ClCompile Include="ExecuteBB.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BMLAll.h">
@@ -489,6 +495,12 @@
       <Filter>头文件\implement</Filter>
     </ClInclude>
     <ClInclude Include="RegisterBB.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Timer.h">
+      <Filter>头文件\implement</Filter>
+    </ClInclude>
+    <ClInclude Include="ExecuteBB.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

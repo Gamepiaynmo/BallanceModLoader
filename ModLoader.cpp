@@ -2,6 +2,7 @@
 #include "minhook/MinHook.h"
 #include <iostream>
 #include "BMLMod.h"
+#include "ExecuteBB.h"
 
 Player::StepFunc Player::m_step = &Player::Step;
 
@@ -65,13 +66,6 @@ void ModLoader::Init() {
 	BYTE jmpFunc[5] = { 0xE8, 0x18, 0x43 };
 	WriteMemory(reinterpret_cast<LPVOID>(0x00405869), &jmpFunc, sizeof(jmpFunc));
 	m_logger->Info("Render Function Hooked");
-
-	m_mods.push_back(new BMLMod(this));
-	for (IMod* mod : m_instance->m_mods)
-		mod->OnLoad();
-
-	for (Config* config : m_instance->m_configs)
-		config->Save();
 
 	m_inited = true;
 }
@@ -165,6 +159,15 @@ CKERROR ModLoader::Step(CKDWORD result) {
 			m_renderContext = m_context->GetPlayerRenderContext();
 			m_logger->Info("Get Render Context pointer 0x%08x", m_renderContext);
 
+			ExecuteBB::Init(m_context);
+
+			m_mods.push_back(new BMLMod(this));
+			for (IMod* mod : m_instance->m_mods)
+				mod->OnLoad();
+
+			for (Config* config : m_instance->m_configs)
+				config->Save();
+
 			int scriptCnt = m_context->GetObjectsCountByClassID(CKCID_BEHAVIOR);
 			CK_ID* scripts = m_context->GetObjectsListByClassID(CKCID_BEHAVIOR);
 			for (int i = 0; i < scriptCnt; i++) {
@@ -182,6 +185,12 @@ CKERROR ModLoader::Step(CKDWORD result) {
 }
 
 void ModLoader::Process(CKERROR result) {
+	for (auto iter = m_timers.begin(); iter != m_timers.end(); ) {
+		if (!iter->Process(m_timeManager->GetMainTickCount(), m_timeManager->GetAbsoluteTime()))
+			iter = m_timers.erase(iter);
+		else iter++;
+	}
+
 	for (IMod* mod : m_instance->m_mods)
 		mod->OnProcess();
 }
@@ -306,4 +315,20 @@ void ModLoader::OnEndLevel() {
 	m_logger->Info("On message End Level");
 	for (IMod* mod : m_instance->m_mods)
 		mod->OnEndLevel();
+}
+
+void ModLoader::AddTimer(CKDWORD delay, std::function<void()> callback) {
+	m_timers.push_back(Timer(delay, callback, m_timeManager->GetMainTickCount(), m_timeManager->GetAbsoluteTime()));
+}
+
+void ModLoader::AddTimer(CKDWORD delay, std::function<bool()> callback) {
+	m_timers.push_back(Timer(delay, callback, m_timeManager->GetMainTickCount(), m_timeManager->GetAbsoluteTime()));
+}
+
+void ModLoader::AddTimer(float delay, std::function<void()> callback) {
+	m_timers.push_back(Timer(delay, callback, m_timeManager->GetMainTickCount(), m_timeManager->GetAbsoluteTime()));
+}
+
+void ModLoader::AddTimer(float delay, std::function<bool()> callback) {
+	m_timers.push_back(Timer(delay, callback, m_timeManager->GetMainTickCount(), m_timeManager->GetAbsoluteTime()));
 }

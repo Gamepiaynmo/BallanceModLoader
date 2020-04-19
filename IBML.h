@@ -3,6 +3,7 @@
 #include "Export.h"
 #include "Logger.h"
 #include "virtools/CKAll.h"
+#include <functional>
 
 class BML_EXPORT IBML {
 public:
@@ -32,4 +33,9 @@ public:
 	virtual void OnNextLevel() = 0;
 	virtual void OnDead() = 0;
 	virtual void OnEndLevel() = 0;
+
+	virtual void AddTimer(CKDWORD delay, std::function<void()> callback) = 0;
+	virtual void AddTimer(CKDWORD delay, std::function<bool()> callback) = 0;
+	virtual void AddTimer(float delay, std::function<void()> callback) = 0;
+	virtual void AddTimer(float delay, std::function<bool()> callback) = 0;
 };

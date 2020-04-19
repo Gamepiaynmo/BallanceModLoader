@@ -20,8 +20,14 @@ public:
 
 private:
 	void OnEditScript_Base_EventHandler(CKBehavior* script);
-	void OnEidtScript_Menu_MainMenu(CKBehavior* script);
+	void OnEditScript_Menu_MenuInit(CKBehavior* script);
+	void OnEditScript_Menu_MainMenu(CKBehavior* script);
 
 	IProperty* m_skipAnim;
 	bool m_skipSpeed = false;
+
+	CKMaterial* m_cmdBg = nullptr;
+	CK2dEntity* m_cmdBar = nullptr;
+	CKBehavior* m_cmd2dText = nullptr;
+	bool m_cmdTyping = false, m_slashDown = false;
 };

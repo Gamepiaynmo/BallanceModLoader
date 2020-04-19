@@ -2,11 +2,14 @@
 
 #include "IBML.h"
 #include <cstdio>
+#include <functional>
+#include <list>
+#include <vector>
 #include <Windows.h>
 #include "virtools/CKAll.h"
-#include <vector>
 #include "IMod.h"
 #include "Config.h"
+#include "Timer.h"
 
 class ModLoader : public IBML {
 	friend class BMLMod;
@@ -59,6 +62,11 @@ public:
 	virtual void OnDead() override;
 	virtual void OnEndLevel() override;
 
+	virtual void AddTimer(CKDWORD delay, std::function<void()> callback) override;
+	virtual void AddTimer(CKDWORD delay, std::function<bool()> callback) override;
+	virtual void AddTimer(float delay, std::function<void()> callback) override;
+	virtual void AddTimer(float delay, std::function<bool()> callback) override;
+
 private:
 	bool m_inited = false;
 	bool m_exiting = false;
@@ -81,6 +89,7 @@ private:
 
 	std::vector<IMod*> m_mods;
 	std::vector<Config*> m_configs;
+	std::list<Timer> m_timers;
 
 	static int ObjectLoader(const CKBehaviorContext& behcontext);
 	typedef int (*ObjectLoaderFunc)(const CKBehaviorContext& behcontext);
