@@ -13,7 +13,7 @@ public:
 	void GetRect(VxRect& rect);
 	CKERROR SetHomogeneousRect(const VxRect& rect, CKBOOL KeepChildren = FALSE);
 	CKERROR GetHomogeneousRect(VxRect& rect);
-	void SetSourceRect(VxRect& rect);
+	void SetSourceRect(const VxRect& rect);
 	void GetSourceRect(VxRect& rect);
 	void UseSourceRect(CKBOOL Use = TRUE);
 	CKBOOL IsUsingSourceRect();

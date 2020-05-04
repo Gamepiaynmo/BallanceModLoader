@@ -7,11 +7,12 @@
 
 struct VxDriverDesc
 {
-	XString DriverDesc;			// Driver Description
-	XString DriverName;			// Driver Name
+	char DriverDesc[0x200];			// Driver Description
+	char DriverName[0x200];			// Driver Name
 	BOOL IsHardware;			// Is Driver Hardware
 
-	XArray<VxDisplayMode> DisplayModes;		// Fullscreen display modes supported ( see  VxDisplayMode)
+	int DisplayModeCount;
+	VxDisplayMode* DisplayModes;		// Fullscreen display modes supported ( see  VxDisplayMode)
 	XSArray<VxImageDescEx> TextureFormats;		// Texture formats supported by the driver (see VxImageDescEx)
 
 	Vx2DCapsDesc Caps2D;		// 2d Capabilities

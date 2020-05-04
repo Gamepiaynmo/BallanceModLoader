@@ -81,6 +81,14 @@ void CKTimeManager::SetLastDeltaTime(float DtSet) {
 	SET_MEM(0x38, float, DtSet);
 }
 
+void CKTimeManager::SetLastDeltaTimeFree(float DtSet) {
+	SET_MEM(0xa0, float, DtSet);
+}
+
+void CKTimeManager::SetAbsoluteTime(float time) {
+	SET_MEM(0x34, float, time);
+}
+
 NAKED void CKTimeManager::GetTimeToWaitForLimits(float& TimeBeforeRender, float& TimeBeforeBeh) {
 	JUMP(0x24017EF6);
 }

@@ -21,11 +21,11 @@ NAKED CKBOOL CKInputManager::IsKeyToggled(CKDWORD iKey, CKDWORD* oStamp) {
 	JUMPV(0x88);
 }
 
-NAKED void CKInputManager::GetKeyName(CKDWORD iKey, XString& oKeyName) {
+NAKED void CKInputManager::GetKeyName(CKDWORD iKey, char* oKeyName) {
 	JUMPV(0x8c);
 }
 
-NAKED CKDWORD CKInputManager::GetKeyFromName(XString& iKeyName) {
+NAKED CKDWORD CKInputManager::GetKeyFromName(char* iKeyName) {
 	JUMPV(0x90);
 }
 

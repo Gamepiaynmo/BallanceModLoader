@@ -87,6 +87,14 @@ namespace ScriptHelper {
 		param->SetStringValue(value);
 	}
 
+	CKObject* GetParamObject(CKParameter* param) {
+		return param->GetValueObject();
+	}
+
+	CKSTRING GetParamString(CKParameter* param) {
+		return static_cast<CKSTRING>(param->GetReadDataPtr());
+	}
+
 	CKBehaviorLink* FindNextLink(CKBehavior* script, CKBehavior* beh, CKSTRING name, int inPos, int outPos,
 		int inputCnt, int outputCnt, int inputParamCnt, int outputParamCnt) {
 		int linkCnt = script->GetSubBehaviorLinkCount();

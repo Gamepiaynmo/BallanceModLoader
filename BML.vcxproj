@@ -167,9 +167,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="BMLMod.cpp" />
+    <ClCompile Include="Commands.cpp" />
     <ClCompile Include="Config.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="ExecuteBB.cpp" />
+    <ClCompile Include="Gui.cpp" />
     <ClCompile Include="IMod.cpp" />
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="minhook\buffer.c" />
@@ -230,10 +232,13 @@
     <ClInclude Include="BMLAll.h" />
     <ClInclude Include="BMLMod.h" />
     <ClInclude Include="BuildVer.h" />
+    <ClInclude Include="Commands.h" />
     <ClInclude Include="Config.h" />
     <ClInclude Include="ExecuteBB.h" />
     <ClInclude Include="Export.h" />
+    <ClInclude Include="Gui.h" />
     <ClInclude Include="IBML.h" />
+    <ClInclude Include="ICommand.h" />
     <ClInclude Include="IConfig.h" />
     <ClInclude Include="ILogger.h" />
     <ClInclude Include="IMod.h" />

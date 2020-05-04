@@ -19,11 +19,13 @@ public:
 	virtual bool GetBoolean() override;
 	virtual int GetInteger() override;
 	virtual float GetFloat() override;
+	virtual CKKEYBOARD GetKey() override;
 
 	virtual void SetString(CKSTRING value) override;
 	virtual void SetBoolean(bool value) override;
 	virtual void SetInteger(int value) override;
 	virtual void SetFloat(float value) override;
+	virtual void SetKey(CKKEYBOARD value) override;
 
 	CKSTRING GetComment();
 	virtual void SetComment(CKSTRING comment) override;
@@ -32,14 +34,18 @@ public:
 	virtual void SetDefaultBoolean(bool value) override;
 	virtual void SetDefaultInteger(int value) override;
 	virtual void SetDefaultFloat(float value) override;
+	virtual void SetDefaultKey(CKKEYBOARD value) override;
 
 	virtual PropertyType GetType() override { return m_type; }
+
+	void CopyValue(Property& o);
 
 private:
 	union {
 		bool m_bool;
 		int m_int;
 		float m_float;
+		CKKEYBOARD m_key;
 	} m_value;
 	std::string m_string;
 
@@ -52,8 +58,11 @@ private:
 
 class Config : public IConfig {
 	friend class Property;
+	friend class GuiModMenu;
+	friend class GuiModCategory;
 public:
 	Config(IMod* mod);
+	IMod* GetMod() { return m_mod; }
 
 	virtual bool HasCategory(CKSTRING category) override;
 	virtual bool HasKey(CKSTRING category, CKSTRING key) override;

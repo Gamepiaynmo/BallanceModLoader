@@ -13,7 +13,10 @@ namespace ExecuteBB {
 		GAMEFONT_CREDITS_SMALL,
 		GAMEFONT_CREDITS_BIG
 	};
+
 	void InitFont(FontType type, int fontIndex);
+	int GetFont(FontType type);
+	FontType GetFontType(int font);
 
 	void Init(CKContext* context);
 
@@ -29,10 +32,18 @@ namespace ExecuteBB {
 #define TEXT_SHOWCARET			512
 #define TEXT_3D					1024
 #define TEXT_SCREENCLIP			2048
-	CKBehavior* Create2DText(CK2dEntity* target = nullptr, FontType font = NOFONT, CKSTRING text = "", int align = 0,
+
+#define ALIGN_CENTER		0
+#define ALIGN_LEFT			1
+#define ALIGN_RIGHT			2
+#define ALIGN_TOP			4
+#define ALIGN_TOPLEFT		5
+#define ALIGN_TOPRIGHT		6
+#define ALIGN_BOTTOM		8
+#define ALIGN_BOTTOMLEFT	9
+#define ALIGN_BOTTOMRIGHT	10
+
+	CKBehavior* Create2DText(CK2dEntity* target = nullptr, FontType font = NOFONT, CKSTRING text = "", int align = ALIGN_CENTER,
 		VxRect margin = { 2, 2, 2, 2 }, Vx2DVector offset = { 0, 0 }, Vx2DVector pindent = { 0, 0 }, CKMaterial* bgmat = nullptr,
-		int caretsize = 10, CKMaterial* caretmat = nullptr, int flags = TEXT_SCREEN);
-	void Call2DText(CK2dEntity* target = nullptr, FontType font = NOFONT, CKSTRING text = "", int align = 0,
-		VxRect margin = { 2, 2, 2, 2 }, Vx2DVector offset = { 0, 0 }, Vx2DVector pindent = { 0, 0 }, CKMaterial* bgmat = nullptr,
-		int caretsize = 10, CKMaterial* caretmat = nullptr, int flags = TEXT_SCREEN);
+		float caretsize = 0.1f, CKMaterial* caretmat = nullptr, int flags = TEXT_SCREEN);
 }

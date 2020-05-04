@@ -210,6 +210,12 @@
     <ClCompile Include="ExecuteBB.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="Gui.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Commands.cpp">
+      <Filter>源文件\implement</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BMLAll.h">
@@ -502,6 +508,15 @@
     </ClInclude>
     <ClInclude Include="ExecuteBB.h">
       <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Gui.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="ICommand.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Commands.h">
+      <Filter>头文件\implement</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

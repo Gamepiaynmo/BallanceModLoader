@@ -32,7 +32,7 @@ NAKED CKERROR CK2dEntity::GetHomogeneousRect(VxRect& rect) {
 	JUMPV(0xa4);
 }
 
-NAKED void CK2dEntity::SetSourceRect(VxRect& rect) {
+NAKED void CK2dEntity::SetSourceRect(const VxRect& rect) {
 	JUMPV(0xa8);
 }
 

@@ -51,6 +51,8 @@ public:
 	void SetMinimumDeltaTime(float DtMin);
 	void SetMaximumDeltaTime(float DtMax);
 	void SetLastDeltaTime(float DtSet);
+	void SetLastDeltaTimeFree(float DtSet);
+	void SetAbsoluteTime(float time);
 	void GetTimeToWaitForLimits(float& TimeBeforeRender, float& TimeBeforeBeh);
 	void ResetChronos(CKBOOL RenderChrono, CKBOOL BehavioralChrono);
 

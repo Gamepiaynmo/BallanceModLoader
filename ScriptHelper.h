@@ -34,6 +34,15 @@ namespace ScriptHelper {
 		param->SetValue(&value, sizeof(T));
 	}
 
+	CKObject* GetParamObject(CKParameter* param);
+	CKSTRING GetParamString(CKParameter* param);
+	template<typename T>
+	T GetParamValue(CKParameter* param) {
+		T res;
+		param->GetValue(&res);
+		return res;
+	}
+
 	CKBehaviorLink* FindNextLink(CKBehavior* script, CKBehavior* beh, CKSTRING name = nullptr, int inPos = -1, int outPos = -1,
 		int inputCnt = -1, int outputCnt = -1, int inputParamCnt = -1, int outputParamCnt = -1);
 	CKBehaviorLink* FindPreviousLink(CKBehavior* script, CKBehavior* beh, CKSTRING name = nullptr, int inPos = -1, int outPos = -1,

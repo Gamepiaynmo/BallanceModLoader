@@ -39,6 +39,12 @@ void Config::Load() {
 					prop.SetDefaultBoolean(value);
 					break;
 				}
+				case 'K': {
+					int value;
+					fin >> value;
+					prop.SetDefaultKey(CKKEYBOARD(value));
+					break;
+				}
 				case 'I': {
 					int value;
 					fin >> value;
@@ -79,6 +85,7 @@ void Config::Save() {
 				case IProperty::STRING: fout << "S "; break;
 				case IProperty::BOOLEAN: fout << "B "; break;
 				case IProperty::FLOAT: fout << "F "; break;
+				case IProperty::KEY: fout << "K "; break;
 				case IProperty::INTEGER:
 				default: fout << "I "; break;
 			}
@@ -88,6 +95,7 @@ void Config::Save() {
 				case IProperty::STRING: fout << property.second.GetString(); break;
 				case IProperty::BOOLEAN: fout << property.second.GetBoolean(); break;
 				case IProperty::FLOAT: fout << property.second.GetFloat(); break;
+				case IProperty::KEY: fout << (int)property.second.GetKey(); break;
 				case IProperty::INTEGER:
 				default: fout << property.second.GetInteger(); break;
 			}
@@ -143,6 +151,10 @@ float Property::GetFloat() {
 	return m_type == FLOAT ? m_value.m_float : 0.0f;
 }
 
+CKKEYBOARD Property::GetKey() {
+	return m_type == KEY ? m_value.m_key : (CKKEYBOARD)0;
+}
+
 void Property::SetString(CKSTRING value) {
 	if (m_type != STRING || m_string != value) {
 		m_string = value;
@@ -171,6 +183,14 @@ void Property::SetFloat(float value) {
 	if (m_type != FLOAT || m_value.m_float != value) {
 		m_value.m_float = value;
 		m_type = FLOAT;
+		ModLoader::m_instance->OnModifyConfig(m_config->m_mod, m_category.c_str(), m_key.c_str(), this);
+	}
+}
+
+void Property::SetKey(CKKEYBOARD value) {
+	if (m_type != KEY || m_value.m_key != value) {
+		m_value.m_key = value;
+		m_type = KEY;
 		ModLoader::m_instance->OnModifyConfig(m_config->m_mod, m_category.c_str(), m_key.c_str(), this);
 	}
 }
@@ -208,5 +228,23 @@ void Property::SetDefaultFloat(float value) {
 	if (m_type != FLOAT) {
 		m_type = FLOAT;
 		m_value.m_float = value;
+	}
+}
+
+void Property::SetDefaultKey(CKKEYBOARD value) {
+	if (m_type != KEY) {
+		m_type = KEY;
+		m_value.m_key = value;
+	}
+}
+
+void Property::CopyValue(Property& o) {
+	m_type = o.GetType();
+	switch (m_type) {
+	case INTEGER: SetInteger(o.GetInteger()); break;
+	case FLOAT: SetFloat(o.GetFloat()); break;
+	case BOOLEAN: SetBoolean(o.GetBoolean()); break;
+	case KEY: SetKey(o.GetKey()); break;
+	case STRING: SetString(o.GetString()); break;
 	}
 }

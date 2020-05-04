@@ -2,19 +2,111 @@
 #include "ScriptHelper.h"
 #include "RegisterBB.h"
 #include "ExecuteBB.h"
+#include "Gui.h"
 #include <map>
+#include "minhook/MinHook.h"
+#include "ModLoader.h"
+#include <ctime>
+#include "Commands.h"
+#include "Config.h"
 
 using namespace ScriptHelper;
 
+void BMLMod::OnLoadObject(CKSTRING filename, CKSTRING masterName, CK_CLASSID filterClass,
+	BOOL addtoscene, BOOL reuseMeshes, BOOL reuseMaterials, BOOL dynamic,
+	XObjectArray* objArray, CKObject* masterObj) {
+	if (!strcmp(filename, "3D Entities\\Menu.nmo")) {
+		BGui::Gui::InitMaterials();
+
+		m_cmdBar = new BGui::Gui();
+		m_cmdBar->AddPanel("M_Cmd_Bg", VxColor(0, 0, 0, 110), 0.02f, 0.94f, 0.95f, 0.025f)->SetZOrder(100);
+		m_cmdInput = m_cmdBar->AddTextInput("M_Cmd_Text", ExecuteBB::GAMEFONT_03, 0.02f, 0.94f, 0.95f, 0.025f, [this](CKDWORD key) { OnCmdEdit(key); });
+		m_cmdInput->SetAlignment(ALIGN_LEFT);
+		m_cmdInput->SetTextFlags(TEXT_SCREEN | TEXT_SHOWCARET);
+		m_cmdInput->SetZOrder(110);
+		m_cmdBar->SetCanBeBlocked(false);
+		m_cmdBar->SetVisible(false);
+
+		m_msgLog = new BGui::Gui();
+		for (int i = 0; i < MSG_MAXSIZE; i++) {
+			m_msg[i].m_bg = m_msgLog->AddPanel((std::string("M_Cmd_Log_Bg_") + std::to_string(i + 1)).c_str(),
+				VxColor(0, 0, 0, 110), 0.02f, 0.9f - i * 0.025f, 0.95f, 0.025f);
+			m_msg[i].m_bg->SetVisible(false);
+			m_msg[i].m_bg->SetZOrder(100);
+			m_msg[i].m_text = m_msgLog->AddTextLabel((std::string("M_Cmd_Log_Text_") + std::to_string(i + 1)).c_str(),
+				"", ExecuteBB::GAMEFONT_03, 0.02f, 0.9f - i * 0.025f, 0.95f, 0.025f);
+			m_msg[i].m_text->SetVisible(false);
+			m_msg[i].m_text->SetAlignment(ALIGN_LEFT);
+			m_msg[i].m_text->SetZOrder(110);
+			m_msg[i].timer = 0;
+		}
+
+		m_cheatBanner = new BGui::Gui();
+		m_cheatBanner->AddTextLabel("M_Use_BML", "Ballance Mod Loader " BML_VERSION, ExecuteBB::GAMEFONT_01, 0, 0, 1, 0.03f);
+		m_cheat = m_cheatBanner->AddTextLabel("M_Use_Cheat", "Cheat Mode Enabled", ExecuteBB::GAMEFONT_01, 0, 0.03f, 1, 0.03f);
+		m_cheat->SetVisible(false);
+
+		m_modOption = new GuiModOption();
+		m_modOption->SetVisible(false);
+	}
+
+	if (!strcmp(filename, "3D Entities\\MenuLevel.nmo")) {
+		if (m_unlockRes->GetBoolean()) {
+			CKCamera* cam = static_cast<CKCamera*>(m_bml->GetCKContext()->GetObjectByNameAndClass("Cam_MenuLevel", CKCID_TARGETCAMERA));
+			CKRenderContext* rc = m_bml->GetRenderContext();
+			cam->SetAspectRatio(rc->GetWidth(), rc->GetHeight());
+			cam->SetFov(0.75f * rc->GetWidth() / rc->GetHeight());
+			m_bml->GetCKContext()->GetCurrentScene()->SetObjectInitialValue(cam, CKSaveObjectState(cam));
+		}
+	}
+
+	if (!strcmp(filename, "3D Entities\\Camera.nmo")) {
+		if (m_unlockRes->GetBoolean()) {
+			CKCamera* cam = static_cast<CKCamera*>(m_bml->GetCKContext()->GetObjectByNameAndClass("InGameCam", CKCID_TARGETCAMERA));
+			CKRenderContext* rc = m_bml->GetRenderContext();
+			cam->SetAspectRatio(rc->GetWidth(), rc->GetHeight());
+			cam->SetFov(0.75f * rc->GetWidth() / rc->GetHeight());
+			m_bml->GetCKContext()->GetCurrentScene()->SetObjectInitialValue(cam, CKSaveObjectState(cam));
+		}
+	}
+}
+
 void BMLMod::OnLoadScript(CKSTRING filename, CKBehavior* script) {
+	if (!strcmp(script->GetName(), "Default Level"))
+		OnEditScript_Base_DefaultLevel(script);
+
 	if (!strcmp(script->GetName(), "Event_handler"))
 		OnEditScript_Base_EventHandler(script);
 
 	if (!strcmp(script->GetName(), "Menu_Init"))
 		OnEditScript_Menu_MenuInit(script);
 
-	if (!strcmp(script->GetName(), "Menu_Main"))
-		OnEditScript_Menu_MainMenu(script);
+	if (!strcmp(script->GetName(), "Menu_Options"))
+		OnEditScript_Menu_OptionsMenu(script);
+}
+
+void BMLMod::OnEditScript_Base_DefaultLevel(CKBehavior* script) {
+	if (m_unlockRes->GetBoolean()) {
+		CKBehavior* sm = FindFirstBB(script, "Screen Modes", false);
+
+		CKBehavior* rrs[4];
+		FindBB(sm, [sm, &rrs](CKBehavior* rr) {
+			int v = GetParamValue<int>(rr->GetInputParameter(2)->GetDirectSource());
+			switch (v) {
+			case 1: rrs[0] = rr; break;
+			case 640: rrs[1] = rr; break;
+			case 1600: rrs[2] = rr; break;
+			case 16: rrs[3] = rr; break;
+			}
+			return true;
+			}, "Remove Row If", false);
+
+		CKBehavior* it = FindPreviousBB(sm, rrs[0], "Iterator");
+		CKBehavior* gc = FindNextBB(sm, rrs[3], "Get Cell");
+		DeleteBB(sm, rrs[0]);
+		DeleteBB(sm, rrs[3]);
+		CreateLink(sm, it, gc, 0, 0);
+	}
 }
 
 void BMLMod::OnEditScript_Base_EventHandler(CKBehavior* script) {
@@ -87,40 +179,39 @@ void BMLMod::OnEditScript_Menu_MenuInit(CKBehavior* script) {
 			bbs[i]->GetOutputParameterValue(0, &font);
 			ExecuteBB::InitFont(fontid[static_cast<CKSTRING>(bbs[i]->GetInputParameterReadDataPtr(0))], font);
 		}
-
-		m_cmd2dText = ExecuteBB::Create2DText(m_cmdBar, ExecuteBB::GAMEFONT_CREDITS_BIG, "/Command", 1, { 2, 5, 2, 2 });
-
 		});
 }
 
-void BMLMod::OnEditScript_Menu_MainMenu(CKBehavior* script) {
-	GetLogger()->Info("Start to insert Mods Button into Main Menu");
+void BMLMod::OnEditScript_Menu_OptionsMenu(CKBehavior* script) {
+	GetLogger()->Info("Start to insert Mods Button into Options Menu");
 
-	char but_name[] = "M_Main_But_X";
+	char but_name[] = "M_Options_But_X";
 	CK2dEntity* buttons[6] = { 0 };
 	CKContext* context = m_bml->GetCKContext();
-	for (int i = 0; i < 5; i++) {
-		but_name[11] = '1' + i;
+	buttons[0] = static_cast<CK2dEntity*>(context->GetObjectByNameAndClass("M_Options_Title", CKCID_2DENTITY));
+	for (int i = 1; i < 4; i++) {
+		but_name[14] = '0' + i;
 		buttons[i] = static_cast<CK2dEntity*>(context->GetObjectByNameAndClass(but_name, CKCID_2DENTITY));
 	}
 
-	buttons[5] = buttons[4];
-	buttons[4] = static_cast<CK2dEntity*>(context->CopyObject(buttons[0]));
-	buttons[4]->SetName("M_Main_But_Mods");
+	buttons[5] = static_cast<CK2dEntity*>(context->GetObjectByNameAndClass("M_Options_But_Back", CKCID_2DENTITY));
+	buttons[4] = static_cast<CK2dEntity*>(context->CopyObject(buttons[1]));
+	buttons[4]->SetName("M_Options_But_4");
 	for (int i = 0; i < 6; i++) {
 		Vx2DVector pos;
 		buttons[i]->GetPosition(pos, true);
-		pos.y = 0.1f + 0.14f * i;
+		pos.y = 0.1f + 0.15f * i;
 		buttons[i]->SetPosition(pos, true);
 	}
 
-	CKDataArray* array = static_cast<CKDataArray*>(context->GetObjectByNameAndClass("Menu_Main_ShowHide", CKCID_DATAARRAY));
-	array->InsertRow(4);
-	array->SetElementObject(4, 0, buttons[4]);
+	CKDataArray* array = static_cast<CKDataArray*>(context->GetObjectByNameAndClass("Menu_Options_ShowHide", CKCID_DATAARRAY));
+	array->InsertRow(3);
+	array->SetElementObject(3, 0, buttons[4]);
 	BOOL show = 1;
-	array->SetElementValue(4, 1, &show, sizeof(show));
+	array->SetElementValue(3, 1, &show, sizeof(show));
+	context->GetCurrentScene()->SetObjectInitialValue(array, CKSaveObjectState(array));
 
-	CKBehavior* graph = FindFirstBB(script, "Main Menu");
+	CKBehavior* graph = FindFirstBB(script, "Options Menu");
 	CKBehavior* up_sop = nullptr, * down_sop = nullptr, * up_ps = nullptr, * down_ps = nullptr;
 	FindBB(graph, [graph, &up_sop, &down_sop](CKBehavior* beh) {
 		CKBehavior* previous = FindPreviousBB(graph, beh);
@@ -141,13 +232,13 @@ void BMLMod::OnEditScript_Menu_MainMenu(CKBehavior* script) {
 		return !(up_ps && down_ps);
 		}, "Parameter Selector");
 
-	CKParameterLocal* pin = CreateLocalParameter(graph, "Pin 6", CKPGUID_INT);
-	int value = 5;
+	CKParameterLocal* pin = CreateLocalParameter(graph, "Pin 5", CKPGUID_INT);
+	int value = 4;
 	pin->SetValue(&value, sizeof(value));
-	up_sop->CreateInputParameter("Pin 6", CKPGUID_INT)->SetDirectSource(pin); up_sop->AddOutput("Out 6");
-	down_sop->CreateInputParameter("Pin 6", CKPGUID_INT)->SetDirectSource(pin); down_sop->AddOutput("Out 6");
-	up_ps->CreateInputParameter("pIn 5", CKPGUID_INT)->SetDirectSource(pin); up_ps->AddInput("In 5");
-	down_ps->CreateInputParameter("pIn 5", CKPGUID_INT)->SetDirectSource(pin); down_ps->AddInput("In 5");
+	up_sop->CreateInputParameter("Pin 5", CKPGUID_INT)->SetDirectSource(pin); up_sop->AddOutput("Out 5");
+	down_sop->CreateInputParameter("Pin 5", CKPGUID_INT)->SetDirectSource(pin); down_sop->AddOutput("Out 5");
+	up_ps->CreateInputParameter("pIn 4", CKPGUID_INT)->SetDirectSource(pin); up_ps->AddInput("In 4");
+	down_ps->CreateInputParameter("pIn 4", CKPGUID_INT)->SetDirectSource(pin); down_ps->AddInput("In 4");
 
 	CKBehavior* text2d = CreateBB(graph, VT_TEXT2D, true);
 	CKBehavior* pushbutton = CreateBB(graph, TT_PUSHBUTTON2, true);
@@ -169,29 +260,28 @@ void BMLMod::OnEditScript_Menu_MainMenu(CKBehavior* script) {
 	for (int i = 2; i < 6; i++)
 		text2d->GetInputParameter(i)->ShareSourceWith(text2dref->GetInputParameter(i));
 
-	FindNextLink(graph, up_sop, nullptr, 5, 0)->SetInBehaviorIO(up_sop->GetOutput(6));
-	CreateLink(graph, up_sop, text2d, 5, 0);
+	FindNextLink(graph, up_sop, nullptr, 4, 0)->SetInBehaviorIO(up_sop->GetOutput(5));
+	CreateLink(graph, up_sop, text2d, 4, 0);
 	CreateLink(graph, text2d, nop, 0, 0);
 	CreateLink(graph, text2d, pushbutton, 0, 0);
-	FindPreviousLink(graph, up_ps, nullptr, 1, 4)->SetOutBehaviorIO(up_ps->GetInput(5));
-	FindPreviousLink(graph, down_ps, nullptr, 2, 4)->SetOutBehaviorIO(down_ps->GetInput(5));
-	CreateLink(graph, pushbutton, up_ps, 1, 4);
-	CreateLink(graph, pushbutton, down_ps, 2, 4);
-	graph->AddOutput("Button 6 Pressed");
-	CreateLink(graph, down_sop, graph->GetOutput(5), 6);
-	FindNextLink(script, graph, nullptr, 4, 0)->SetInBehaviorIO(graph->GetOutput(5));
+	FindPreviousLink(graph, up_ps, nullptr, 1, 3)->SetOutBehaviorIO(up_ps->GetInput(4));
+	FindPreviousLink(graph, down_ps, nullptr, 2, 3)->SetOutBehaviorIO(down_ps->GetInput(4));
+	CreateLink(graph, pushbutton, up_ps, 1, 3);
+	CreateLink(graph, pushbutton, down_ps, 2, 3);
+	graph->AddOutput("Button 5 Pressed");
+	CreateLink(graph, down_sop, graph->GetOutput(4), 5);
+	FindNextLink(script, graph, nullptr, 3, 0)->SetInBehaviorIO(graph->GetOutput(4));
 
 	CKBehavior* modsmenu = CreateBB(script, BML_MODSMENU_GUID);
 	CKBehavior* exit = FindFirstBB(script, "Exit", false, 1, 0);
-	CreateLink(script, graph, modsmenu, 4, 0);
+	CreateLink(script, graph, modsmenu, 3, 0);
 	CreateLink(script, modsmenu, exit, 0, 0);
 	CKBehavior* keyboard = FindFirstBB(graph, "Keyboard");
 	FindBB(keyboard, [keyboard](CKBehavior* beh) {
-		int key;
-		beh->GetInputParameterValue(0, &key);
-		if (key == CKKEY_ESCAPE) {
-			key = 5;
-			FindNextBB(keyboard, beh)->GetInputParameter(0)->GetDirectSource()->SetValue(&key, sizeof(key));
+		CKParameter* source = beh->GetInputParameter(0)->GetRealSource();
+		if (GetParamValue<CKKEYBOARD>(source) == CKKEY_ESCAPE) {
+			CKBehavior* id = FindNextBB(keyboard, beh);
+			SetParamValue(id->GetInputParameter(0)->GetRealSource(), 4);
 			return false;
 		}
 		return true;
@@ -206,38 +296,117 @@ void BMLMod::OnLoad() {
 	m_skipAnim->SetComment("Skip the Loading Animation");
 	m_skipAnim->SetDefaultBoolean(true);
 
+	m_fullscreenKey = GetConfig()->GetProperty("Misc", "Fullscreen");
+	m_fullscreenKey->SetComment("Toggle Fullscreen in game");
+	m_fullscreenKey->SetDefaultKey(CKKEY_F11);
+
+	m_unlockRes = GetConfig()->GetProperty("Misc", "UnlockResolution");
+	m_unlockRes->SetComment("Unlock 16:9 Resolutions");
+	m_unlockRes->SetDefaultBoolean(true);
+
 	m_skipSpeed = m_skipAnim->GetBoolean();
 	if (m_skipSpeed)
 		GetLogger()->Info("Speed up to skip Loading Animation");
 
-	m_cmdBg = static_cast<CKMaterial*>(m_bml->GetCKContext()->CreateObject(CKCID_MATERIAL, "M_Command_Bg"));
-	m_bml->GetCKContext()->GetCurrentLevel()->AddObject(m_cmdBg);
-	m_cmdBg->EnableAlphaBlend();
-	m_cmdBg->SetSourceBlend(VXBLEND_SRCALPHA);
-	m_cmdBg->SetDestBlend(VXBLEND_INVSRCALPHA);
-	m_cmdBg->SetDiffuse(VxColor(0, 0, 0, 100));
-
-	m_cmdBar = static_cast<CK2dEntity*>(m_bml->GetCKContext()->CreateObject(CKCID_2DENTITY, "M_Command_Bar"));
-	m_bml->GetCKContext()->GetCurrentLevel()->AddObject(m_cmdBar);
-	m_cmdBar->SetMaterial(m_cmdBg);
-	m_cmdBar->SetHomogeneousCoordinates();
-	m_cmdBar->SetPosition(Vx2DVector(0.02f, 0.94f), true);
-	m_cmdBar->SetSize(Vx2DVector(0.95f, 0.025f), true);
+	m_bml->RegisterCommand(new CommandBML());
+	m_bml->RegisterCommand(new CommandHelp());
+	m_bml->RegisterCommand(new CommandCheat());
+	m_bml->RegisterCommand(new CommandClear());
+	m_bml->RegisterCommand(new CommandScore());
+	m_bml->RegisterCommand(new CommandSpeed());
 }
 
 void BMLMod::OnProcess() {
 	if (m_skipSpeed)
 		m_bml->GetTimeManager()->SetTimeScaleFactor(100.0f);
 
-	bool slashDown = m_bml->GetInputManager()->IsKeyDown(CKKEY_SLASH);
-	if (slashDown && !m_slashDown)
-		m_cmdTyping = !m_cmdTyping;
-	m_slashDown = slashDown;
-
-	if (m_cmd2dText && m_cmdTyping) {
-		m_cmd2dText->ActivateInput(0);
-		m_cmd2dText->Execute(0);
+	if (m_bml->GetInputManager()->IsKeyPressed(m_fullscreenKey->GetKey())) {
+		CKRenderContext* rc = m_bml->GetRenderContext();
+		if (rc->IsFullScreen())
+			rc->StopFullScreen();
+		else rc->GoFullScreen(rc->GetWidth(), rc->GetHeight(), -1, rc->GetDriverIndex());
 	}
+
+	if (m_cmdBar) {
+		if (!m_cmdTyping && m_bml->GetInputManager()->oIsKeyPressed(CKKEY_SLASH)) {
+			m_cmdTyping = true;
+			InputHook::SetBlock(true);
+			m_cmdBar->SetVisible(true);
+			m_historyPos = m_cmdHistory.size();
+		}
+
+		m_msgLog->Process();
+		m_cheatBanner->Process();
+		if (m_currentGui)
+			m_currentGui->Process();
+
+		if (m_cmdTyping) {
+			m_cmdBar->Process();
+
+			for (int i = 0; i < min(MSG_MAXSIZE, m_msgCnt); i++) {
+				m_msg[i].m_bg->SetVisible(true);
+				m_msg[i].m_bg->SetColor(VxColor(0, 0, 0, 110));
+				m_msg[i].m_text->SetVisible(true);
+			}
+		}
+		else {
+			for (int i = 0; i < min(MSG_MAXSIZE, m_msgCnt); i++) {
+				int &timer = m_msg[i].timer;
+				m_msg[i].m_bg->SetVisible(timer > 0);
+				m_msg[i].m_bg->SetColor(VxColor(0, 0, 0, min(110, timer / 2)));
+				m_msg[i].m_text->SetVisible(timer > 100);
+			}
+		}
+
+		for (int i = 0; i < min(MSG_MAXSIZE, m_msgCnt); i++) {
+			m_msg[i].timer--;
+		}
+	}
+}
+
+void BMLMod::OnCmdEdit(CKDWORD key) {
+	switch (key) {
+	case CKKEY_RETURN:
+		m_cmdHistory.push_back(m_cmdInput->GetText());
+		if (m_cmdInput->GetText()[0] == '/') {
+			ModLoader::m_instance->ExecuteCommand(m_cmdInput->GetText() + 1);
+		}
+		else {
+			AddIngameMessage(m_cmdInput->GetText());
+		}
+	case CKKEY_ESCAPE:
+		m_cmdTyping = false;
+		InputHook::SetBlock(false);
+		m_cmdBar->SetVisible(false);
+		m_cmdInput->SetText("");
+		break;
+	case CKKEY_TAB:
+		if (m_cmdInput->GetText()[0] == '/') {
+			m_cmdInput->SetText(('/' + ModLoader::m_instance->TabCompleteCommand(m_cmdInput->GetText() + 1)).c_str());
+		}
+		break;
+	case CKKEY_UP:
+		if (m_historyPos > 0)
+			m_cmdInput->SetText(m_cmdHistory[--m_historyPos].c_str());
+		break;
+	case CKKEY_DOWN:
+		if (m_historyPos < m_cmdHistory.size())
+			m_cmdInput->SetText(++m_historyPos == m_cmdHistory.size() ? "/" : m_cmdHistory[m_historyPos].c_str());
+		break;
+	default:;
+	}
+}
+
+void BMLMod::AddIngameMessage(CKSTRING msg) {
+	for (int i = min(MSG_MAXSIZE - 1, m_msgCnt) - 1; i >= 0; i--) {
+		CKSTRING text = m_msg[i].m_text->GetText();
+		m_msg[i + 1].m_text->SetText(text);
+		m_msg[i + 1].timer = m_msg[i].timer;
+	}
+
+	m_msg[0].m_text->SetText(msg);
+	m_msg[0].timer = 1000;
+	m_msgCnt++;
 }
 
 void BMLMod::OnStartMenu() {
@@ -259,4 +428,286 @@ void BMLMod::OnStartMenu() {
 			}
 		}
 	}
+}
+
+void BMLMod::ShowCheatBanner(bool show) {
+	m_cheat->SetVisible(show);
+}
+
+void BMLMod::ShowModOptions() {
+	ShowGui(m_modOption);
+	m_modOption->SetPage(0);
+}
+
+void BMLMod::ShowGui(BGui::Gui* gui) {
+	if (m_currentGui != nullptr)
+		CloseCurrentGui();
+	m_currentGui = gui;
+	if (gui)
+		gui->SetVisible(true);
+}
+
+void BMLMod::ShowGuiList(GuiList* gui) {
+	ShowGui(gui);
+	gui->SetPage(0);
+}
+
+void BMLMod::CloseCurrentGui() {
+	m_currentGui->SetVisible(false);
+	m_currentGui = nullptr;
+}
+
+GuiList::GuiList() {
+	m_left = AddLeftButton("M_List_Left", 0.12f, 0.36f, [this]() { PreviousPage(); });
+	m_right = AddRightButton("M_List_Right", 0.12f, 0.6038f, [this]() { NextPage(); });
+	AddBackButton("M_Opt_Mods_Back")->SetCallback([this]() { Exit(); });
+}
+
+void GuiList::Init(int size, int maxsize) {
+	m_size = size;
+	m_maxpage = (size + maxsize - 1) / maxsize;
+	m_maxsize = maxsize;
+	m_curpage = 0;
+
+	for (int i = 0; i < m_size; i++)
+		m_guiList.push_back(CreateSubGui(i));
+	for (int i = 0; i < m_maxsize; i++) {
+		BGui::Button* button = CreateButton(i);
+		button->SetCallback([this, i]() {
+			BGui::Gui* gui = m_guiList[m_maxsize * m_curpage + i];
+			ModLoader::m_instance->m_bmlmod->ShowGui(gui);
+			});
+		m_buttons.push_back(button);
+	}
+}
+
+void GuiList::SetPage(int page) {
+	ModLoader* bml = ModLoader::m_instance;
+	int size = (std::min)((UINT)m_maxsize, m_guiList.size() - page * m_maxsize);
+	for (int i = 0; i < m_maxsize; i++)
+		m_buttons[i]->SetVisible(i < size);
+	for (int i = 0; i < size; i++)
+		m_buttons[i]->SetText(GetButtonText(page * m_maxsize + i).c_str());
+
+	m_curpage = page;
+	m_left->SetVisible(page > 0);
+	m_right->SetVisible(page < m_maxpage - 1);
+}
+
+void GuiList::Exit() {
+	ModLoader::m_instance->m_bmlmod->ShowGui(GetParentGui());
+}
+
+void GuiList::SetVisible(bool visible) {
+	Gui::SetVisible(visible);
+	if (visible) SetPage(0);
+}
+
+GuiModOption::GuiModOption() {
+	Init(ModLoader::m_instance->m_mods.size(), 4);
+
+	AddTextLabel("M_Opt_Mods_Title", "Mod List", ExecuteBB::GAMEFONT_02, 0.35f, 0.1f, 0.3f, 0.1f);
+}
+
+BGui::Button* GuiModOption::CreateButton(int index) {
+	return AddSettingButton(("M_Opt_Mods_" + std::to_string(index)).c_str(), "", 0.25f + 0.15f * index);
+}
+
+std::string GuiModOption::GetButtonText(int index) {
+	return ModLoader::m_instance->m_mods[index]->GetID();
+}
+
+BGui::Gui* GuiModOption::CreateSubGui(int index) {
+	return new GuiModMenu(ModLoader::m_instance->m_mods[index]);
+}
+
+BGui::Gui* GuiModOption::GetParentGui() {
+	return nullptr;
+}
+
+void GuiModOption::Exit() {
+	GuiList::Exit();
+	ModLoader::m_instance->GetCKContext()->GetCurrentScene()->Activate(
+		static_cast<CKBehavior*>(ModLoader::m_instance->GetCKContext()->GetObjectByNameAndClass("Menu_Options", CKCID_BEHAVIOR)),
+		true);
+}
+
+GuiModMenu::GuiModMenu(IMod* mod) : GuiList() {
+	m_left->SetPosition(Vx2DVector(0.36f, 0.3f));
+	m_right->SetPosition(Vx2DVector(0.6038f, 0.3f));
+	AddTextLabel("M_Opt_ModMenu_Name", mod->GetName(), ExecuteBB::GAMEFONT_01, 0.35f, 0.1f, 0.3f, 0.05f);
+	AddTextLabel("M_Opt_ModMenu_Author", (std::string("by ") + mod->GetAuthor()).c_str(), ExecuteBB::GAMEFONT_03, 0.35f, 0.13f, 0.3f, 0.04f);
+	AddTextLabel("M_Opt_ModMenu_Version", (std::string("v") + mod->GetVersion()).c_str(), ExecuteBB::GAMEFONT_03, 0.35f, 0.15f, 0.3f, 0.04f);
+	BGui::Label* desc = AddTextLabel("M_Opt_ModMenu_Description", mod->GetDescription(), ExecuteBB::GAMEFONT_03, 0.35f, 0.20f, 0.3f, 0.1f);
+	desc->SetTextFlags(TEXT_SCREEN | TEXT_WORDWRAP);
+	desc->SetAlignment(ALIGN_TOP);
+
+	m_config = ModLoader::m_instance->GetConfig(mod);
+	if (m_config) {
+		AddTextLabel("M_Opt_ModMenu_Title", "Mod Options", ExecuteBB::GAMEFONT_01, 0.35f, 0.3f, 0.3f, 0.05f);
+		for (auto& cate : m_config->m_data)
+			m_categories.push_back(cate.first);
+	}
+
+	Init(m_categories.size(), 8);
+	SetVisible(false);
+}
+
+BGui::Button* GuiModMenu::CreateButton(int index) {
+	BGui::Button* button = AddLevelButton(("M_Opt_ModMenu_" + std::to_string(index)).c_str(), "", 0.35f + 0.06f * index);
+	button->SetFont(ExecuteBB::GAMEFONT_03);
+	return button;
+}
+
+std::string GuiModMenu::GetButtonText(int index) {
+	return m_categories[index];
+}
+
+BGui::Gui* GuiModMenu::CreateSubGui(int index) {
+	return new GuiModCategory(this, m_config, m_categories[index]);
+}
+
+BGui::Gui* GuiModMenu::GetParentGui() {
+	return ModLoader::m_instance->m_bmlmod->m_modOption;
+}
+
+GuiModCategory::GuiModCategory(GuiModMenu* parent, Config* config, std::string category) {
+	m_data = config->m_data[category].second;
+	m_size = m_data.size();
+	m_maxsize = 4;
+	m_maxpage = (m_size + m_maxsize - 1) / m_maxsize;
+	m_curpage = 0;
+
+	m_parent = parent;
+	m_config = config;
+	m_category = category;
+
+	AddTextLabel("M_Opt_Category_Title", category.c_str(), ExecuteBB::GAMEFONT_02, 0.35f, 0.1f, 0.3f, 0.1f);
+	m_left = AddLeftButton("M_List_Left", 0.12f, 0.36f, [this]() { PreviousPage(); });
+	m_right = AddRightButton("M_List_Right", 0.12f, 0.6038f, [this]() { NextPage(); });
+	AddBackButton("M_Opt_Category_Back")->SetCallback([this]() { SaveAndExit(); });
+	m_exit = AddBackButton("M_Opt_Category_Back");
+	m_exit->SetCallback([this]() { Exit(); });
+
+	Vx2DVector offset(0.0f, ModLoader::m_instance->GetRenderContext()->GetHeight() * 0.015f);
+
+	int cnt = 0, page = 0;
+	std::vector<BGui::Element*> elements;
+	for (auto& p : m_data) {
+		std::string name = p.first;
+		Property& prop = p.second;
+		switch (prop.GetType()) {
+		case IProperty::STRING: {
+			BGui::Button* bg = AddSettingButton(name.c_str(), name.c_str(), 0.25f + 0.15f * cnt);
+			bg->SetAlignment(ALIGN_TOP);
+			bg->SetFont(ExecuteBB::GAMEFONT_03);
+			bg->SetZOrder(15);
+			bg->SetOffset(offset);
+			elements.push_back(bg);
+			BGui::Input* input = AddTextInput(name.c_str(), ExecuteBB::GAMEFONT_03, 0.43f, 0.3f + 0.15f * cnt, 0.18f, 0.025f);
+			input->SetText(prop.GetString());
+			input->SetCallback([this, name, input](CKDWORD) { m_data[name].SetString(input->GetText()); });
+			elements.push_back(input);
+			BGui::Panel* panel = AddPanel(name.c_str(), VxColor(0, 0, 0, 110), 0.43f, 0.3f + 0.15f * cnt, 0.18f, 0.025f);
+			elements.push_back(panel);
+			break;
+		}
+		case IProperty::INTEGER: {
+			BGui::Button* bg = AddSettingButton(name.c_str(), name.c_str(), 0.25f + 0.15f * cnt);
+			bg->SetAlignment(ALIGN_TOP);
+			bg->SetFont(ExecuteBB::GAMEFONT_03);
+			bg->SetZOrder(15);
+			bg->SetOffset(offset);
+			elements.push_back(bg);
+			BGui::Input* input = AddTextInput(name.c_str(), ExecuteBB::GAMEFONT_03, 0.43f, 0.3f + 0.15f * cnt, 0.18f, 0.025f);
+			input->SetText(std::to_string(prop.GetInteger()).c_str());
+			input->SetCallback([this, name, input](CKDWORD) { m_data[name].SetInteger(atoi(input->GetText())); });
+			elements.push_back(input);
+			BGui::Panel* panel = AddPanel(name.c_str(), VxColor(0, 0, 0, 110), 0.43f, 0.3f + 0.15f * cnt, 0.18f, 0.025f);
+			elements.push_back(panel);
+			break;
+		}
+		case IProperty::FLOAT: {
+			BGui::Button* bg = AddSettingButton(name.c_str(), name.c_str(), 0.25f + 0.15f * cnt);
+			bg->SetAlignment(ALIGN_TOP);
+			bg->SetFont(ExecuteBB::GAMEFONT_03);
+			bg->SetZOrder(15);
+			bg->SetOffset(offset);
+			elements.push_back(bg);
+			BGui::Input* input = AddTextInput(name.c_str(), ExecuteBB::GAMEFONT_03, 0.43f, 0.3f + 0.15f * cnt, 0.18f, 0.025f);
+			input->SetText(std::to_string(prop.GetFloat()).c_str());
+			input->SetCallback([this, name, input](CKDWORD) { m_data[name].SetFloat((float) atof(input->GetText())); });
+			elements.push_back(input);
+			BGui::Panel* panel = AddPanel(name.c_str(), VxColor(0, 0, 0, 110), 0.43f, 0.3f + 0.15f * cnt, 0.18f, 0.025f);
+			elements.push_back(panel);
+			break;
+		}
+		case IProperty::KEY: {
+			std::pair<BGui::Button*, BGui::KeyInput*> key = AddKeyButton(name.c_str(), name.c_str(), 0.28f + 0.15f * cnt);
+			key.second->SetKey(prop.GetKey());
+			key.second->SetCallback([this, name](CKDWORD key) { m_data[name].SetKey(CKKEYBOARD(key)); });
+			elements.push_back(key.first);
+			elements.push_back(key.second);
+			break;
+		}
+		case IProperty::BOOLEAN: {
+			BGui::Button* bg = AddSettingButton(name.c_str(), name.c_str(), 0.25f + 0.15f * cnt);
+			bg->SetAlignment(ALIGN_TOP);
+			bg->SetFont(ExecuteBB::GAMEFONT_03);
+			bg->SetZOrder(15);
+			bg->SetOffset(offset);
+			elements.push_back(bg);
+			std::pair<BGui::Button*, BGui::Button*> yesno = AddYesNoButton(name.c_str(), 0.293f + 0.15f * cnt, 0.4350f, 0.5200f,
+				[this, name](bool value) { m_data[name].SetBoolean(value); });
+			yesno.first->SetActive(prop.GetBoolean());
+			yesno.second->SetActive(!prop.GetBoolean());
+			elements.push_back(yesno.first);
+			elements.push_back(yesno.second);
+			break;
+		}
+		}
+
+		if (++cnt == m_maxsize) {
+			cnt = 0;
+			page++;
+			m_elements.push_back(elements);
+			elements.clear();
+		}
+	}
+
+	if (cnt != 0) {
+		m_elements.push_back(elements);
+	}
+
+	SetVisible(false);
+}
+
+void GuiModCategory::SetVisible(bool visible) {
+	Gui::SetVisible(visible);
+	if (visible) SetPage(0);
+}
+
+void GuiModCategory::SetPage(int page) {
+	for (auto& p : m_elements)
+		for (auto& e : p)
+			e->SetVisible(false);
+
+	for (auto& e : m_elements[page])
+		e->SetVisible(true);
+
+	m_curpage = page;
+	m_left->SetVisible(page > 0);
+	m_right->SetVisible(page < m_maxpage - 1);
+	m_exit->SetVisible(false);
+}
+
+void GuiModCategory::SaveAndExit() {
+	for (auto& p : m_config->m_data[m_category].second)
+		p.second.CopyValue(m_data[p.first]);
+	m_config->Save();
+	Exit();
+}
+
+void GuiModCategory::Exit() {
+	ModLoader::m_instance->m_bmlmod->ShowGui(m_parent);
 }

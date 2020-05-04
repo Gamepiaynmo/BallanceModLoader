@@ -2,6 +2,14 @@
 
 #include "CKBaseManager.h"
 
+#define NO_KEY			0
+#define KEY_PRESSED		1
+#define KEY_RELEASED	2
+
+#define KS_IDLE			0
+#define KS_PRESSED		1
+#define KS_RELEASED		2
+
 class BML_EXPORT CKInputManager : public CKBaseManager {
 public:
 	void EnableKeyboardRepetition(CKBOOL iEnable = TRUE);
@@ -9,8 +17,8 @@ public:
 	CKBOOL IsKeyDown(CKDWORD iKey, CKDWORD* oStamp = NULL);
 	CKBOOL IsKeyUp(CKDWORD iKey);
 	CKBOOL IsKeyToggled(CKDWORD iKey, CKDWORD* oStamp = NULL);
-	void GetKeyName(CKDWORD iKey, XString& oKeyName);
-	CKDWORD GetKeyFromName(XString& iKeyName);
+	void GetKeyName(CKDWORD iKey, char* oKeyName);
+	CKDWORD GetKeyFromName(char* iKeyName);
 	unsigned char* GetKeyboardState();
 	CKBOOL IsKeyboardAttached();
 	int GetNumberOfKeyInBuffer();

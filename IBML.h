@@ -4,6 +4,8 @@
 #include "Logger.h"
 #include "virtools/CKAll.h"
 #include <functional>
+#include "Gui.h"
+#include "ICommand.h"
 
 class BML_EXPORT IBML {
 public:
@@ -15,7 +17,7 @@ public:
 	virtual CKAttributeManager* GetAttributeManager() = 0;
 	virtual CKBehaviorManager* GetBehaviorManager() = 0;
 	virtual CKCollisionManager* GetCollisionManager() = 0;
-	virtual CKInputManager* GetInputManager() = 0;
+	virtual InputHook* GetInputManager() = 0;
 	virtual CKMessageManager* GetMessageManager() = 0;
 	virtual CKParameterManager* GetParameterManager() = 0;
 	virtual CKRenderManager* GetRenderManager() = 0;
@@ -38,4 +40,11 @@ public:
 	virtual void AddTimer(CKDWORD delay, std::function<bool()> callback) = 0;
 	virtual void AddTimer(float delay, std::function<void()> callback) = 0;
 	virtual void AddTimer(float delay, std::function<bool()> callback) = 0;
+
+	virtual bool IsCheatEnabled() = 0;
+	virtual void EnableCheat(bool enable) = 0;
+
+	virtual void SendIngameMessage(CKSTRING msg) = 0;
+
+	virtual void RegisterCommand(ICommand* cmd) = 0;
 };
