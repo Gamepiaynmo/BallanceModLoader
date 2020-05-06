@@ -405,6 +405,7 @@ void ModLoader::AddTimer(float delay, std::function<bool()> callback) {
 }
 
 void ModLoader::SendIngameMessage(CKSTRING msg) {
+	m_logger->Info(msg);
 	m_bmlmod->AddIngameMessage(msg);
 }
 
@@ -431,6 +432,7 @@ ICommand* ModLoader::FindCommand(const std::string& name) {
 }
 
 void ModLoader::ExecuteCommand(CKSTRING cmd) {
+	m_logger->Info("Execute Command: %s", cmd);
 	std::vector<std::string> args = SplitString(cmd, " ");
 	ICommand* command = FindCommand(args[0]);
 	if (command) command->Execute(this, args);
@@ -482,4 +484,6 @@ bool ModLoader::IsCheatEnabled() {
 void ModLoader::EnableCheat(bool enable) {
 	m_cheatEnabled = enable;
 	m_bmlmod->ShowCheatBanner(enable);
+	for (IMod* mod : m_mods)
+		mod->OnCheatEnabled(enable);
 }

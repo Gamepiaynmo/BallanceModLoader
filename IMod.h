@@ -39,6 +39,8 @@ public:
 	virtual void OnDead() {};
 	virtual void OnEndLevel() {};
 
+	virtual void OnCheatEnabled(bool enable) {};
+
 protected:
 	virtual ILogger* GetLogger() final;
 	virtual IConfig* GetConfig() final;

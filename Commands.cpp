@@ -116,3 +116,18 @@ void CommandSpeed::Execute(IBML* bml, std::vector<std::string> args) {
 		}
 	}
 }
+
+void CommandKill::Execute(IBML* bml, std::vector<std::string> args) {
+	if (!m_deactBall) {
+		CKContext* ctx = bml->GetCKContext();
+		CKBehavior* ingame = static_cast<CKBehavior*>(ctx->GetObjectByNameAndClass("Gameplay_Ingame", CKCID_BEHAVIOR));
+		CKBehavior* ballMgr = ScriptHelper::FindFirstBB(ingame, "BallManager", false);
+		m_deactBall = ScriptHelper::FindFirstBB(ballMgr, "Deactivate Ball", false);
+	}
+
+	if (m_deactBall) {
+		m_deactBall->ActivateInput(0);
+		m_deactBall->Activate();
+		bml->SendIngameMessage("Killed Ball");
+	}
+}

@@ -68,6 +68,11 @@ void BMLMod::OnLoadObject(CKSTRING filename, CKSTRING masterName, CK_CLASSID fil
 			cam->SetFov(0.75f * rc->GetWidth() / rc->GetHeight());
 			m_bml->GetCKContext()->GetCurrentScene()->SetObjectInitialValue(cam, CKSaveObjectState(cam));
 		}
+
+		m_camPos = static_cast<CK3dEntity*>(m_bml->GetCKContext()->GetObjectByNameAndClass("Cam_Pos", CKCID_3DENTITY));
+		m_camOrient = static_cast<CK3dEntity*>(m_bml->GetCKContext()->GetObjectByNameAndClass("Cam_Orient", CKCID_3DENTITY));
+		m_camOrientRef = static_cast<CK3dEntity*>(m_bml->GetCKContext()->GetObjectByNameAndClass("Cam_OrientRef", CKCID_3DENTITY));
+		m_camTarget = static_cast<CK3dEntity*>(m_bml->GetCKContext()->GetObjectByNameAndClass("Cam_Target", CKCID_3DENTITY));
 	}
 }
 
@@ -83,6 +88,9 @@ void BMLMod::OnLoadScript(CKSTRING filename, CKBehavior* script) {
 
 	if (!strcmp(script->GetName(), "Menu_Options"))
 		OnEditScript_Menu_OptionsMenu(script);
+
+	if (!strcmp(script->GetName(), "Gameplay_Ingame"))
+		OnEditScript_Gameplay_Ingame(script);
 }
 
 void BMLMod::OnEditScript_Base_DefaultLevel(CKBehavior* script) {
@@ -197,10 +205,10 @@ void BMLMod::OnEditScript_Menu_OptionsMenu(CKBehavior* script) {
 	buttons[5] = static_cast<CK2dEntity*>(context->GetObjectByNameAndClass("M_Options_But_Back", CKCID_2DENTITY));
 	buttons[4] = static_cast<CK2dEntity*>(context->CopyObject(buttons[1]));
 	buttons[4]->SetName("M_Options_But_4");
-	for (int i = 0; i < 6; i++) {
+	for (int i = 0; i < 5; i++) {
 		Vx2DVector pos;
 		buttons[i]->GetPosition(pos, true);
-		pos.y = 0.1f + 0.15f * i;
+		pos.y = 0.1f + 0.14f * i;
 		buttons[i]->SetPosition(pos, true);
 	}
 
@@ -290,6 +298,65 @@ void BMLMod::OnEditScript_Menu_OptionsMenu(CKBehavior* script) {
 	GetLogger()->Info("Mods Button inserted");
 }
 
+void BMLMod::OnEditScript_Gameplay_Ingame(CKBehavior* script) {
+	CKBehavior* ballNav = FindFirstBB(script, "Ball Navigation", false);
+	CKBehavior* nop[2] = { 0 };
+	FindBB(ballNav, [&nop, ballNav](CKBehavior* beh) {
+		if (nop[0]) nop[1] = beh;
+		else nop[0] = beh;
+		return !nop[1];
+		}, "Nop", false);
+	CKBehavior* keyevent[2] = { CreateBB(ballNav, VT_KEYEVENT), CreateBB(ballNav, VT_KEYEVENT) };
+	m_ballForce[0] = CreateLocalParameter(ballNav, "Up", CKPGUID_KEY);
+	m_ballForce[1] = CreateLocalParameter(ballNav, "Down", CKPGUID_KEY);
+	CKBehavior* phyforce[2] = { CreateBB(ballNav, TT_SETPHYSICSFORCE, true), CreateBB(ballNav, TT_SETPHYSICSFORCE, true) };
+	CKBehavior* op = FindFirstBB(ballNav, "Op", false);
+	CKParameter* mass = op->GetInputParameter(0)->GetDirectSource();
+	CKBehavior* spf = FindFirstBB(ballNav, "SetPhysicsForce", false);
+	CKParameter* dir[2] = { CreateLocalParameter(ballNav, "Up", CKPGUID_VECTOR), CreateLocalParameter(ballNav, "Down", CKPGUID_VECTOR) };
+	SetParamValue(dir[0], VxVector(0, 1, 0));
+	SetParamValue(dir[1], VxVector(0, -1, 0));
+	CKBehavior* wake = FindFirstBB(ballNav, "Physics WakeUp", false);
+
+	for (int i = 0; i < 2; i++) {
+		SetParamValue(m_ballForce[i], CKKEYBOARD(0));
+		keyevent[i]->GetInputParameter(0)->SetDirectSource(m_ballForce[i]);
+		CreateLink(ballNav, nop[0], keyevent[i], 0, 0);
+		CreateLink(ballNav, nop[1], keyevent[i], 0, 1);
+		phyforce[i]->GetTargetParameter()->ShareSourceWith(spf->GetTargetParameter());
+		phyforce[i]->GetInputParameter(0)->ShareSourceWith(spf->GetInputParameter(0));
+		phyforce[i]->GetInputParameter(1)->ShareSourceWith(spf->GetInputParameter(1));
+		phyforce[i]->GetInputParameter(2)->SetDirectSource(dir[i]);
+		phyforce[i]->GetInputParameter(3)->ShareSourceWith(spf->GetInputParameter(3));
+		phyforce[i]->GetInputParameter(4)->SetDirectSource(mass);
+		CreateLink(ballNav, keyevent[i], phyforce[i], 0, 0);
+		CreateLink(ballNav, keyevent[i], phyforce[i], 1, 1);
+		CreateLink(ballNav, nop[1], phyforce[i], 0, 1);
+		CreateLink(ballNav, phyforce[i], wake, 0, 0);
+		CreateLink(ballNav, phyforce[i], wake, 1, 0);
+	}
+}
+
+void BMLMod::OnCheatEnabled(bool enable) {
+	if (enable) {
+		SetParamValue(m_ballForce[0], m_ballCheat[0]->GetKey());
+		SetParamValue(m_ballForce[1], m_ballCheat[1]->GetKey());
+	}
+	else {
+		SetParamValue(m_ballForce[0], CKKEYBOARD(0));
+		SetParamValue(m_ballForce[1], CKKEYBOARD(0));
+	}
+}
+
+void BMLMod::OnModifyConfig(CKSTRING category, CKSTRING key, IProperty* prop) {
+	if (m_bml->IsCheatEnabled()) {
+		if (prop == m_ballCheat[0])
+			SetParamValue(m_ballForce[0], m_ballCheat[0]->GetKey());
+		if (prop == m_ballCheat[1])
+			SetParamValue(m_ballForce[1], m_ballCheat[1]->GetKey());
+	}
+}
+
 void BMLMod::OnLoad() {
 	GetConfig()->SetCategoryComment("Misc", "Miscellaneous");
 	m_skipAnim = GetConfig()->GetProperty("Misc", "SkipLoadingAnim");
@@ -304,6 +371,56 @@ void BMLMod::OnLoad() {
 	m_unlockRes->SetComment("Unlock 16:9 Resolutions");
 	m_unlockRes->SetDefaultBoolean(true);
 
+	GetConfig()->SetCategoryComment("Debug", "Debug Utilities");
+	m_ballCheat[0] = GetConfig()->GetProperty("Debug", "BallUp");
+	m_ballCheat[0]->SetComment("Apply an upward force to the ball");
+	m_ballCheat[0]->SetDefaultKey(CKKEY_F1);
+
+	m_ballCheat[1] = GetConfig()->GetProperty("Debug", "BallDown");
+	m_ballCheat[1]->SetComment("Apply a downward force to the ball");
+	m_ballCheat[1]->SetDefaultKey(CKKEY_F2);
+
+	m_suicide = GetConfig()->GetProperty("Debug", "Suicide");
+	m_suicide->SetComment("Suicide");
+	m_suicide->SetDefaultKey(CKKEY_R);
+
+	GetConfig()->SetCategoryComment("Camera", "Camera Utilities");
+	m_camOn = GetConfig()->GetProperty("Camera", "Enable");
+	m_camOn->SetComment("Enable Camera Utilities");
+	m_camOn->SetDefaultBoolean(false);
+
+	m_camReset = GetConfig()->GetProperty("Camera", "Reset");
+	m_camReset->SetComment("Reset Camera");
+	m_camReset->SetDefaultKey(CKKEY_D);
+
+	m_cam45 = GetConfig()->GetProperty("Camera", "Rotate45");
+	m_cam45->SetComment("Set to 45 degrees");
+	m_cam45->SetDefaultKey(CKKEY_W);
+
+	m_camRot[0] = GetConfig()->GetProperty("Camera", "RotateLeft");
+	m_camRot[0]->SetComment("Rotate the camera");
+	m_camRot[0]->SetDefaultKey(CKKEY_Q);
+
+	m_camRot[1] = GetConfig()->GetProperty("Camera", "RotateRight");
+	m_camRot[1]->SetComment("Rotate the camera");
+	m_camRot[1]->SetDefaultKey(CKKEY_E);
+
+	m_camY[0] = GetConfig()->GetProperty("Camera", "MoveUp");
+	m_camY[0]->SetComment("Move the camera");
+	m_camY[0]->SetDefaultKey(CKKEY_A);
+
+	m_camY[1] = GetConfig()->GetProperty("Camera", "MoveDown");
+	m_camY[1]->SetComment("Move the camera");
+	m_camY[1]->SetDefaultKey(CKKEY_Z);
+
+	m_camZ[0] = GetConfig()->GetProperty("Camera", "MoveFront");
+	m_camZ[0]->SetComment("Move the camera");
+	m_camZ[0]->SetDefaultKey(CKKEY_S);
+
+	m_camZ[1] = GetConfig()->GetProperty("Camera", "MoveBack");
+	m_camZ[1]->SetComment("Move the camera");
+	m_camZ[1]->SetDefaultKey(CKKEY_X);
+
 	m_skipSpeed = m_skipAnim->GetBoolean();
 	if (m_skipSpeed)
 		GetLogger()->Info("Speed up to skip Loading Animation");
@@ -314,21 +431,27 @@ void BMLMod::OnLoad() {
 	m_bml->RegisterCommand(new CommandClear());
 	m_bml->RegisterCommand(new CommandScore());
 	m_bml->RegisterCommand(new CommandSpeed());
+	m_bml->RegisterCommand(new CommandKill());
 }
 
 void BMLMod::OnProcess() {
 	if (m_skipSpeed)
 		m_bml->GetTimeManager()->SetTimeScaleFactor(100.0f);
 
-	if (m_bml->GetInputManager()->IsKeyPressed(m_fullscreenKey->GetKey())) {
+	InputHook* im = m_bml->GetInputManager();
+	if (im->IsKeyPressed(m_fullscreenKey->GetKey())) {
 		CKRenderContext* rc = m_bml->GetRenderContext();
 		if (rc->IsFullScreen())
 			rc->StopFullScreen();
 		else rc->GoFullScreen(rc->GetWidth(), rc->GetHeight(), -1, rc->GetDriverIndex());
 	}
 
+	if (im->IsKeyPressed(m_suicide->GetKey())) {
+		ModLoader::m_instance->ExecuteCommand("kill");
+	}
+
 	if (m_cmdBar) {
-		if (!m_cmdTyping && m_bml->GetInputManager()->oIsKeyPressed(CKKEY_SLASH)) {
+		if (!m_cmdTyping && im->oIsKeyPressed(CKKEY_SLASH)) {
 			m_cmdTyping = true;
 			InputHook::SetBlock(true);
 			m_cmdBar->SetVisible(true);
@@ -360,6 +483,46 @@ void BMLMod::OnProcess() {
 
 		for (int i = 0; i < min(MSG_MAXSIZE, m_msgCnt); i++) {
 			m_msg[i].timer--;
+		}
+	}
+
+	if (m_camOn->GetBoolean()) {
+		if (im->IsKeyPressed(m_cam45->GetKey())) {
+			m_camOrientRef->Rotate(&VxVector(0, 1, 0), PI / 4, m_camOrientRef);
+			m_camOrient->SetQuaternion(&VxQuaternion(), m_camOrientRef);
+		}
+		if (im->IsKeyDown(m_camRot[0]->GetKey())) {
+			m_camOrientRef->Rotate(&VxVector(0, 1, 0), -0.01f, m_camOrientRef);
+			m_camOrient->SetQuaternion(&VxQuaternion(), m_camOrientRef);
+		}
+		if (im->IsKeyDown(m_camRot[1]->GetKey())) {
+			m_camOrientRef->Rotate(&VxVector(0, 1, 0), 0.01f, m_camOrientRef);
+			m_camOrient->SetQuaternion(&VxQuaternion(), m_camOrientRef);
+		}
+		if (im->IsKeyDown(m_camY[0]->GetKey()))
+			m_camPos->Translate(&VxVector(0, 0.1f, 0), m_camOrientRef);
+		if (im->IsKeyDown(m_camY[1]->GetKey()))
+			m_camPos->Translate(&VxVector(0, -0.1f, 0), m_camOrientRef);
+		if (im->IsKeyDown(m_camZ[0]->GetKey())) {
+			VxVector position;
+			m_camPos->GetPosition(&position, m_camOrientRef);
+			position.z = (std::min)(position.z + 0.1f, -0.1f);
+			m_camPos->SetPosition(&position, m_camOrientRef);
+		}
+		if (im->IsKeyDown(m_camZ[1]->GetKey()))
+			m_camPos->Translate(&VxVector(0, 0, -0.1f), m_camOrientRef);
+		if (im->IsKeyDown(m_camReset->GetKey())) {
+			VxQuaternion rotation;
+			m_camOrientRef->GetQuaternion(&rotation, m_camTarget);
+			if (rotation.angle > 0.9f)
+				rotation = VxQuaternion();
+			else {
+				rotation = rotation + VxQuaternion();
+				rotation *= 0.5f;
+			}
+			m_camOrientRef->SetQuaternion(&rotation, m_camTarget);
+			m_camOrient->SetQuaternion(&VxQuaternion(), m_camOrientRef);
+			m_camPos->SetPosition(&VxVector(0, 35, -22), m_camOrient);
 		}
 	}
 }
@@ -544,17 +707,17 @@ GuiModMenu::GuiModMenu(IMod* mod) : GuiList() {
 
 	m_config = ModLoader::m_instance->GetConfig(mod);
 	if (m_config) {
-		AddTextLabel("M_Opt_ModMenu_Title", "Mod Options", ExecuteBB::GAMEFONT_01, 0.35f, 0.3f, 0.3f, 0.05f);
+		AddTextLabel("M_Opt_ModMenu_Title", "Mod Options", ExecuteBB::GAMEFONT_01, 0.35f, 0.4f, 0.3f, 0.05f);
 		for (auto& cate : m_config->m_data)
 			m_categories.push_back(cate.first);
 	}
 
-	Init(m_categories.size(), 8);
+	Init(m_categories.size(), 6);
 	SetVisible(false);
 }
 
 BGui::Button* GuiModMenu::CreateButton(int index) {
-	BGui::Button* button = AddLevelButton(("M_Opt_ModMenu_" + std::to_string(index)).c_str(), "", 0.35f + 0.06f * index);
+	BGui::Button* button = AddLevelButton(("M_Opt_ModMenu_" + std::to_string(index)).c_str(), "", 0.45f + 0.06f * index);
 	button->SetFont(ExecuteBB::GAMEFONT_03);
 	return button;
 }
@@ -574,8 +737,6 @@ BGui::Gui* GuiModMenu::GetParentGui() {
 GuiModCategory::GuiModCategory(GuiModMenu* parent, Config* config, std::string category) {
 	m_data = config->m_data[category].second;
 	m_size = m_data.size();
-	m_maxsize = 4;
-	m_maxpage = (m_size + m_maxsize - 1) / m_maxsize;
 	m_curpage = 0;
 
 	m_parent = parent;
@@ -591,93 +752,100 @@ GuiModCategory::GuiModCategory(GuiModMenu* parent, Config* config, std::string c
 
 	Vx2DVector offset(0.0f, ModLoader::m_instance->GetRenderContext()->GetHeight() * 0.015f);
 
-	int cnt = 0, page = 0;
+	float cnt = 0.25f, page = 0;
 	std::vector<BGui::Element*> elements;
 	for (auto& p : m_data) {
 		std::string name = p.first;
 		Property& prop = p.second;
 		switch (prop.GetType()) {
 		case IProperty::STRING: {
-			BGui::Button* bg = AddSettingButton(name.c_str(), name.c_str(), 0.25f + 0.15f * cnt);
+			BGui::Button* bg = AddSettingButton(name.c_str(), name.c_str(), cnt);
 			bg->SetAlignment(ALIGN_TOP);
 			bg->SetFont(ExecuteBB::GAMEFONT_03);
 			bg->SetZOrder(15);
 			bg->SetOffset(offset);
 			elements.push_back(bg);
-			BGui::Input* input = AddTextInput(name.c_str(), ExecuteBB::GAMEFONT_03, 0.43f, 0.3f + 0.15f * cnt, 0.18f, 0.025f);
+			BGui::Input* input = AddTextInput(name.c_str(), ExecuteBB::GAMEFONT_03, 0.43f, cnt + 0.05f, 0.18f, 0.025f);
 			input->SetText(prop.GetString());
 			input->SetCallback([this, name, input](CKDWORD) { m_data[name].SetString(input->GetText()); });
 			elements.push_back(input);
-			BGui::Panel* panel = AddPanel(name.c_str(), VxColor(0, 0, 0, 110), 0.43f, 0.3f + 0.15f * cnt, 0.18f, 0.025f);
+			BGui::Panel* panel = AddPanel(name.c_str(), VxColor(0, 0, 0, 110), 0.43f, cnt + 0.05f, 0.18f, 0.025f);
 			elements.push_back(panel);
+			cnt += 0.12f;
 			break;
 		}
 		case IProperty::INTEGER: {
-			BGui::Button* bg = AddSettingButton(name.c_str(), name.c_str(), 0.25f + 0.15f * cnt);
+			BGui::Button* bg = AddSettingButton(name.c_str(), name.c_str(), cnt);
 			bg->SetAlignment(ALIGN_TOP);
 			bg->SetFont(ExecuteBB::GAMEFONT_03);
 			bg->SetZOrder(15);
 			bg->SetOffset(offset);
 			elements.push_back(bg);
-			BGui::Input* input = AddTextInput(name.c_str(), ExecuteBB::GAMEFONT_03, 0.43f, 0.3f + 0.15f * cnt, 0.18f, 0.025f);
+			BGui::Input* input = AddTextInput(name.c_str(), ExecuteBB::GAMEFONT_03, 0.43f, cnt + 0.05f, 0.18f, 0.025f);
 			input->SetText(std::to_string(prop.GetInteger()).c_str());
 			input->SetCallback([this, name, input](CKDWORD) { m_data[name].SetInteger(atoi(input->GetText())); });
 			elements.push_back(input);
-			BGui::Panel* panel = AddPanel(name.c_str(), VxColor(0, 0, 0, 110), 0.43f, 0.3f + 0.15f * cnt, 0.18f, 0.025f);
+			BGui::Panel* panel = AddPanel(name.c_str(), VxColor(0, 0, 0, 110), 0.43f, cnt + 0.05f, 0.18f, 0.025f);
 			elements.push_back(panel);
+			cnt += 0.12f;
 			break;
 		}
 		case IProperty::FLOAT: {
-			BGui::Button* bg = AddSettingButton(name.c_str(), name.c_str(), 0.25f + 0.15f * cnt);
+			BGui::Button* bg = AddSettingButton(name.c_str(), name.c_str(), cnt);
 			bg->SetAlignment(ALIGN_TOP);
 			bg->SetFont(ExecuteBB::GAMEFONT_03);
 			bg->SetZOrder(15);
 			bg->SetOffset(offset);
 			elements.push_back(bg);
-			BGui::Input* input = AddTextInput(name.c_str(), ExecuteBB::GAMEFONT_03, 0.43f, 0.3f + 0.15f * cnt, 0.18f, 0.025f);
+			BGui::Input* input = AddTextInput(name.c_str(), ExecuteBB::GAMEFONT_03, 0.43f, cnt + 0.05f, 0.18f, 0.025f);
 			input->SetText(std::to_string(prop.GetFloat()).c_str());
 			input->SetCallback([this, name, input](CKDWORD) { m_data[name].SetFloat((float) atof(input->GetText())); });
 			elements.push_back(input);
-			BGui::Panel* panel = AddPanel(name.c_str(), VxColor(0, 0, 0, 110), 0.43f, 0.3f + 0.15f * cnt, 0.18f, 0.025f);
+			BGui::Panel* panel = AddPanel(name.c_str(), VxColor(0, 0, 0, 110), 0.43f, cnt + 0.05f, 0.18f, 0.025f);
 			elements.push_back(panel);
+			cnt += 0.12f;
 			break;
 		}
 		case IProperty::KEY: {
-			std::pair<BGui::Button*, BGui::KeyInput*> key = AddKeyButton(name.c_str(), name.c_str(), 0.28f + 0.15f * cnt);
+			std::pair<BGui::Button*, BGui::KeyInput*> key = AddKeyButton(name.c_str(), name.c_str(), cnt);
 			key.second->SetKey(prop.GetKey());
 			key.second->SetCallback([this, name](CKDWORD key) { m_data[name].SetKey(CKKEYBOARD(key)); });
 			elements.push_back(key.first);
 			elements.push_back(key.second);
+			cnt += 0.06f;
 			break;
 		}
 		case IProperty::BOOLEAN: {
-			BGui::Button* bg = AddSettingButton(name.c_str(), name.c_str(), 0.25f + 0.15f * cnt);
+			BGui::Button* bg = AddSettingButton(name.c_str(), name.c_str(), cnt);
 			bg->SetAlignment(ALIGN_TOP);
 			bg->SetFont(ExecuteBB::GAMEFONT_03);
 			bg->SetZOrder(15);
 			bg->SetOffset(offset);
 			elements.push_back(bg);
-			std::pair<BGui::Button*, BGui::Button*> yesno = AddYesNoButton(name.c_str(), 0.293f + 0.15f * cnt, 0.4350f, 0.5200f,
+			std::pair<BGui::Button*, BGui::Button*> yesno = AddYesNoButton(name.c_str(), cnt + 0.043f, 0.4350f, 0.5200f,
 				[this, name](bool value) { m_data[name].SetBoolean(value); });
 			yesno.first->SetActive(prop.GetBoolean());
 			yesno.second->SetActive(!prop.GetBoolean());
 			elements.push_back(yesno.first);
 			elements.push_back(yesno.second);
+			cnt += 0.12f;
 			break;
 		}
 		}
 
-		if (++cnt == m_maxsize) {
-			cnt = 0;
+		if (cnt > 0.7f) {
+			cnt = 0.25f;
 			page++;
 			m_elements.push_back(elements);
 			elements.clear();
 		}
 	}
 
-	if (cnt != 0) {
+	if (cnt > 0.0f) {
 		m_elements.push_back(elements);
 	}
+
+	m_maxpage = m_elements.size();
 
 	SetVisible(false);
 }

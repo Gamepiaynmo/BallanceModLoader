@@ -24,7 +24,7 @@ void Config::Load() {
 		else if (inCate) {
 			std::string propname;
 			fin >> propname;
-			Property prop(this, category, propname);
+			Property prop(nullptr, category, propname);
 			switch (token[0]) {
 				case 'S': {
 					std::string value;
@@ -73,6 +73,20 @@ void Config::Save() {
 	std::ofstream fout("../ModLoader/Config/" + m_modname + ".cfg");
 	if (fout.fail()) return;
 
+	for (auto& category : m_data) {
+		for (auto iter = category.second.second.begin(); iter != category.second.second.end(); ) {
+			if (!iter->second.m_config)
+				iter = category.second.second.erase(iter);
+			else iter++;
+		}
+	}
+
+	for (auto iter = m_data.begin(); iter != m_data.end(); ) {
+		if (iter->second.second.empty())
+			iter = m_data.erase(iter);
+		else iter++;
+	}
+
 	fout << "# Configuration File for Mod: " << m_mod->GetName() << " - " << m_mod->GetVersion() << std::endl << std::endl;
 	for (auto& category : m_data) {
 		fout << "# " << category.second.first << std::endl;
@@ -119,7 +133,17 @@ bool Config::HasKey(CKSTRING category, CKSTRING key) {
 }
 
 IProperty* Config::GetProperty(CKSTRING category, CKSTRING key) {
-	return &m_data[category].second[key];
+	auto& cate = m_data[category].second;
+	bool exist = cate.find(key) != cate.end();
+	Property& prop = m_data[category].second[key];
+	prop.m_config = this;
+	if (!exist) {
+		prop.m_type = IProperty::NONE;
+		prop.m_value.m_int = 0;
+		prop.m_category = category;
+		prop.m_key = key;
+	}
+	return &prop;
 }
 
 void Config::SetCategoryComment(CKSTRING category, CKSTRING comment) {

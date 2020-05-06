@@ -78,3 +78,16 @@ private:
 	CKParameter* m_force = nullptr;
 	std::map<std::string, float> m_forces;
 };
+
+class CommandKill : public ICommand {
+	virtual std::string GetName() override { return "kill"; };
+	virtual std::string GetAlias() override { return ""; };
+	virtual std::string GetDescription() override { return "Suicide."; };
+	virtual bool IsCheat() override { return false; };
+
+	virtual void Execute(IBML* bml, std::vector<std::string> args) override;
+	virtual std::vector<std::string> GetTabCompletion(IBML* bml, std::vector<std::string> args) { return std::vector<std::string>(); };
+
+private:
+	CKBehavior* m_deactBall = nullptr;
+};

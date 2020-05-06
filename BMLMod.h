@@ -75,7 +75,7 @@ public:
 private:
 	std::map<std::string, Property> m_data;
 	std::vector<std::vector<BGui::Element*>> m_elements;
-	int m_curpage, m_maxpage, m_size, m_maxsize;
+	int m_curpage, m_maxpage, m_size;
 	BGui::Button* m_left, * m_right;
 
 	GuiModMenu* m_parent;
@@ -103,6 +103,8 @@ public:
 	virtual void OnLoadScript(CKSTRING filename, CKBehavior* script) override;
 	virtual void OnProcess() override;
 	virtual void OnStartMenu() override;
+	virtual void OnCheatEnabled(bool enable) override;
+	virtual void OnModifyConfig(CKSTRING category, CKSTRING key, IProperty* prop) override;
 
 	void AddIngameMessage(CKSTRING msg);
 	void ShowCheatBanner(bool show);
@@ -116,6 +118,7 @@ private:
 	void OnEditScript_Base_EventHandler(CKBehavior* script);
 	void OnEditScript_Menu_MenuInit(CKBehavior* script);
 	void OnEditScript_Menu_OptionsMenu(CKBehavior* script);
+	void OnEditScript_Gameplay_Ingame(CKBehavior* script);
 
 	void OnCmdEdit(CKDWORD key);
 
@@ -143,4 +146,11 @@ private:
 
 	BGui::Gui* m_currentGui = nullptr;
 	GuiModOption* m_modOption = nullptr;
+
+	IProperty* m_ballCheat[2];
+	IProperty* m_suicide;
+	CKParameterLocal* m_ballForce[2] = { 0 };
+
+	IProperty* m_camRot[2], * m_camY[2], * m_camZ[2], * m_cam45, * m_camReset, * m_camOn;
+	CK3dEntity* m_camPos, * m_camOrient, * m_camOrientRef, * m_camTarget;
 };

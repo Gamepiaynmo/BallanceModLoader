@@ -11,6 +11,7 @@
 class Config;
 
 class Property : public IProperty {
+	friend class Config;
 public:
 	Property(Config* config, std::string category, std::string key);
 	Property() {};
