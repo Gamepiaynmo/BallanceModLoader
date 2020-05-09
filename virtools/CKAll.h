@@ -19,6 +19,7 @@
 #include "CKInputManager.h"
 #include "CKMessageManager.h"
 #include "CKParameterManager.h"
+#include "CKPathManager.h"
 #include "CKRenderManager.h"
 #include "CKSoundManager.h"
 #include "CKTimeManager.h"

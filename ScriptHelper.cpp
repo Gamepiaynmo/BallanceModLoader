@@ -11,6 +11,7 @@ namespace ScriptHelper {
 					return false;
 			}
 
+			auto res = beh->GetName();
 			if ((!name || !strcmp(beh->GetName(), name))
 				&& (inputCnt < 0 || beh->GetInputCount() == inputCnt)
 				&& (outputCnt < 0 || beh->GetOutputCount() == outputCnt)
@@ -45,8 +46,8 @@ namespace ScriptHelper {
 
 	CKBehaviorLink* CreateLink(CKBehavior* script, CKBehaviorIO* in, CKBehaviorIO* out) {
 		CKBehaviorLink* link = static_cast<CKBehaviorLink*>(script->GetCKContext()->CreateObject(CKCID_BEHAVIORLINK));
-		auto res = link->SetInBehaviorIO(in);
-		res = link->SetOutBehaviorIO(out);
+		link->SetInBehaviorIO(in);
+		link->SetOutBehaviorIO(out);
 		script->AddSubBehaviorLink(link);
 		return link;
 	}
@@ -55,7 +56,7 @@ namespace ScriptHelper {
 		CKBehavior* beh = static_cast<CKBehavior*>(script->GetCKContext()->CreateObject(CKCID_BEHAVIOR));
 		beh->InitFromGuid(guid);
 		if (target) beh->UseTarget();
-		auto res = script->AddSubBehavior(beh);
+		script->AddSubBehavior(beh);
 		return beh;
 	}
 
@@ -152,6 +153,66 @@ namespace ScriptHelper {
 	CKBehavior* FindPreviousBB(CKBehavior * script, CKBehavior * beh, CKSTRING name, int inPos, int outPos,
 		int inputCnt, int outputCnt, int inputParamCnt, int outputParamCnt) {
 		CKBehaviorLink* link = FindPreviousLink(script, beh, name, inPos, outPos, inputCnt, outputCnt, inputParamCnt, outputParamCnt);
+		return link ? link->GetInBehaviorIO()->GetOwner() : nullptr;
+	}
+
+	CKBehaviorLink* FindNextLink(CKBehavior* script, CKBehaviorIO* io, CKSTRING name, int outPos,
+		int inputCnt, int outputCnt, int inputParamCnt, int outputParamCnt) {
+		int linkCnt = script->GetSubBehaviorLinkCount();
+		for (int i = 0; i < linkCnt; i++) {
+			CKBehaviorLink* link = script->GetSubBehaviorLink(i);
+			CKBehaviorIO* in = link->GetInBehaviorIO();
+
+			if (in == io) {
+				CKBehaviorIO* out = link->GetOutBehaviorIO();
+				CKBehavior* outBeh = out->GetOwner();
+
+				if ((!name || !strcmp(outBeh->GetName(), name))
+					&& (outPos < 0 || outBeh->GetInput(outPos) == out)
+					&& (inputCnt < 0 || outBeh->GetInputCount() == inputCnt)
+					&& (outputCnt < 0 || outBeh->GetOutputCount() == outputCnt)
+					&& (inputParamCnt < 0 || outBeh->GetInputParameterCount() == inputParamCnt)
+					&& (outputParamCnt < 0 || outBeh->GetOutputParameterCount() == outputParamCnt))
+					return link;
+			}
+		}
+
+		return nullptr;
+	}
+
+	CKBehaviorLink* FindPreviousLink(CKBehavior* script, CKBehaviorIO* io, CKSTRING name, int inPos,
+		int inputCnt, int outputCnt, int inputParamCnt, int outputParamCnt) {
+		int linkCnt = script->GetSubBehaviorLinkCount();
+		for (int i = 0; i < linkCnt; i++) {
+			CKBehaviorLink* link = script->GetSubBehaviorLink(i);
+			CKBehaviorIO* out = link->GetOutBehaviorIO();
+
+			if (out == io) {
+				CKBehaviorIO* in = link->GetInBehaviorIO();
+				CKBehavior* inBeh = in->GetOwner();
+
+				if ((!name || !strcmp(inBeh->GetName(), name))
+					&& (inPos < 0 || inBeh->GetOutput(inPos) == in)
+					&& (inputCnt < 0 || inBeh->GetInputCount() == inputCnt)
+					&& (outputCnt < 0 || inBeh->GetOutputCount() == outputCnt)
+					&& (inputParamCnt < 0 || inBeh->GetInputParameterCount() == inputParamCnt)
+					&& (outputParamCnt < 0 || inBeh->GetOutputParameterCount() == outputParamCnt))
+					return link;
+			}
+		}
+
+		return nullptr;
+	}
+
+	CKBehavior* FindNextBB(CKBehavior* script, CKBehaviorIO* io, CKSTRING name, int outPos,
+		int inputCnt, int outputCnt, int inputParamCnt, int outputParamCnt) {
+		CKBehaviorLink* link = FindNextLink(script, io, name, outPos, inputCnt, outputCnt, inputParamCnt, outputParamCnt);
+		return link ? link->GetOutBehaviorIO()->GetOwner() : nullptr;
+	}
+
+	CKBehavior* FindPreviousBB(CKBehavior* script, CKBehaviorIO* io, CKSTRING name, int inPos,
+		int inputCnt, int outputCnt, int inputParamCnt, int outputParamCnt) {
+		CKBehaviorLink* link = FindPreviousLink(script, io, name, inPos, inputCnt, outputCnt, inputParamCnt, outputParamCnt);
 		return link ? link->GetInBehaviorIO()->GetOwner() : nullptr;
 	}
 

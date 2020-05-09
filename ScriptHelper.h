@@ -53,6 +53,16 @@ namespace ScriptHelper {
 	CKBehavior* FindPreviousBB(CKBehavior* script, CKBehavior* beh, CKSTRING name = nullptr, int inPos = -1, int outPos = -1,
 		int inputCnt = -1, int outputCnt = -1, int inputParamCnt = -1, int outputParamCnt = -1);
 
+	CKBehaviorLink* FindNextLink(CKBehavior* script, CKBehaviorIO* io, CKSTRING name = nullptr, int outPos = -1,
+		int inputCnt = -1, int outputCnt = -1, int inputParamCnt = -1, int outputParamCnt = -1);
+	CKBehaviorLink* FindPreviousLink(CKBehavior* script, CKBehaviorIO* io, CKSTRING name = nullptr, int inPos = -1,
+		int inputCnt = -1, int outputCnt = -1, int inputParamCnt = -1, int outputParamCnt = -1);
+
+	CKBehavior* FindNextBB(CKBehavior* script, CKBehaviorIO* io, CKSTRING name = nullptr, int outPos = -1,
+		int inputCnt = -1, int outputCnt = -1, int inputParamCnt = -1, int outputParamCnt = -1);
+	CKBehavior* FindPreviousBB(CKBehavior* script, CKBehaviorIO* io, CKSTRING name = nullptr, int inPos = -1,
+		int inputCnt = -1, int outputCnt = -1, int inputParamCnt = -1, int outputParamCnt = -1);
+
 	CKBehavior* FindEndOfChain(CKBehavior* script, CKBehavior* beh);
 
 	void DeleteLink(CKBehavior* script, CKBehaviorLink* link);

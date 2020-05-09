@@ -84,8 +84,24 @@ private:
 	BGui::Button* m_exit;
 };
 
+class CommandTravel : public ICommand {
+	virtual std::string GetName() override { return "travel"; };
+	virtual std::string GetAlias() override { return ""; };
+	virtual std::string GetDescription() override { return "Switch to First-Person Camera."; };
+	virtual bool IsCheat() override { return false; };
+
+	virtual void Execute(IBML* bml, std::vector<std::string> args) override;
+	virtual std::vector<std::string> GetTabCompletion(IBML* bml, std::vector<std::string> args) { return std::vector<std::string>(); };
+public:
+	CommandTravel(class BMLMod* mod) : m_mod(mod) {};
+
+private:
+	class BMLMod* m_mod;
+};
+
 class BMLMod : public IMod {
 	friend class CommandClear;
+	friend class CommandSector;
 	friend class GuiModMenu;
 public:
 	BMLMod(IBML* bml) : IMod(bml) {}
@@ -102,9 +118,17 @@ public:
 		XObjectArray* objArray, CKObject* masterObj) override;
 	virtual void OnLoadScript(CKSTRING filename, CKBehavior* script) override;
 	virtual void OnProcess() override;
-	virtual void OnStartMenu() override;
 	virtual void OnCheatEnabled(bool enable) override;
 	virtual void OnModifyConfig(CKSTRING category, CKSTRING key, IProperty* prop) override;
+
+	virtual void OnPostStartMenu() override;
+	virtual void OnPostResetLevel() override;
+	virtual void OnStartLevel() override;
+	virtual void OnPostExitLevel() override;
+	virtual void OnPauseLevel() override;
+	virtual void OnUnpauseLevel() override;
+	virtual void OnCounterActive() override;
+	virtual void OnCounterInactive() override;
 
 	void AddIngameMessage(CKSTRING msg);
 	void ShowCheatBanner(bool show);
@@ -113,19 +137,20 @@ public:
 	void ShowGuiList(GuiList* gui);
 	void CloseCurrentGui();
 
+	void EnterTravelCam();
+	void ExitTravelCam();
+	bool IsInTravelCam();
+
 private:
 	void OnEditScript_Base_DefaultLevel(CKBehavior* script);
 	void OnEditScript_Base_EventHandler(CKBehavior* script);
 	void OnEditScript_Menu_MenuInit(CKBehavior* script);
 	void OnEditScript_Menu_OptionsMenu(CKBehavior* script);
 	void OnEditScript_Gameplay_Ingame(CKBehavior* script);
+	void OnEditScript_Gameplay_Energy(CKBehavior* script);
+	void OnEditScript_Gameplay_Events(CKBehavior* script);
 
 	void OnCmdEdit(CKDWORD key);
-
-	IProperty* m_skipAnim;
-	bool m_skipSpeed = false;
-	IProperty* m_fullscreenKey;
-	IProperty* m_unlockRes;
 
 	BGui::Gui* m_cmdBar = nullptr;
 	bool m_cmdTyping = false;
@@ -141,16 +166,54 @@ private:
 		int timer;
 	} m_msg[MSG_MAXSIZE];
 
-	BGui::Gui* m_cheatBanner = nullptr;
-	BGui::Label* m_cheat;
+	BGui::Gui* m_ingameBanner = nullptr;
+	BGui::Label* m_cheat[3], * m_fps, * m_srScore, * m_srTitle;
+	int m_fpscnt = 0, m_fpstimer = 0;
+	float m_srtimer = 0.0f;
+	bool m_sractive = false;
 
 	BGui::Gui* m_currentGui = nullptr;
 	GuiModOption* m_modOption = nullptr;
 
+	IProperty* m_skipAnim;
+	bool m_skipSpeed = false;
+	IProperty* m_fullscreenKey;
+	IProperty* m_unlockRes;
+
 	IProperty* m_ballCheat[2];
 	IProperty* m_suicide;
 	CKParameterLocal* m_ballForce[2] = { 0 };
+	int m_suicideCd = 0;
 
 	IProperty* m_camRot[2], * m_camY[2], * m_camZ[2], * m_cam45, * m_camReset, * m_camOn;
 	CK3dEntity* m_camPos, * m_camOrient, * m_camOrientRef, * m_camTarget;
+
+	IProperty* m_overclock;
+	CKBehaviorLink* m_oclinks[3];
+	CKBehaviorIO* m_oclinkio[3][2];
+
+	IProperty* m_changeBall[3];
+	CKBehavior* m_setNewBall;
+	CKParameter* m_curTrafo;
+	CKDataArray* m_curLevel, * m_ingameParam;
+	int m_changeBallCd = 0;
+	IProperty* m_speedupBall;
+	bool m_speedup;
+
+	IProperty* m_resetBall;
+	CKParameter* m_curSector;
+	CKBehavior* m_phyNewBall, * m_dynamicPos;
+
+	IProperty* m_addLife;
+	int m_addLifeCd = 0;
+
+	IProperty* m_addBall[4];
+	int m_curSel = -1;
+	CK3dEntity* m_curObj = nullptr;
+	CK3dEntity* m_pBalls[4];
+	std::vector<std::pair<int, CK3dEntity*>> m_tempBalls;
+	IProperty* m_moveKeys[6];
+
+	IProperty* m_fpsKeys[6];
+	CKCamera* m_travelCam;
 };

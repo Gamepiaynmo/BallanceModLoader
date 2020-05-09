@@ -193,102 +193,51 @@ CKBEHAVIORFCT HookBuilder::BuildFunction() {
 	return reinterpret_cast<CKBEHAVIORFCT>(AllocateFunction(&CallHookFunction, 0x16, this));
 }
 
-void RegisterBBs(XObjectDeclarationArray* reg) {
+void RegisterCallback(XObjectDeclarationArray* reg, CKSTRING name, CKSTRING desc, CKGUID guid, std::function<void()> callback) {
 	CKStoreDeclaration(reg, (new HookBuilder())
-		->SetName("BML OnStartMenu")
-		->SetDescription("BML Hook on Message Start Menu.")
-		->SetGuid(BML_ONSTARTMENU_GUID)
-		->SetProcessFunction([](HookParams* params) {
-			ModLoader::m_instance->OnStartMenu();
-			return false;
-		})->Build());
-	CKStoreDeclaration(reg, (new HookBuilder())
-		->SetName("BML OnExitGame")
-		->SetDescription("BML Hook on Message Exit Game.")
-		->SetGuid(BML_ONEXITGAME_GUID)
-		->SetProcessFunction([](HookParams* params) {
-			ModLoader::m_instance->OnExitGame();
+		->SetName(name)
+		->SetDescription(desc)
+		->SetGuid(guid)
+		->SetProcessFunction([callback](HookParams* params) {
+			callback();
 			return false;
 			})->Build());
-	CKStoreDeclaration(reg, (new HookBuilder())
-		->SetName("BML OnLoadLevel")
-		->SetDescription("BML Hook on Message Load Level.")
-		->SetGuid(BML_ONLOADLEVEL_GUID)
-		->SetProcessFunction([](HookParams* params) {
-			ModLoader::m_instance->OnLoadLevel();
-			return false;
-			})->Build());
-	CKStoreDeclaration(reg, (new HookBuilder())
-		->SetName("BML OnStartLevel")
-		->SetDescription("BML Hook on Message Start Level.")
-		->SetGuid(BML_ONSTARTLEVEL_GUID)
-		->SetProcessFunction([](HookParams* params) {
-			ModLoader::m_instance->OnStartLevel();
-			return false;
-			})->Build());
-	CKStoreDeclaration(reg, (new HookBuilder())
-		->SetName("BML OnResetLevel")
-		->SetDescription("BML Hook on Message Reset Level.")
-		->SetGuid(BML_ONRESETLEVEL_GUID)
-		->SetProcessFunction([](HookParams* params) {
-			ModLoader::m_instance->OnResetLevel();
-			return false;
-			})->Build());
-	CKStoreDeclaration(reg, (new HookBuilder())
-		->SetName("BML OnPauseLevel")
-		->SetDescription("BML Hook on Message Pause Level.")
-		->SetGuid(BML_ONPAUSELEVEL_GUID)
-		->SetProcessFunction([](HookParams* params) {
-			ModLoader::m_instance->OnPauseLevel();
-			return false;
-			})->Build());
-	CKStoreDeclaration(reg, (new HookBuilder())
-		->SetName("BML OnUnpauseLevel")
-		->SetDescription("BML Hook on Message Unpause Level.")
-		->SetGuid(BML_ONUNPAUSELEVEL_GUID)
-		->SetProcessFunction([](HookParams* params) {
-			ModLoader::m_instance->OnUnpauseLevel();
-			return false;
-			})->Build());
-	CKStoreDeclaration(reg, (new HookBuilder())
-		->SetName("BML OnExitLevel")
-		->SetDescription("BML Hook on Message Exit Level.")
-		->SetGuid(BML_ONEXITLEVEL_GUID)
-		->SetProcessFunction([](HookParams* params) {
-			ModLoader::m_instance->OnExitLevel();
-			return false;
-			})->Build());
-	CKStoreDeclaration(reg, (new HookBuilder())
-		->SetName("BML OnNextLevel")
-		->SetDescription("BML Hook on Message Next Level.")
-		->SetGuid(BML_ONNEXTLEVEL_GUID)
-		->SetProcessFunction([](HookParams* params) {
-			ModLoader::m_instance->OnNextLevel();
-			return false;
-			})->Build());
-	CKStoreDeclaration(reg, (new HookBuilder())
-		->SetName("BML OnDead")
-		->SetDescription("BML Hook on Message Dead.")
-		->SetGuid(BML_ONDEAD_GUID)
-		->SetProcessFunction([](HookParams* params) {
-			ModLoader::m_instance->OnDead();
-			return false;
-			})->Build());
-	CKStoreDeclaration(reg, (new HookBuilder())
-		->SetName("BML OnEndLevel")
-		->SetDescription("BML Hook on Message End Level.")
-		->SetGuid(BML_ONENDLEVEL_GUID)
-		->SetProcessFunction([](HookParams* params) {
-			ModLoader::m_instance->OnEndLevel();
-			return false;
-			})->Build());
+}
 
-	CKStoreDeclaration(reg, (new HookBuilder())
-		->SetName("BML ModsMenu")
-		->SetDescription("Show BML Mods Menu.")
-		->SetGuid(BML_MODSMENU_GUID)
-		->SetProcessFunction([](HookParams* params) {
-			ModLoader::m_instance->OpenModsMenu();
-			return false;
-		})->Build());
+void RegisterBBs(XObjectDeclarationArray* reg) {
+	RegisterCallback(reg, "BML OnPreStartMenu", "PreStartMenu Hook.", BML_ONPRESTARTMENU_GUID, []() { ModLoader::m_instance->OnPreStartMenu(); });
+	RegisterCallback(reg, "BML OnPostStartMenu", "PostStartMenu Hook.", BML_ONPOSTSTARTMENU_GUID, []() { ModLoader::m_instance->OnPostStartMenu(); });
+	RegisterCallback(reg, "BML OnExitGame", "ExitGame Hook.", BML_ONEXITGAME_GUID, []() { ModLoader::m_instance->OnExitGame(); });
+	RegisterCallback(reg, "BML OnPreLoadLevel", "PreLoadLevel Hook.", BML_ONPRELOADLEVEL_GUID, []() { ModLoader::m_instance->OnPreLoadLevel(); });
+	RegisterCallback(reg, "BML OnPostLoadLevel", "PostLoadLevel Hook.", BML_ONPOSTLOADLEVEL_GUID, []() { ModLoader::m_instance->OnPostLoadLevel(); });
+	RegisterCallback(reg, "BML OnStartLevel", "StartLevel Hook.", BML_ONSTARTLEVEL_GUID, []() { ModLoader::m_instance->OnStartLevel(); });
+	RegisterCallback(reg, "BML OnPreResetLevel", "PreResetLevel Hook.", BML_ONPRERESETLEVEL_GUID, []() { ModLoader::m_instance->OnPreResetLevel(); });
+	RegisterCallback(reg, "BML OnPostResetLevel", "PostResetLevel Hook.", BML_ONPOSTRESETLEVEL_GUID, []() { ModLoader::m_instance->OnPostResetLevel(); });
+	RegisterCallback(reg, "BML OnPauseLevel", "PauseLevel Hook.", BML_ONPAUSELEVEL_GUID, []() { ModLoader::m_instance->OnPauseLevel(); });
+	RegisterCallback(reg, "BML OnUnpauseLevel", "UnpauseLevel Hook.", BML_ONUNPAUSELEVEL_GUID, []() { ModLoader::m_instance->OnUnpauseLevel(); });
+	RegisterCallback(reg, "BML OnPreExitLevel", "PreExitLevel Hook.", BML_ONPREEXITLEVEL_GUID, []() { ModLoader::m_instance->OnPreExitLevel(); });
+	RegisterCallback(reg, "BML OnPostExitLevel", "PostExitLevel Hook.", BML_ONPOSTEXITLEVEL_GUID, []() { ModLoader::m_instance->OnPostExitLevel(); });
+	RegisterCallback(reg, "BML OnPreNextLevel", "PreNextLevel Hook.", BML_ONPRENEXTLEVEL_GUID, []() { ModLoader::m_instance->OnPreNextLevel(); });
+	RegisterCallback(reg, "BML OnPostNextLevel", "PostNextLevel Hook.", BML_ONPOSTNEXTLEVEL_GUID, []() { ModLoader::m_instance->OnPostNextLevel(); });
+	RegisterCallback(reg, "BML OnDead", "Dead Hook.", BML_ONDEAD_GUID, []() { ModLoader::m_instance->OnDead(); });
+	RegisterCallback(reg, "BML OnPreEndLevel", "PreEndLevel Hook.", BML_ONPREENDLEVEL_GUID, []() { ModLoader::m_instance->OnPreEndLevel(); });
+	RegisterCallback(reg, "BML OnPostEndLevel", "PostEndLevel Hook.", BML_ONPOSTENDLEVEL_GUID, []() { ModLoader::m_instance->OnPostEndLevel(); });
+
+	RegisterCallback(reg, "BML OnCounterActive", "CounterActive Hook.", BML_ONCOUNTERACTIVE_GUID, []() { ModLoader::m_instance->OnCounterActive(); });
+	RegisterCallback(reg, "BML OnCounterInactive", "CounterInactive Hook.", BML_ONCOUNTERINACTIVE_GUID, []() { ModLoader::m_instance->OnCounterInactive(); });
+	RegisterCallback(reg, "BML OnBallNavActive", "BallNavActive Hook.", BML_ONBALLNAVACTIVE_GUID, []() { ModLoader::m_instance->OnBallNavActive(); });
+	RegisterCallback(reg, "BML OnBallNavInactive", "BallNavInactive Hook.", BML_ONBALLNAVINACTIVE_GUID, []() { ModLoader::m_instance->OnBallNavInactive(); });
+	RegisterCallback(reg, "BML OnCamNavActive", "CamNavActive Hook.", BML_ONCAMNAVACTIVE_GUID, []() { ModLoader::m_instance->OnCamNavActive(); });
+	RegisterCallback(reg, "BML OnCamNavInactive", "CamNavInactive Hook.", BML_ONCAMNAVINACTIVE_GUID, []() { ModLoader::m_instance->OnCamNavInactive(); });
+	RegisterCallback(reg, "BML OnBallOff", "BallOff Hook.", BML_ONBALLOFF_GUID, []() { ModLoader::m_instance->OnBallOff(); });
+	RegisterCallback(reg, "BML OnPreCheckpoint", "PreCheckpoint Hook.", BML_ONPRECHECKPOINT_GUID, []() { ModLoader::m_instance->OnPreCheckpointReached(); });
+	RegisterCallback(reg, "BML OnPostCheckpoint", "PostCheckpoint Hook.", BML_ONPOSTCHECKPOINT_GUID, []() { ModLoader::m_instance->OnPostCheckpointReached(); });
+	RegisterCallback(reg, "BML OnGameOver", "GameOver Hook.", BML_ONGAMEOVER_GUID, []() { ModLoader::m_instance->OnGameOver(); });
+	RegisterCallback(reg, "BML OnExtraPoint", "ExtraPoint Hook.", BML_ONEXTRAPOINT_GUID, []() { ModLoader::m_instance->OnExtraPoint(); });
+	RegisterCallback(reg, "BML OnPreSubLife", "PreSubLife Hook.", BML_ONPRESUBLIFE_GUID, []() { ModLoader::m_instance->OnPreSubLife(); });
+	RegisterCallback(reg, "BML ONPostSubLife", "PostSubLife Hook.", BML_ONPOSTSUBLIFE_GUID, []() { ModLoader::m_instance->OnPostSubLife(); });
+	RegisterCallback(reg, "BML OnPreLifeUp", "PreLifeUp Hook.", BML_ONPRELIFEUP_GUID, []() { ModLoader::m_instance->OnPreLifeUp(); });
+	RegisterCallback(reg, "BML OnPostLifeUp", "PostLifeUp Hook.", BML_ONPOSTLIFEUP_GUID, []() { ModLoader::m_instance->OnPostLifeUp(); });
+
+	RegisterCallback(reg, "BML ModsMenu", "Show BML Mods Menu.", BML_MODSMENU_GUID, []() { ModLoader::m_instance->OpenModsMenu(); });
 }

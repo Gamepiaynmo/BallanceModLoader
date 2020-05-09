@@ -4,7 +4,7 @@
 #include "IBML.h"
 #include "IConfig.h"
 
-class BML_EXPORT IMod {
+class BML_EXPORT IMod : public IMessageReciver {
 public:
 	IMod(IBML* bml) : m_bml(bml) {};
 	virtual ~IMod();
@@ -26,18 +26,6 @@ public:
 
 	virtual void OnProcess() {};
 	virtual void OnRender(CK_RENDER_FLAGS flags) {};
-
-	virtual void OnStartMenu() {};
-	virtual void OnExitGame() {};
-	virtual void OnLoadLevel() {};
-	virtual void OnStartLevel() {};
-	virtual void OnResetLevel() {};
-	virtual void OnPauseLevel() {};
-	virtual void OnUnpauseLevel() {};
-	virtual void OnExitLevel() {};
-	virtual void OnNextLevel() {};
-	virtual void OnDead() {};
-	virtual void OnEndLevel() {};
 
 	virtual void OnCheatEnabled(bool enable) {};
 

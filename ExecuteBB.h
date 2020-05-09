@@ -1,6 +1,7 @@
 #pragma once
 
 #include "virtools/CKAll.h"
+#include <utility>
 
 namespace ExecuteBB {
 	enum FontType {
@@ -46,4 +47,38 @@ namespace ExecuteBB {
 	CKBehavior* Create2DText(CK2dEntity* target = nullptr, FontType font = NOFONT, CKSTRING text = "", int align = ALIGN_CENTER,
 		VxRect margin = { 2, 2, 2, 2 }, Vx2DVector offset = { 0, 0 }, Vx2DVector pindent = { 0, 0 }, CKMaterial* bgmat = nullptr,
 		float caretsize = 0.1f, CKMaterial* caretmat = nullptr, int flags = TEXT_SCREEN);
+
+	CKBehavior* CreatePhysicalizeConvex(CK3dEntity* target = nullptr, CKBOOL fixed = false, float friction = 0.7f, float elasticity = 0.4f,
+		float mass = 1.0f, CKSTRING collGroup = "", CKBOOL startFrozen = false, CKBOOL enableColl = true, CKBOOL calcMassCenter = false,
+		float linearDamp = 0.1f, float rotDamp = 0.1f, CKSTRING collSurface = "", VxVector massCenter = VxVector(), CKMesh* mesh = nullptr);
+
+	CKBehavior* CreatePhysicalizeBall(CK3dEntity* target = nullptr, CKBOOL fixed = false, float friction = 0.7f, float elasticity = 0.4f,
+		float mass = 1.0f, CKSTRING collGroup = "", CKBOOL startFrozen = false, CKBOOL enableColl = true, CKBOOL calcMassCenter = false,
+		float linearDamp = 0.1f, float rotDamp = 0.1f, CKSTRING collSurface = "", VxVector massCenter = VxVector(),
+		VxVector ballCenter = VxVector(), float ballRadius = 2.0f);
+
+	CKBehavior* CreatePhysicalizeConcave(CK3dEntity* target = nullptr, CKBOOL fixed = false, float friction = 0.7f, float elasticity = 0.4f,
+		float mass = 1.0f, CKSTRING collGroup = "", CKBOOL startFrozen = false, CKBOOL enableColl = true, CKBOOL calcMassCenter = false,
+		float linearDamp = 0.1f, float rotDamp = 0.1f, CKSTRING collSurface = "", VxVector massCenter = VxVector(), CKMesh* mesh = nullptr);
+
+	void PhysicalizeConvex(CK3dEntity* target = nullptr, CKBOOL fixed = false, float friction = 0.7f, float elasticity = 0.4f,
+		float mass = 1.0f, CKSTRING collGroup = "", CKBOOL startFrozen = false, CKBOOL enableColl = true, CKBOOL calcMassCenter = false,
+		float linearDamp = 0.1f, float rotDamp = 0.1f, CKSTRING collSurface = "", VxVector massCenter = VxVector(), CKMesh* mesh = nullptr);
+
+	void PhysicalizeBall(CK3dEntity* target = nullptr, CKBOOL fixed = false, float friction = 0.7f, float elasticity = 0.4f,
+		float mass = 1.0f, CKSTRING collGroup = "", CKBOOL startFrozen = false, CKBOOL enableColl = true, CKBOOL calcMassCenter = false,
+		float linearDamp = 0.1f, float rotDamp = 0.1f, CKSTRING collSurface = "", VxVector massCenter = VxVector(),
+		VxVector ballCenter = VxVector(), float ballRadius = 2.0f);
+
+	void PhysicalizeConcave(CK3dEntity* target = nullptr, CKBOOL fixed = false, float friction = 0.7f, float elasticity = 0.4f,
+		float mass = 1.0f, CKSTRING collGroup = "", CKBOOL startFrozen = false, CKBOOL enableColl = true, CKBOOL calcMassCenter = false,
+		float linearDamp = 0.1f, float rotDamp = 0.1f, CKSTRING collSurface = "", VxVector massCenter = VxVector(), CKMesh* mesh = nullptr);
+
+	void Unphysicalize(CK3dEntity* target);
+
+	CKBehavior* CreateObjectLoad(CKSTRING file = "", CKSTRING mastername = "", CK_CLASSID filter = CKCID_3DOBJECT,
+		CKBOOL addToScene = true, CKBOOL reuseMesh = true, CKBOOL reuseMtl = true, CKBOOL dynamic = true);
+
+	::std::pair<XObjectArray*, CKObject*> ObjectLoad(CKSTRING file = "", CKSTRING mastername = "", CK_CLASSID filter = CKCID_3DOBJECT,
+		CKBOOL addToScene = true, CKBOOL reuseMesh = true, CKBOOL reuseMtl = true, CKBOOL dynamic = true, bool rename = true);
 }

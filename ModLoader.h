@@ -21,6 +21,7 @@ class ModLoader : public IBML {
 	friend class CommandHelp;
 	friend class CommandCheat;
 	friend class CommandClear;
+	friend class CommandSector;
 	friend class GuiList;
 	friend class GuiModOption;
 	friend class GuiModMenu;
@@ -55,6 +56,7 @@ public:
 	virtual CKCollisionManager* GetCollisionManager() override { return m_collisionManager; }
 	virtual InputHook* GetInputManager() override { return m_inputManager; }
 	virtual CKMessageManager* GetMessageManager() override { return m_messageManager; }
+	virtual CKPathManager* GetPathManager() override { return m_pathManager; }
 	virtual CKParameterManager* GetParameterManager() override { return m_parameterManager; }
 	virtual CKRenderManager* GetRenderManager() override { return m_renderManager; }
 	virtual CKSoundManager* GetSoundManager() override { return m_soundManager; }
@@ -64,23 +66,50 @@ public:
 	void OnModifyConfig(IMod* mod, CKSTRING category, CKSTRING key, IProperty* prop) { mod->OnModifyConfig(category, key, prop); }
 	void ExecuteCommand(CKSTRING cmd);
 	std::string TabCompleteCommand(CKSTRING cmd);
+	inline void BoardcastMessage(CKSTRING msg, void (IMod::* callback)()) {
+		m_logger->Info("On Message %s", msg);
+		for (IMod* mod : m_mods)
+			(mod->*callback)();
+	}
 
-	virtual void OnStartMenu() override;
+	virtual void OnPreStartMenu() override;
+	virtual void OnPostStartMenu() override;
 	virtual void OnExitGame() override;
-	virtual void OnLoadLevel() override;
+	virtual void OnPreLoadLevel() override;
+	virtual void OnPostLoadLevel() override;
 	virtual void OnStartLevel() override;
-	virtual void OnResetLevel() override;
+	virtual void OnPreResetLevel() override;
+	virtual void OnPostResetLevel() override;
 	virtual void OnPauseLevel() override;
 	virtual void OnUnpauseLevel() override;
-	virtual void OnExitLevel() override;
-	virtual void OnNextLevel() override;
+	virtual void OnPreExitLevel() override;
+	virtual void OnPostExitLevel() override;
+	virtual void OnPreNextLevel() override;
+	virtual void OnPostNextLevel() override;
 	virtual void OnDead() override;
-	virtual void OnEndLevel() override;
+	virtual void OnPreEndLevel() override;
+	virtual void OnPostEndLevel() override;
+
+	virtual void OnCounterActive() override;
+	virtual void OnCounterInactive() override;
+	virtual void OnBallNavActive() override;
+	virtual void OnBallNavInactive() override;
+	virtual void OnCamNavActive() override;
+	virtual void OnCamNavInactive() override;
+	virtual void OnBallOff() override;
+	virtual void OnPreCheckpointReached() override;
+	virtual void OnPostCheckpointReached() override;
+	virtual void OnGameOver() override;
+	virtual void OnExtraPoint() override;
+	virtual void OnPreSubLife() override;
+	virtual void OnPostSubLife() override;
+	virtual void OnPreLifeUp() override;
+	virtual void OnPostLifeUp() override;
 
 	virtual void AddTimer(CKDWORD delay, std::function<void()> callback) override;
-	virtual void AddTimer(CKDWORD delay, std::function<bool()> callback) override;
+	virtual void AddTimerLoop(CKDWORD delay, std::function<bool()> callback) override;
 	virtual void AddTimer(float delay, std::function<void()> callback) override;
-	virtual void AddTimer(float delay, std::function<bool()> callback) override;
+	virtual void AddTimerLoop(float delay, std::function<bool()> callback) override;
 
 	virtual bool IsCheatEnabled() override;
 	virtual void EnableCheat(bool enable) override;
@@ -88,6 +117,14 @@ public:
 	virtual void SendIngameMessage(CKSTRING msg) override;
 
 	virtual void RegisterCommand(ICommand* cmd) override;
+
+	virtual void SetIC(CKBeObject* obj, bool hierarchy = false) override;
+	virtual void RestoreIC(CKBeObject* obj, bool hierarchy = false) override;
+	virtual void Show(CKBeObject* obj, CK_OBJECT_SHOWOPTION show, bool hierarchy = false) override;
+
+	virtual bool IsIngame() override { return m_ingame; }
+	virtual bool IsPaused() override { return m_paused; }
+	virtual bool IsPlaying() override { return m_ingame && !m_paused; }
 
 private:
 	bool m_inited = false;
@@ -104,6 +141,7 @@ private:
 	CKCollisionManager* m_collisionManager = nullptr;
 	InputHook* m_inputManager = nullptr;
 	CKMessageManager* m_messageManager = nullptr;
+	CKPathManager* m_pathManager = nullptr;
 	CKParameterManager* m_parameterManager = nullptr;
 	CKRenderManager* m_renderManager = nullptr;
 	CKSoundManager* m_soundManager = nullptr;
@@ -123,6 +161,8 @@ private:
 
 	void GetContextsAndManagers();
 	ICommand* FindCommand(const std::string& name);
+
+	bool m_ingame = false, m_paused = false;
 };
 
 class Player {

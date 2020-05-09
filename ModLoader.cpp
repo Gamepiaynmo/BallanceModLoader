@@ -3,6 +3,7 @@
 #include <iostream>
 #include "BMLMod.h"
 #include "ExecuteBB.h"
+#include <ImageHlp.h>
 
 Player::StepFunc Player::m_step = &Player::Step;
 
@@ -40,6 +41,8 @@ ModLoader::~ModLoader() {
 void ModLoader::Init() {
 	m_logfile = fopen("../ModLoader/ModLoader.log", "w");
 	m_logger = new Logger("ModLoader");
+
+	MakeSureDirectoryPathExists("..\\ModLoader\\Config\\");
 
 #ifdef _DEBUG
 	AllocConsole();
@@ -150,6 +153,9 @@ void ModLoader::GetContextsAndManagers() {
 
 	m_messageManager = m_context->GetMessageManager();
 	m_logger->Info("Get Message Manager pointer 0x%08x", m_messageManager);
+
+	m_pathManager = m_context->GetPathManager();
+	m_logger->Info("Get Path Manager pointer 0x%08x", m_pathManager);
 
 	m_parameterManager = m_context->GetParameterManager();
 	m_logger->Info("Get Parameter Manager pointer 0x%08x", m_parameterManager);
@@ -322,77 +328,146 @@ void ModLoader::OpenModsMenu() {
 	m_bmlmod->ShowModOptions();
 }
 
-void ModLoader::OnStartMenu() {
-	m_logger->Info("On message Start Menu");
-	for (IMod* mod : m_instance->m_mods)
-		mod->OnStartMenu();
+void ModLoader::OnPreStartMenu() {
+	BoardcastMessage("PreStartMenu", &IMod::OnPreStartMenu);
+}
+
+void ModLoader::OnPostStartMenu() {
+	BoardcastMessage("PostStartMenu", &IMod::OnPostStartMenu);
 }
 
 void ModLoader::OnExitGame() {
-	m_logger->Info("On message Exit Game");
-	for (IMod* mod : m_instance->m_mods)
-		mod->OnExitGame();
+	BoardcastMessage("ExitGame", &IMod::OnExitGame);
 }
 
-void ModLoader::OnLoadLevel() {
-	m_logger->Info("On message Load Level");
-	for (IMod* mod : m_instance->m_mods)
-		mod->OnLoadLevel();
+void ModLoader::OnPreLoadLevel() {
+	BoardcastMessage("PreLoadLevel", &IMod::OnPreLoadLevel);
+}
+
+void ModLoader::OnPostLoadLevel() {
+	BoardcastMessage("PostLoadLevel", &IMod::OnPostLoadLevel);
 }
 
 void ModLoader::OnStartLevel() {
-	m_logger->Info("On message Start Level");
-	for (IMod* mod : m_instance->m_mods)
-		mod->OnStartLevel();
+	BoardcastMessage("StartLevel", &IMod::OnStartLevel);
+	m_ingame = true;
+	m_paused = false;
 }
 
-void ModLoader::OnResetLevel() {
-	m_logger->Info("On message Reset Level");
-	for (IMod* mod : m_instance->m_mods)
-		mod->OnResetLevel();
+void ModLoader::OnPreResetLevel() {
+	BoardcastMessage("PreResetLevel", &IMod::OnPreResetLevel);
+}
+
+void ModLoader::OnPostResetLevel() {
+	BoardcastMessage("PostResetLevel", &IMod::OnPostResetLevel);
 }
 
 void ModLoader::OnPauseLevel() {
-	m_logger->Info("On message Pause Level");
-	for (IMod* mod : m_instance->m_mods)
-		mod->OnPauseLevel();
+	BoardcastMessage("PauseLevel", &IMod::OnPauseLevel);
+	m_paused = true;
 }
 
 void ModLoader::OnUnpauseLevel() {
-	m_logger->Info("On message Unpause Level");
-	for (IMod* mod : m_instance->m_mods)
-		mod->OnUnpauseLevel();
+	BoardcastMessage("UnpauseLevel", &IMod::OnUnpauseLevel);
+	m_paused = false;
 }
 
-void ModLoader::OnExitLevel() {
-	m_logger->Info("On message Exit Level");
-	for (IMod* mod : m_instance->m_mods)
-		mod->OnExitLevel();
+void ModLoader::OnPreExitLevel() {
+	BoardcastMessage("PreExitLevel", &IMod::OnPreExitLevel);
 }
 
-void ModLoader::OnNextLevel() {
-	m_logger->Info("On message Next Level");
-	for (IMod* mod : m_instance->m_mods)
-		mod->OnNextLevel();
+void ModLoader::OnPostExitLevel() {
+	BoardcastMessage("PostExitLevel", &IMod::OnPostExitLevel);
+	m_ingame = false;
+}
+
+void ModLoader::OnPreNextLevel() {
+	BoardcastMessage("PreNextLevel", &IMod::OnPreNextLevel);
+}
+
+void ModLoader::OnPostNextLevel() {
+	BoardcastMessage("PostNextLevel", &IMod::OnPostNextLevel);
 }
 
 void ModLoader::OnDead() {
-	m_logger->Info("On message Dead");
-	for (IMod* mod : m_instance->m_mods)
-		mod->OnDead();
+	BoardcastMessage("Dead", &IMod::OnDead);
+	m_ingame = false;
 }
 
-void ModLoader::OnEndLevel() {
-	m_logger->Info("On message End Level");
-	for (IMod* mod : m_instance->m_mods)
-		mod->OnEndLevel();
+void ModLoader::OnPreEndLevel() {
+	BoardcastMessage("PreEndLevel", &IMod::OnPreEndLevel);
+}
+
+void ModLoader::OnPostEndLevel() {
+	BoardcastMessage("PostEndLevel", &IMod::OnPostEndLevel);
+	m_ingame = false;
+}
+
+void ModLoader::OnCounterActive() {
+	BoardcastMessage("CounterActive", &IMod::OnCounterActive);
+}
+
+void ModLoader::OnCounterInactive() {
+	BoardcastMessage("CounterInactive", &IMod::OnCounterInactive);
+}
+
+void ModLoader::OnBallNavActive() {
+	BoardcastMessage("BallNavActive", &IMod::OnBallNavActive);
+}
+
+void ModLoader::OnBallNavInactive() {
+	BoardcastMessage("BallNavInactive", &IMod::OnBallNavInactive);
+}
+
+void ModLoader::OnCamNavActive() {
+	BoardcastMessage("CamNavActive", &IMod::OnCamNavActive);
+}
+
+void ModLoader::OnCamNavInactive() {
+	BoardcastMessage("CamNavInactive", &IMod::OnCamNavInactive);
+}
+
+void ModLoader::OnBallOff() {
+	BoardcastMessage("BallOff", &IMod::OnBallOff);
+}
+
+void ModLoader::OnPreCheckpointReached() {
+	BoardcastMessage("PreCheckpoint", &IMod::OnPreCheckpointReached);
+}
+
+void ModLoader::OnPostCheckpointReached() {
+	BoardcastMessage("PostCheckpoint", &IMod::OnPostCheckpointReached);
+}
+
+void ModLoader::OnGameOver() {
+	BoardcastMessage("GameOver", &IMod::OnGameOver);
+}
+
+void ModLoader::OnExtraPoint() {
+	BoardcastMessage("ExtraPoint", &IMod::OnExtraPoint);
+}
+
+void ModLoader::OnPreSubLife() {
+	BoardcastMessage("PreSubLife", &IMod::OnPreSubLife);
+}
+
+void ModLoader::OnPostSubLife() {
+	BoardcastMessage("PostSubLife", &IMod::OnPostSubLife);
+}
+
+void ModLoader::OnPreLifeUp() {
+	BoardcastMessage("PreLifeUp", &IMod::OnPreLifeUp);
+}
+
+void ModLoader::OnPostLifeUp() {
+	BoardcastMessage("PostLifeUp", &IMod::OnPostLifeUp);
 }
 
 void ModLoader::AddTimer(CKDWORD delay, std::function<void()> callback) {
 	m_timers.push_back(Timer(delay, callback, m_timeManager->GetMainTickCount(), m_timeManager->GetAbsoluteTime()));
 }
 
-void ModLoader::AddTimer(CKDWORD delay, std::function<bool()> callback) {
+void ModLoader::AddTimerLoop(CKDWORD delay, std::function<bool()> callback) {
 	m_timers.push_back(Timer(delay, callback, m_timeManager->GetMainTickCount(), m_timeManager->GetAbsoluteTime()));
 }
 
@@ -400,12 +475,11 @@ void ModLoader::AddTimer(float delay, std::function<void()> callback) {
 	m_timers.push_back(Timer(delay, callback, m_timeManager->GetMainTickCount(), m_timeManager->GetAbsoluteTime()));
 }
 
-void ModLoader::AddTimer(float delay, std::function<bool()> callback) {
+void ModLoader::AddTimerLoop(float delay, std::function<bool()> callback) {
 	m_timers.push_back(Timer(delay, callback, m_timeManager->GetMainTickCount(), m_timeManager->GetAbsoluteTime()));
 }
 
 void ModLoader::SendIngameMessage(CKSTRING msg) {
-	m_logger->Info(msg);
 	m_bmlmod->AddIngameMessage(msg);
 }
 
@@ -486,4 +560,56 @@ void ModLoader::EnableCheat(bool enable) {
 	m_bmlmod->ShowCheatBanner(enable);
 	for (IMod* mod : m_mods)
 		mod->OnCheatEnabled(enable);
+}
+
+void ModLoader::SetIC(CKBeObject* obj, bool hierarchy) {
+	m_context->GetCurrentScene()->SetObjectInitialValue(obj, CKSaveObjectState(obj));
+
+	if (hierarchy) {
+		if (CKIsChildClassOf(obj, CKCID_2DENTITY)) {
+			CK2dEntity* entity = static_cast<CK2dEntity*>(obj);
+			for (int i = 0; i < entity->GetChildrenCount(); i++)
+				SetIC(entity->GetChild(i), true);
+		}
+		if (CKIsChildClassOf(obj, CKCID_3DENTITY)) {
+			CK3dEntity* entity = static_cast<CK3dEntity*>(obj);
+			for (int i = 0; i < entity->GetChildrenCount(); i++)
+				SetIC(entity->GetChild(i), true);
+		}
+	}
+}
+
+void ModLoader::RestoreIC(CKBeObject* obj, bool hierarchy) {
+	CKStateChunk* chunk = m_context->GetCurrentScene()->GetObjectInitialValue(obj);
+	if (chunk) CKReadObjectState(obj, chunk);
+
+	if (hierarchy) {
+		if (CKIsChildClassOf(obj, CKCID_2DENTITY)) {
+			CK2dEntity* entity = static_cast<CK2dEntity*>(obj);
+			for (int i = 0; i < entity->GetChildrenCount(); i++)
+				RestoreIC(entity->GetChild(i), true);
+		}
+		if (CKIsChildClassOf(obj, CKCID_3DENTITY)) {
+			CK3dEntity* entity = static_cast<CK3dEntity*>(obj);
+			for (int i = 0; i < entity->GetChildrenCount(); i++)
+				RestoreIC(entity->GetChild(i), true);
+		}
+	}
+}
+
+void ModLoader::Show(CKBeObject* obj, CK_OBJECT_SHOWOPTION show, bool hierarchy) {
+	obj->Show(show);
+
+	if (hierarchy) {
+		if (CKIsChildClassOf(obj, CKCID_2DENTITY)) {
+			CK2dEntity* entity = static_cast<CK2dEntity*>(obj);
+			for (int i = 0; i < entity->GetChildrenCount(); i++)
+				Show(entity->GetChild(i), show, true);
+		}
+		if (CKIsChildClassOf(obj, CKCID_3DENTITY)) {
+			CK3dEntity* entity = static_cast<CK3dEntity*>(obj);
+			for (int i = 0; i < entity->GetChildrenCount(); i++)
+				Show(entity->GetChild(i), show, true);
+		}
+	}
 }

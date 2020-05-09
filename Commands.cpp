@@ -50,7 +50,7 @@ void CommandClear::Execute(IBML* bml, std::vector<std::string> args) {
 }
 
 void CommandScore::Execute(IBML* bml, std::vector<std::string> args) {
-	if (args.size() > 2) {
+	if (bml->IsIngame() && args.size() > 2) {
 		int num = ParseInteger(args[2], 0);
 		if (!m_energy) {
 			m_energy = static_cast<CKDataArray*>(bml->GetCKContext()->GetObjectByNameAndClass("Energy", CKCID_DATAARRAY));
@@ -72,7 +72,7 @@ void CommandScore::Execute(IBML* bml, std::vector<std::string> args) {
 }
 
 void CommandSpeed::Execute(IBML* bml, std::vector<std::string> args) {
-	if (args.size() > 1) {
+	if (bml->IsIngame() && args.size() > 1) {
 		float time = ParseFloat(args[1], 0, 1000);
 		if (!m_curLevel) {
 			CKContext* ctx = bml->GetCKContext();
@@ -118,7 +118,7 @@ void CommandSpeed::Execute(IBML* bml, std::vector<std::string> args) {
 }
 
 void CommandKill::Execute(IBML* bml, std::vector<std::string> args) {
-	if (!m_deactBall) {
+	if (bml->IsPlaying() && !m_deactBall) {
 		CKContext* ctx = bml->GetCKContext();
 		CKBehavior* ingame = static_cast<CKBehavior*>(ctx->GetObjectByNameAndClass("Gameplay_Ingame", CKCID_BEHAVIOR));
 		CKBehavior* ballMgr = ScriptHelper::FindFirstBB(ingame, "BallManager", false);
@@ -129,5 +129,148 @@ void CommandKill::Execute(IBML* bml, std::vector<std::string> args) {
 		m_deactBall->ActivateInput(0);
 		m_deactBall->Activate();
 		bml->SendIngameMessage("Killed Ball");
+	}
+}
+
+void CommandSetSpawn::Execute(IBML* bml, std::vector<std::string> args) {
+	if (bml->IsIngame() && !m_curLevel) {
+		m_curLevel = static_cast<CKDataArray*>(bml->GetCKContext()->GetObjectByNameAndClass("CurrentLevel", CKCID_DATAARRAY));
+	}
+
+	if (m_curLevel) {
+		CK3dEntity* camRef = static_cast<CK3dEntity*>(bml->GetCKContext()->GetObjectByNameAndClass("Cam_OrientRef", CKCID_3DENTITY));
+		VxMatrix matrix = camRef->GetWorldMatrix();
+		for (int i = 0; i < 4; i++) {
+			std::swap(matrix[0][i], matrix[2][i]);
+			matrix[0][i] = -matrix[0][i];
+		}
+		m_curLevel->SetElementValue(0, 3, &matrix);
+		bml->SendIngameMessage(("Set Spawn Point to ("
+			+ std::to_string(matrix[3][0]) + ", "
+			+ std::to_string(matrix[3][1]) + ", "
+			+ std::to_string(matrix[3][2]) + ")").c_str());
+	}
+}
+
+void CommandSector::Execute(IBML* bml, std::vector<std::string> args) {
+	if (bml->IsPlaying() && args.size() > 1) {
+		CKContext* ctx = bml->GetCKContext();
+		if (!m_curLevel) {
+			m_curLevel = static_cast<CKDataArray*>(ctx->GetObjectByNameAndClass("CurrentLevel", CKCID_DATAARRAY));
+			m_checkpoints = static_cast<CKDataArray*>(ctx->GetObjectByNameAndClass("Checkpoints", CKCID_DATAARRAY));
+			m_resetpoints = static_cast<CKDataArray*>(ctx->GetObjectByNameAndClass("ResetPoints", CKCID_DATAARRAY));
+			m_ingameParam = static_cast<CKDataArray*>(ctx->GetObjectByNameAndClass("IngameParameter", CKCID_DATAARRAY));
+			CKBehavior* events = static_cast<CKBehavior*>(ctx->GetObjectByNameAndClass("Gameplay_Events", CKCID_BEHAVIOR));
+			CKBehavior* id = ScriptHelper::FindNextBB(events, events->GetInput(0));
+			m_curSector = id->GetOutputParameter(0)->GetDestination(0);
+		}
+
+		if (m_curLevel) {
+			int curSector = ScriptHelper::GetParamValue<int>(m_curSector);
+			int sector = ParseInteger(args[1], 1, m_checkpoints->GetRowCount() + 1);
+			if (curSector != sector) {
+				VxMatrix matrix;
+				m_resetpoints->GetElementValue(sector - 1, 0, &matrix);
+				m_curLevel->SetElementValue(0, 3, &matrix);
+
+				m_ingameParam->SetElementValue(0, 1, &sector);
+				m_ingameParam->SetElementValue(0, 2, &curSector);
+				ScriptHelper::SetParamValue(m_curSector, sector);
+
+				bml->SendIngameMessage(("Changed to Sector " + std::to_string(sector)).c_str());
+
+				CKBehavior* sectorMgr = static_cast<CKBehavior*>(ctx->GetObjectByNameAndClass("Gameplay_SectorManager", CKCID_BEHAVIOR));
+				ctx->GetCurrentScene()->Activate(sectorMgr, true);
+
+				bml->AddTimerLoop(1u, [this, bml, sector, sectorMgr, ctx]() {
+					if (sectorMgr->IsActive())
+						return true;
+
+					bml->AddTimer(2u, [this, bml, sector, ctx]() {
+						CKBOOL active = false;
+						m_curLevel->SetElementValue(0, 4, &active);
+
+						CK_ID flameId;
+						m_checkpoints->GetElementValue(sector % 2, 1, &flameId);
+						CK3dEntity* flame = static_cast<CK3dEntity*>(ctx->GetObject(flameId));
+						ctx->GetCurrentScene()->Activate(flame->GetScript(0), true);
+
+						m_checkpoints->GetElementValue(sector - 1, 1, &flameId);
+						flame = static_cast<CK3dEntity*>(ctx->GetObject(flameId));
+						ctx->GetCurrentScene()->Activate(flame->GetScript(0), true);
+
+						if (sector > m_checkpoints->GetRowCount()) {
+							CKMessageManager* mm = bml->GetMessageManager();
+							CKMessageType msg = mm->AddMessageType("last Checkpoint reached");
+							mm->SendMessageSingle(msg, static_cast<CKGroup*>(ctx->GetObjectByNameAndClass("All_Sound", CKCID_GROUP)));
+
+							ResetBall(bml, ctx);
+						}
+						else {
+							bml->AddTimer(2u, [this, bml, sector, ctx, flame]() {
+								VxMatrix matrix;
+								m_checkpoints->GetElementValue(sector - 1, 0, &matrix);
+								flame->SetWorldMatrix(matrix);
+								CKBOOL active = true;
+								m_curLevel->SetElementValue(0, 4, &active);
+								ctx->GetCurrentScene()->Activate(flame->GetScript(0), true);
+								bml->Show(flame, CKSHOW, true);
+
+								ResetBall(bml, ctx);
+								});
+						}
+					});
+					return false;
+					});
+			}
+		}
+	}
+}
+
+void CommandSector::ResetBall(IBML* bml, CKContext* ctx) {
+	CKMessageManager* mm = bml->GetMessageManager();
+	CKMessageType ballDeact = mm->AddMessageType("BallNav deactivate");
+
+	mm->SendMessageSingle(ballDeact, static_cast<CKGroup*>(ctx->GetObjectByNameAndClass("All_Gameplay", CKCID_GROUP)));
+	mm->SendMessageSingle(ballDeact, static_cast<CKGroup*>(ctx->GetObjectByNameAndClass("All_Sound", CKCID_GROUP)));
+
+	bml->AddTimer(2u, [this, bml, ctx]() {
+		CK3dEntity* curBall = static_cast<CK3dEntity*>(m_curLevel->GetElementObject(0, 1));
+		if (curBall) {
+			ExecuteBB::Unphysicalize(curBall);
+
+			ModLoader::m_instance->m_bmlmod->m_dynamicPos->ActivateInput(1);
+			ModLoader::m_instance->m_bmlmod->m_dynamicPos->Activate();
+
+			bml->AddTimer(1u, [this, bml, curBall, ctx]() {
+				VxMatrix matrix;
+				m_curLevel->GetElementValue(0, 3, &matrix);
+				curBall->SetWorldMatrix(matrix);
+
+				CK3dEntity* camMF = static_cast<CK3dEntity*>(ctx->GetObjectByNameAndClass("Cam_MF", CKCID_3DENTITY));
+				bml->RestoreIC(camMF, true);
+				camMF->SetWorldMatrix(matrix);
+
+				bml->AddTimer(1u, [this]() {
+					ModLoader::m_instance->m_bmlmod->m_dynamicPos->ActivateInput(0);
+					ModLoader::m_instance->m_bmlmod->m_dynamicPos->Activate();
+
+					ModLoader::m_instance->m_bmlmod->m_phyNewBall->ActivateInput(0);
+					ModLoader::m_instance->m_bmlmod->m_phyNewBall->Activate();
+					ModLoader::m_instance->m_bmlmod->m_phyNewBall->GetParent()->Activate();
+					});
+				});
+		}
+		});
+}
+
+void CommandWin::Execute(IBML* bml, std::vector<std::string> args) {
+	if (bml->IsPlaying()) {
+		CKMessageManager* mm = bml->GetMessageManager();
+		CKMessageType levelWin = mm->AddMessageType("Level_Finish");
+
+		CKContext* ctx = bml->GetCKContext();
+		mm->SendMessageSingle(levelWin, static_cast<CKGroup*>(ctx->GetObjectByNameAndClass("All_Gameplay", CKCID_GROUP)));
+		bml->SendIngameMessage("Level Finished");
 	}
 }

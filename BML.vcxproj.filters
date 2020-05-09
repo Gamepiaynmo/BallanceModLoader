@@ -216,6 +216,9 @@
     <ClCompile Include="Commands.cpp">
       <Filter>源文件\implement</Filter>
     </ClCompile>
+    <ClCompile Include="virtools\CKPathManager.cpp">
+      <Filter>源文件\virtools</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BMLAll.h">
@@ -517,6 +520,9 @@
     </ClInclude>
     <ClInclude Include="Commands.h">
       <Filter>头文件\implement</Filter>
+    </ClInclude>
+    <ClInclude Include="virtools\CKPathManager.h">
+      <Filter>头文件\virtools</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

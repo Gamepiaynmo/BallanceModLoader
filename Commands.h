@@ -91,3 +91,41 @@ class CommandKill : public ICommand {
 private:
 	CKBehavior* m_deactBall = nullptr;
 };
+
+class CommandSetSpawn : public ICommand {
+	virtual std::string GetName() override { return "spawn"; };
+	virtual std::string GetAlias() override { return ""; };
+	virtual std::string GetDescription() override { return "Set Ball Spawn Point to Current Position."; };
+	virtual bool IsCheat() override { return true; };
+
+	virtual void Execute(IBML* bml, std::vector<std::string> args) override;
+	virtual std::vector<std::string> GetTabCompletion(IBML* bml, std::vector<std::string> args) { return std::vector<std::string>(); };
+
+private:
+	CKDataArray* m_curLevel;
+};
+
+class CommandSector : public ICommand {
+	virtual std::string GetName() override { return "sector"; };
+	virtual std::string GetAlias() override { return ""; };
+	virtual std::string GetDescription() override { return "Start playing specified sector."; };
+	virtual bool IsCheat() override { return true; };
+
+	virtual void Execute(IBML* bml, std::vector<std::string> args) override;
+	virtual std::vector<std::string> GetTabCompletion(IBML* bml, std::vector<std::string> args) { return std::vector<std::string>(); };
+	void ResetBall(IBML* bml, CKContext* ctx);
+
+private:
+	CKDataArray* m_curLevel, * m_checkpoints, * m_resetpoints, * m_ingameParam;
+	CKParameter* m_curSector;
+};
+
+class CommandWin : public ICommand {
+	virtual std::string GetName() override { return "win"; };
+	virtual std::string GetAlias() override { return ""; };
+	virtual std::string GetDescription() override { return "Finish this Level."; };
+	virtual bool IsCheat() override { return true; };
+
+	virtual void Execute(IBML* bml, std::vector<std::string> args) override;
+	virtual std::vector<std::string> GetTabCompletion(IBML* bml, std::vector<std::string> args) { return std::vector<std::string>(); };
+};
