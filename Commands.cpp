@@ -4,7 +4,7 @@
 #include "BMLMod.h"
 #include "ScriptHelper.h"
 
-void CommandBML::Execute(IBML* bml, std::vector<std::string> args) {
+void CommandBML::Execute(IBML* bml, const std::vector<std::string>& args) {
 	ModLoader* loader = ModLoader::m_instance;
 	bml->SendIngameMessage("Ballance Mod Loader " BML_VERSION);
 	bml->SendIngameMessage((std::to_string(loader->m_mods.size()) + " Mods Installed:").c_str());
@@ -14,7 +14,7 @@ void CommandBML::Execute(IBML* bml, std::vector<std::string> args) {
 	}
 }
 
-void CommandHelp::Execute(IBML* bml, std::vector<std::string> args) {
+void CommandHelp::Execute(IBML* bml, const std::vector<std::string>& args) {
 	ModLoader* loader = ModLoader::m_instance;
 	bml->SendIngameMessage((std::to_string(loader->m_cmds.size()) + " Existing Commands:").c_str());
 	for (ICommand* cmd : loader->m_cmds) {
@@ -27,7 +27,7 @@ void CommandHelp::Execute(IBML* bml, std::vector<std::string> args) {
 	}
 }
 
-void CommandCheat::Execute(IBML* bml, std::vector<std::string> args) {
+void CommandCheat::Execute(IBML* bml, const std::vector<std::string>& args) {
 	ModLoader* loader = ModLoader::m_instance;
 	if (args.size() == 1) {
 		loader->EnableCheat(!loader->IsCheatEnabled());
@@ -38,7 +38,7 @@ void CommandCheat::Execute(IBML* bml, std::vector<std::string> args) {
 	bml->SendIngameMessage(loader->IsCheatEnabled() ? "Cheat Mode On" : "Cheat Mode Off");
 }
 
-void CommandClear::Execute(IBML* bml, std::vector<std::string> args) {
+void CommandClear::Execute(IBML* bml, const std::vector<std::string>& args) {
 	BMLMod* bmlmod = ModLoader::m_instance->m_bmlmod;
 	bmlmod->m_msgCnt = 0;
 	for (int i = 0; i < MSG_MAXSIZE; i++) {
@@ -49,7 +49,7 @@ void CommandClear::Execute(IBML* bml, std::vector<std::string> args) {
 	}
 }
 
-void CommandScore::Execute(IBML* bml, std::vector<std::string> args) {
+void CommandScore::Execute(IBML* bml, const std::vector<std::string>& args) {
 	if (bml->IsIngame() && args.size() > 2) {
 		int num = ParseInteger(args[2], 0);
 		if (!m_energy) {
@@ -71,7 +71,7 @@ void CommandScore::Execute(IBML* bml, std::vector<std::string> args) {
 	}
 }
 
-void CommandSpeed::Execute(IBML* bml, std::vector<std::string> args) {
+void CommandSpeed::Execute(IBML* bml, const std::vector<std::string>& args) {
 	if (bml->IsIngame() && args.size() > 1) {
 		float time = ParseFloat(args[1], 0, 1000);
 		if (!m_curLevel) {
@@ -117,7 +117,7 @@ void CommandSpeed::Execute(IBML* bml, std::vector<std::string> args) {
 	}
 }
 
-void CommandKill::Execute(IBML* bml, std::vector<std::string> args) {
+void CommandKill::Execute(IBML* bml, const std::vector<std::string>& args) {
 	if (bml->IsPlaying() && !m_deactBall) {
 		CKContext* ctx = bml->GetCKContext();
 		CKBehavior* ingame = static_cast<CKBehavior*>(ctx->GetObjectByNameAndClass("Gameplay_Ingame", CKCID_BEHAVIOR));
@@ -132,7 +132,7 @@ void CommandKill::Execute(IBML* bml, std::vector<std::string> args) {
 	}
 }
 
-void CommandSetSpawn::Execute(IBML* bml, std::vector<std::string> args) {
+void CommandSetSpawn::Execute(IBML* bml, const std::vector<std::string>& args) {
 	if (bml->IsIngame() && !m_curLevel) {
 		m_curLevel = static_cast<CKDataArray*>(bml->GetCKContext()->GetObjectByNameAndClass("CurrentLevel", CKCID_DATAARRAY));
 	}
@@ -152,7 +152,7 @@ void CommandSetSpawn::Execute(IBML* bml, std::vector<std::string> args) {
 	}
 }
 
-void CommandSector::Execute(IBML* bml, std::vector<std::string> args) {
+void CommandSector::Execute(IBML* bml, const std::vector<std::string>& args) {
 	if (bml->IsPlaying() && args.size() > 1) {
 		CKContext* ctx = bml->GetCKContext();
 		if (!m_curLevel) {
@@ -264,7 +264,7 @@ void CommandSector::ResetBall(IBML* bml, CKContext* ctx) {
 		});
 }
 
-void CommandWin::Execute(IBML* bml, std::vector<std::string> args) {
+void CommandWin::Execute(IBML* bml, const std::vector<std::string>& args) {
 	if (bml->IsPlaying()) {
 		CKMessageManager* mm = bml->GetMessageManager();
 		CKMessageType levelWin = mm->AddMessageType("Level_Finish");

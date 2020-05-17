@@ -9,6 +9,7 @@
 #include <ctime>
 #include "Commands.h"
 #include "Config.h"
+#include "Util.h"
 
 using namespace ScriptHelper;
 
@@ -59,10 +60,20 @@ void BMLMod::OnLoadObject(CKSTRING filename, CKSTRING masterName, CK_CLASSID fil
 		m_srScore->SetVisible(false);
 		for (int i = 0; i < 3; i++)
 			m_cheat[i]->SetVisible(false);
+		m_customMaps = m_ingameBanner->AddRightButton("M_Enter_Custom_Maps", 0.4f, 0.6238f, [this]() {
+			m_exitStart->ActivateInput(0);
+			m_exitStart->Activate();
+			m_bml->AddTimer(1u, [this]() { ShowGui(m_mapsGui); });
+			});
 
 		GetLogger()->Info("Create Mod Options Gui");
 		m_modOption = new GuiModOption();
 		m_modOption->SetVisible(false);
+
+		m_mapsGui = new GuiCustomMap(this);
+		m_level01 = static_cast<CK2dEntity*>(ModLoader::m_instance->GetCKContext()->GetObjectByNameAndClass("M_Start_But_01", CKCID_2DENTITY));
+		CKBehavior* menuMain = static_cast<CKBehavior*>(ModLoader::m_instance->GetCKContext()->GetObjectByNameAndClass("Menu_Start", CKCID_BEHAVIOR));
+		m_exitStart = FindFirstBB(menuMain, "Exit", false);
 	}
 
 	if (!strcmp(filename, "3D Entities\\MenuLevel.nmo")) {
@@ -114,6 +125,9 @@ void BMLMod::OnLoadScript(CKSTRING filename, CKBehavior* script) {
 
 	if (!strcmp(script->GetName(), "Gameplay_Events"))
 		OnEditScript_Gameplay_Events(script);
+
+	if (!strcmp(script->GetName(), "Levelinit_build"))
+		OnEditScript_Levelinit_build(script);
 }
 
 void BMLMod::OnEditScript_Base_DefaultLevel(CKBehavior* script) {
@@ -473,6 +487,21 @@ void BMLMod::OnEditScript_Gameplay_Events(CKBehavior* script) {
 	m_curSector = id->GetOutputParameter(0)->GetDestination(0);
 }
 
+void BMLMod::OnEditScript_Levelinit_build(CKBehavior* script) {
+	CKBehavior* loadLevel = FindFirstBB(script, "Load LevelXX", false);
+	CKBehaviorLink* inLink = FindNextLink(loadLevel, loadLevel->GetInput(0));
+	CKBehavior* op = FindNextBB(loadLevel, inLink->GetOutBehaviorIO()->GetOwner());
+	m_levelRow = op->GetOutputParameter(0)->GetDestination(0);
+	CKBehavior* objLoad = FindFirstBB(loadLevel, "Object Load");
+	CKBehavior* bin = CreateBB(loadLevel, VT_BINARYSWITCH);
+	CreateLink(loadLevel, loadLevel->GetInput(0), bin, 0);
+	m_loadCustom = CreateLocalParameter(loadLevel, "Custom Level", CKPGUID_BOOL);
+	bin->GetInputParameter(0)->SetDirectSource(m_loadCustom);
+	inLink->SetInBehaviorIO(bin->GetOutput(1));
+	CreateLink(loadLevel, bin, objLoad);
+	m_mapFile = objLoad->GetInputParameter(0)->GetDirectSource();
+}
+
 void BMLMod::OnCheatEnabled(bool enable) {
 	if (enable) {
 		SetParamValue(m_ballForce[0], m_ballCheat[0]->GetKey());
@@ -729,6 +758,7 @@ void BMLMod::OnProcess() {
 		}
 		else m_suicideCd--;
 
+		float deltaTime = m_bml->GetTimeManager()->GetLastDeltaTime() / 10;
 		if (m_changeBallCd == 0) {
 			for (int i = 0; i < 3; i++) {
 				if (m_bml->IsCheatEnabled() && im->IsKeyPressed(m_changeBall[i]->GetKey())) {
@@ -816,12 +846,12 @@ void BMLMod::OnProcess() {
 		}
 
 		if (IsInTravelCam()) {
-			if (im->IsKeyDown(CKKEY_W)) m_travelCam->Translate(&VxVector(0, 0, 0.2f), m_travelCam);
-			if (im->IsKeyDown(CKKEY_S)) m_travelCam->Translate(&VxVector(0, 0, -0.2f), m_travelCam);
-			if (im->IsKeyDown(CKKEY_A)) m_travelCam->Translate(&VxVector(-0.2f, 0, 0), m_travelCam);
-			if (im->IsKeyDown(CKKEY_D)) m_travelCam->Translate(&VxVector(0.2f, 0, 0), m_travelCam);
-			if (im->IsKeyDown(CKKEY_SPACE)) m_travelCam->Translate(&VxVector(0, 0.2f, 0));
-			if (im->IsKeyDown(CKKEY_LSHIFT)) m_travelCam->Translate(&VxVector(0, -0.2f, 0));
+			if (im->IsKeyDown(CKKEY_W)) m_travelCam->Translate(&VxVector(0, 0, 0.2f * deltaTime), m_travelCam);
+			if (im->IsKeyDown(CKKEY_S)) m_travelCam->Translate(&VxVector(0, 0, -0.2f * deltaTime), m_travelCam);
+			if (im->IsKeyDown(CKKEY_A)) m_travelCam->Translate(&VxVector(-0.2f * deltaTime, 0, 0), m_travelCam);
+			if (im->IsKeyDown(CKKEY_D)) m_travelCam->Translate(&VxVector(0.2f * deltaTime, 0, 0), m_travelCam);
+			if (im->IsKeyDown(CKKEY_SPACE)) m_travelCam->Translate(&VxVector(0, 0.2f * deltaTime, 0));
+			if (im->IsKeyDown(CKKEY_LSHIFT)) m_travelCam->Translate(&VxVector(0, -0.2f * deltaTime, 0));
 			VxVector delta;
 			im->GetMouseRelativePosition(delta);
 			m_travelCam->Rotate(&VxVector(0, 1, 0), -delta.x * 2 / m_bml->GetRenderContext()->GetWidth());
@@ -833,25 +863,25 @@ void BMLMod::OnProcess() {
 				m_camOrient->SetQuaternion(&VxQuaternion(), m_camOrientRef);
 			}
 			if (im->IsKeyDown(m_camRot[0]->GetKey())) {
-				m_camOrientRef->Rotate(&VxVector(0, 1, 0), -0.01f, m_camOrientRef);
+				m_camOrientRef->Rotate(&VxVector(0, 1, 0), -0.01f * deltaTime, m_camOrientRef);
 				m_camOrient->SetQuaternion(&VxQuaternion(), m_camOrientRef);
 			}
 			if (im->IsKeyDown(m_camRot[1]->GetKey())) {
-				m_camOrientRef->Rotate(&VxVector(0, 1, 0), 0.01f, m_camOrientRef);
+				m_camOrientRef->Rotate(&VxVector(0, 1, 0), 0.01f * deltaTime, m_camOrientRef);
 				m_camOrient->SetQuaternion(&VxQuaternion(), m_camOrientRef);
 			}
 			if (im->IsKeyDown(m_camY[0]->GetKey()))
-				m_camPos->Translate(&VxVector(0, 0.1f, 0), m_camOrientRef);
+				m_camPos->Translate(&VxVector(0, 0.15f * deltaTime, 0), m_camOrientRef);
 			if (im->IsKeyDown(m_camY[1]->GetKey()))
-				m_camPos->Translate(&VxVector(0, -0.1f, 0), m_camOrientRef);
+				m_camPos->Translate(&VxVector(0, -0.15f * deltaTime, 0), m_camOrientRef);
 			if (im->IsKeyDown(m_camZ[0]->GetKey())) {
 				VxVector position;
 				m_camPos->GetPosition(&position, m_camOrientRef);
-				position.z = (std::min)(position.z + 0.1f, -0.1f);
+				position.z = (std::min)(position.z + 0.1f * deltaTime, -0.1f);
 				m_camPos->SetPosition(&position, m_camOrientRef);
 			}
 			if (im->IsKeyDown(m_camZ[1]->GetKey()))
-				m_camPos->Translate(&VxVector(0, 0, -0.1f), m_camOrientRef);
+				m_camPos->Translate(&VxVector(0, 0, -0.1f * deltaTime), m_camOrientRef);
 			if (im->IsKeyDown(m_camReset->GetKey())) {
 				VxQuaternion rotation;
 				m_camOrientRef->GetQuaternion(&rotation, m_camTarget);
@@ -895,12 +925,12 @@ void BMLMod::OnProcess() {
 				}
 			}
 			else if (im->oIsKeyDown(m_addBall[m_curSel]->GetKey())) {
-				if (im->oIsKeyDown(m_moveKeys[0]->GetKey())) m_curObj->Translate(&VxVector(0, 0, 0.1f), m_camOrientRef);
-				if (im->oIsKeyDown(m_moveKeys[1]->GetKey())) m_curObj->Translate(&VxVector(0, 0, -0.1f), m_camOrientRef);
-				if (im->oIsKeyDown(m_moveKeys[2]->GetKey())) m_curObj->Translate(&VxVector(-0.1f, 0, 0), m_camOrientRef);
-				if (im->oIsKeyDown(m_moveKeys[3]->GetKey())) m_curObj->Translate(&VxVector(0.1f, 0, 0), m_camOrientRef);
-				if (im->oIsKeyDown(m_moveKeys[4]->GetKey())) m_curObj->Translate(&VxVector(0, 0.1f, 0), m_camOrientRef);
-				if (im->oIsKeyDown(m_moveKeys[5]->GetKey())) m_curObj->Translate(&VxVector(0, -0.1f, 0), m_camOrientRef);
+				if (im->oIsKeyDown(m_moveKeys[0]->GetKey())) m_curObj->Translate(&VxVector(0, 0, 0.1f * deltaTime), m_camOrientRef);
+				if (im->oIsKeyDown(m_moveKeys[1]->GetKey())) m_curObj->Translate(&VxVector(0, 0, -0.1f * deltaTime), m_camOrientRef);
+				if (im->oIsKeyDown(m_moveKeys[2]->GetKey())) m_curObj->Translate(&VxVector(-0.1f * deltaTime, 0, 0), m_camOrientRef);
+				if (im->oIsKeyDown(m_moveKeys[3]->GetKey())) m_curObj->Translate(&VxVector(0.1f * deltaTime, 0, 0), m_camOrientRef);
+				if (im->oIsKeyDown(m_moveKeys[4]->GetKey())) m_curObj->Translate(&VxVector(0, 0.1f * deltaTime, 0), m_camOrientRef);
+				if (im->oIsKeyDown(m_moveKeys[5]->GetKey())) m_curObj->Translate(&VxVector(0, -0.1f * deltaTime, 0), m_camOrientRef);
 			}
 			else {
 				CKMesh* mesh = m_curObj->GetMesh(0);
@@ -967,6 +997,11 @@ void BMLMod::OnProcess() {
 		sprintf(time, "%02d:%02d:%02d.%03d", h, m, s, ms);
 		m_srScore->SetText(time);
 	}
+
+	if (m_mapsGui) {
+		bool inStart = m_level01->IsVisible();
+		m_customMaps->SetVisible(inStart);
+	}
 }
 
 void BMLMod::OnPostResetLevel() {
@@ -983,6 +1018,7 @@ void BMLMod::OnStartLevel() {
 	m_srScore->SetText("00:00:00.000");
 	m_srScore->SetVisible(true);
 	m_srTitle->SetVisible(true);
+	SetParamValue(m_loadCustom, FALSE);
 }
 
 void BMLMod::OnPostExitLevel() {
@@ -1091,11 +1127,6 @@ void BMLMod::ShowGui(BGui::Gui* gui) {
 		gui->SetVisible(true);
 }
 
-void BMLMod::ShowGuiList(GuiList* gui) {
-	ShowGui(gui);
-	gui->SetPage(0);
-}
-
 void BMLMod::CloseCurrentGui() {
 	m_currentGui->SetVisible(false);
 	m_currentGui = nullptr;
@@ -1116,7 +1147,7 @@ void BMLMod::ExitTravelCam() {
 	m_bml->GetRenderContext()->AttachViewpointToCamera(cam);
 }
 
-void CommandTravel::Execute(IBML* bml, std::vector<std::string> args) {
+void CommandTravel::Execute(IBML* bml, const std::vector<std::string>& args) {
 	if (bml->IsPlaying()) {
 		if (m_mod->IsInTravelCam()) {
 			m_mod->ExitTravelCam();
@@ -1149,17 +1180,18 @@ void GuiList::Init(int size, int maxsize) {
 		m_guiList.push_back(CreateSubGui(i));
 	for (int i = 0; i < m_maxsize; i++) {
 		BGui::Button* button = CreateButton(i);
-		button->SetCallback([this, i]() {
-			BGui::Gui* gui = m_guiList[m_maxsize * m_curpage + i];
-			ModLoader::m_instance->m_bmlmod->ShowGui(gui);
-			});
+		if (m_size > 0 && m_guiList[0] != nullptr) {
+			button->SetCallback([this, i]() {
+				BGui::Gui* gui = m_guiList[m_maxsize * m_curpage + i];
+				ModLoader::m_instance->m_bmlmod->ShowGui(gui);
+				});
+		}
 		m_buttons.push_back(button);
 	}
 }
 
 void GuiList::SetPage(int page) {
-	ModLoader* bml = ModLoader::m_instance;
-	int size = (std::min)((UINT)m_maxsize, m_guiList.size() - page * m_maxsize);
+	int size = (std::min)(m_maxsize, m_size - page * m_maxsize);
 	for (int i = 0; i < m_maxsize; i++)
 		m_buttons[i]->SetVisible(i < size);
 	for (int i = 0; i < size; i++)
@@ -1245,6 +1277,103 @@ BGui::Gui* GuiModMenu::CreateSubGui(int index) {
 
 BGui::Gui* GuiModMenu::GetParentGui() {
 	return ModLoader::m_instance->m_bmlmod->m_modOption;
+}
+
+GuiCustomMap::GuiCustomMap(BMLMod* mod) : GuiList(), m_mod(mod) {
+	m_left->SetPosition(Vx2DVector(0.34f, 0.4f));
+	m_right->SetPosition(Vx2DVector(0.6238f, 0.4f));
+
+	AddTextLabel("M_Opt_Mods_Title", "Custom Maps", ExecuteBB::GAMEFONT_02, 0.35f, 0.07f, 0.3f, 0.1f);
+	WIN32_FIND_DATA findData;
+	HANDLE hFind = FindFirstFile("..\\ModLoader\\Maps\\*.nmo", &findData);
+	if (hFind != INVALID_HANDLE_VALUE) {
+		do {
+			for (int i = strlen(findData.cFileName) - 1; i >= 0; i--) {
+				if (findData.cFileName[i] == '.') {
+					findData.cFileName[i] = '\0';
+					break;
+				}
+			}
+			m_maps.push_back({ findData.cFileName, Text2Pinyin(findData.cFileName) });
+		} while (FindNextFileA(hFind, &findData));
+	}
+
+	m_exit = AddLeftButton("M_Exit_Custom_Maps", 0.4f, 0.34f, [this]() {
+		GuiList::Exit();
+		ModLoader::m_instance->GetCKContext()->GetCurrentScene()->Activate(
+			static_cast<CKBehavior*>(ModLoader::m_instance->GetCKContext()->GetObjectByNameAndClass("Menu_Start", CKCID_BEHAVIOR)),
+			true);
+		});
+
+	AddPanel("M_Map_Search_Bg", VxColor(0, 0, 0, 110), 0.4f, 0.18f, 0.2f, 0.03f);
+	m_searchBar = AddTextInput("M_Search_Map", ExecuteBB::GAMEFONT_03, 0.4f, 0.18f, 0.2f, 0.03f, [this](CKDWORD) {
+		m_searchRes.clear();
+		for (auto& p : m_maps) {
+			if (m_searchBar->GetText()[0] == 0 || p.second.find(m_searchBar->GetText()) != std::string::npos) {
+				m_searchRes.push_back(p.first);
+			}
+		}
+		m_size = m_searchRes.size();
+		m_maxpage = (m_size + m_maxsize - 1) / m_maxsize;
+		SetPage(0);
+		});
+
+	for (auto& p : m_maps)
+		m_searchRes.push_back(p.first);
+	Init(m_searchRes.size(), 10);
+	SetVisible(false);
+}
+
+BGui::Button* GuiCustomMap::CreateButton(int index) {
+	m_texts.push_back(AddText(("M_Opt_ModMenu_" + std::to_string(index)).c_str(), "", 0.44f, 0.23f + 0.06f * index, 0.14f, 0.05f));
+	return AddLevelButton(("M_Opt_ModMenu_" + std::to_string(index)).c_str(), "", 0.23f + 0.06f * index, 0.4031f, [this, index]() {
+		GuiList::Exit();
+		SetParamString(m_mod->m_mapFile, ("..\\ModLoader\\Maps\\" + m_searchRes[m_curpage * m_maxsize + index] + ".NMO").c_str());
+		SetParamValue(m_mod->m_loadCustom, TRUE);
+		int level = rand() % 11 + 2;
+		m_mod->m_curLevel->SetElementValue(0, 0, &level);
+		SetParamValue(m_mod->m_levelRow, level);
+
+		CKContext* ctx = m_mod->m_bml->GetCKContext();
+		CKMessageManager* mm = ctx->GetMessageManager();
+		CKMessageType loadLevel = mm->AddMessageType("Load Level");
+		CKMessageType loadMenu = mm->AddMessageType("Menu_Load");
+
+		mm->SendMessageSingle(loadLevel, ctx->GetCurrentLevel());
+		mm->SendMessageSingle(loadMenu, static_cast<CKGroup*>(ctx->GetObjectByNameAndClass("All_Sound", CKCID_GROUP)));
+		static_cast<CK2dEntity*>(ctx->GetObjectByNameAndClass("M_BlackScreen", CKCID_2DENTITY))->Show(CKHIDE);
+		m_mod->m_exitStart->ActivateInput(0);
+		m_mod->m_exitStart->Activate();
+		});
+}
+
+std::string GuiCustomMap::GetButtonText(int index) {
+	return "";
+}
+
+BGui::Gui* GuiCustomMap::CreateSubGui(int index) {
+	return nullptr;
+}
+
+BGui::Gui* GuiCustomMap::GetParentGui() {
+	return nullptr;
+}
+
+void GuiCustomMap::SetPage(int page) {
+	GuiList::SetPage(page);
+	int size = (std::min)(m_maxsize, m_size - page * m_maxsize);
+	for (int i = 0; i < m_maxsize; i++)
+		m_texts[i]->SetVisible(i < size);
+	for (int i = 0; i < size; i++)
+		m_texts[i]->SetText(m_searchRes[page * m_maxsize + i].c_str());
+	m_mod->m_bml->AddTimer(1u, [this, page]() { m_exit->SetVisible(page == 0); });
+}
+
+void GuiCustomMap::Exit() {
+	GuiList::Exit();
+	ModLoader::m_instance->GetCKContext()->GetCurrentScene()->Activate(
+		static_cast<CKBehavior*>(ModLoader::m_instance->GetCKContext()->GetObjectByNameAndClass("Menu_Main", CKCID_BEHAVIOR)),
+		true);
 }
 
 GuiModCategory::GuiModCategory(GuiModMenu* parent, Config* config, std::string category) {

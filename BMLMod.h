@@ -60,6 +60,26 @@ private:
 	std::vector<std::string> m_categories;
 };
 
+class GuiCustomMap : public GuiList {
+public:
+	GuiCustomMap(class BMLMod* mod);
+
+	virtual BGui::Button* CreateButton(int index) override;
+	virtual std::string GetButtonText(int index) override;
+	virtual BGui::Gui* CreateSubGui(int index) override;
+	virtual BGui::Gui* GetParentGui() override;
+	virtual void SetPage(int page);
+	virtual void Exit() override;
+
+private:
+	std::vector<std::pair<std::string, std::string>> m_maps;
+	std::vector<std::string> m_searchRes;
+	std::vector<BGui::Text*> m_texts;
+	BGui::Input* m_searchBar = nullptr;
+	BGui::Button* m_exit = nullptr;
+	class BMLMod* m_mod;
+};
+
 class GuiModCategory : public BGui::Gui {
 public:
 	GuiModCategory(GuiModMenu* parent, Config* config, std::string category);
@@ -90,8 +110,8 @@ class CommandTravel : public ICommand {
 	virtual std::string GetDescription() override { return "Switch to First-Person Camera."; };
 	virtual bool IsCheat() override { return false; };
 
-	virtual void Execute(IBML* bml, std::vector<std::string> args) override;
-	virtual std::vector<std::string> GetTabCompletion(IBML* bml, std::vector<std::string> args) { return std::vector<std::string>(); };
+	virtual void Execute(IBML* bml, const std::vector<std::string>& args) override;
+	virtual const std::vector<std::string> GetTabCompletion(IBML* bml, const std::vector<std::string>& args) override { return std::vector<std::string>(); };
 public:
 	CommandTravel(class BMLMod* mod) : m_mod(mod) {};
 
@@ -103,6 +123,7 @@ class BMLMod : public IMod {
 	friend class CommandClear;
 	friend class CommandSector;
 	friend class GuiModMenu;
+	friend class GuiCustomMap;
 public:
 	BMLMod(IBML* bml) : IMod(bml) {}
 
@@ -134,7 +155,6 @@ public:
 	void ShowCheatBanner(bool show);
 	void ShowModOptions();
 	void ShowGui(BGui::Gui* gui);
-	void ShowGuiList(GuiList* gui);
 	void CloseCurrentGui();
 
 	void EnterTravelCam();
@@ -149,6 +169,7 @@ private:
 	void OnEditScript_Gameplay_Ingame(CKBehavior* script);
 	void OnEditScript_Gameplay_Energy(CKBehavior* script);
 	void OnEditScript_Gameplay_Events(CKBehavior* script);
+	void OnEditScript_Levelinit_build(CKBehavior* script);
 
 	void OnCmdEdit(CKDWORD key);
 
@@ -167,7 +188,7 @@ private:
 	} m_msg[MSG_MAXSIZE];
 
 	BGui::Gui* m_ingameBanner = nullptr;
-	BGui::Label* m_cheat[3], * m_fps, * m_srScore, * m_srTitle;
+	BGui::Label* m_cheat[3], * m_fps, * m_srScore, * m_srTitle = nullptr;
 	int m_fpscnt = 0, m_fpstimer = 0;
 	float m_srtimer = 0.0f;
 	bool m_sractive = false;
@@ -216,4 +237,10 @@ private:
 
 	IProperty* m_fpsKeys[6];
 	CKCamera* m_travelCam;
+
+	GuiCustomMap* m_mapsGui = nullptr;
+	CK2dEntity* m_level01;
+	CKBehavior* m_exitStart;
+	BGui::Button* m_customMaps;
+	CKParameter* m_loadCustom, * m_mapFile, * m_levelRow;
 };

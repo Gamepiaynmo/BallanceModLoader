@@ -50,3 +50,4 @@ void RegisterBBs(XObjectDeclarationArray* reg);
 #define VT_TEXT2D CKGUID(0x55b29fe,0x662d5ca0)
 #define VT_KEYEVENT CKGUID(0x1af2274b,0x6b8c1524)
 #define VT_OBJECTLOAD CKGUID(0x7bd977d7,0x26396c0c)
+#define VT_BINARYSWITCH CKGUID(0xeb506901, 0x984afccc)

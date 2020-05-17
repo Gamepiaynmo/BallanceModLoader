@@ -32,20 +32,47 @@ namespace BGui {
 		Element(CKSTRING name);
 		virtual ~Element();
 
-		Vx2DVector GetPosition();
-		void SetPosition(Vx2DVector pos);
-		Vx2DVector GetSize();
-		void SetSize(Vx2DVector size);
-		int GetZOrder();
-		void SetZOrder(int z);
+		virtual Vx2DVector GetPosition();
+		virtual void SetPosition(Vx2DVector pos);
+		virtual Vx2DVector GetSize();
+		virtual void SetSize(Vx2DVector size);
+		virtual int GetZOrder();
+		virtual void SetZOrder(int z);
 
-		bool IsVisible();
-		void SetVisible(bool visible);
+		virtual bool IsVisible();
+		virtual void SetVisible(bool visible);
 
 		virtual void Process() {};
 
 	protected:
 		CK2dEntity* m_2dentity;
+	};
+
+	class BML_EXPORT Text : private Element {
+		friend class Gui;
+	public:
+		Text(CKSTRING name);
+		virtual ~Text();
+
+		virtual Vx2DVector GetPosition();
+		virtual void SetPosition(Vx2DVector pos);
+		virtual Vx2DVector GetSize();
+		virtual void SetSize(Vx2DVector size);
+		virtual int GetZOrder();
+		virtual void SetZOrder(int z);
+
+		virtual bool IsVisible();
+		virtual void SetVisible(bool visible);
+
+		CKSTRING GetText();
+		void SetText(CKSTRING text);
+		void SetFont(CKSTRING FontName, int FontSize, int Weight, CKBOOL italic, CKBOOL underline);
+		void SetAlignment(CKSPRITETEXT_ALIGNMENT align);
+		CKDWORD GetTextColor();
+		void SetTextColor(CKDWORD color);
+
+	protected:
+		CKSpriteText* m_sprite;
 	};
 
 	class BML_EXPORT Panel : public Element {
@@ -152,6 +179,7 @@ namespace BGui {
 
 		Panel* AddPanel(CKSTRING name, VxColor color, float xPos, float yPos, float xSize, float ySize);
 		Label* AddTextLabel(CKSTRING name, CKSTRING text, ExecuteBB::FontType font, float xPos, float yPos, float xSize, float ySize);
+		Text* AddText(CKSTRING name, CKSTRING text, float xPos, float yPos, float xSize, float ySize);
 		Input* AddTextInput(CKSTRING name, ExecuteBB::FontType font, float xPos, float yPos, float xSize, float ySize, std::function<void(CKDWORD)> callback = [](CKDWORD) {});
 		std::pair<Button*, KeyInput*> AddKeyButton(CKSTRING name, CKSTRING text, float yPos, float xPos = 0.35f, std::function<void(CKDWORD)> callback = [](CKDWORD) {});
 		std::pair<Button*, Button*> AddYesNoButton(CKSTRING name, float yPos, float x1Pos, float x2Pos, std::function<void(bool)> callback = [](bool) {});

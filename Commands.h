@@ -11,8 +11,8 @@ public:
 	virtual std::string GetDescription() override { return "Show Information about Ballance Mod Loader."; };
 	virtual bool IsCheat() override { return false; };
 
-	virtual void Execute(IBML* bml, std::vector<std::string> args) override;
-	virtual std::vector<std::string> GetTabCompletion(IBML* bml, std::vector<std::string> args) { return std::vector<std::string>(); };
+	virtual void Execute(IBML* bml, const std::vector<std::string>& args) override;
+	virtual const std::vector<std::string> GetTabCompletion(IBML* bml, const std::vector<std::string>& args) override { return std::vector<std::string>(); };
 };
 
 class CommandHelp : public ICommand {
@@ -22,8 +22,8 @@ public:
 	virtual std::string GetDescription() override { return "Show Help Information about Existing Commands."; };
 	virtual bool IsCheat() override { return false; };
 
-	virtual void Execute(IBML* bml, std::vector<std::string> args) override;
-	virtual std::vector<std::string> GetTabCompletion(IBML* bml, std::vector<std::string> args) { return std::vector<std::string>(); };
+	virtual void Execute(IBML* bml, const std::vector<std::string>& args) override;
+	virtual const std::vector<std::string> GetTabCompletion(IBML* bml, const std::vector<std::string>& args) override { return std::vector<std::string>(); };
 };
 
 class CommandCheat : public ICommand {
@@ -33,8 +33,8 @@ public:
 	virtual std::string GetDescription() override { return "Enable or Disable Cheat Mode."; };
 	virtual bool IsCheat() override { return false; };
 
-	virtual void Execute(IBML* bml, std::vector<std::string> args) override;
-	virtual std::vector<std::string> GetTabCompletion(IBML* bml, std::vector<std::string> args) {
+	virtual void Execute(IBML* bml, const std::vector<std::string>& args) override;
+	virtual const std::vector<std::string> GetTabCompletion(IBML* bml, const std::vector<std::string>& args) override {
 		return args.size() == 2 ? std::vector<std::string>({ "true", "false" }) : std::vector<std::string>();
 	};
 };
@@ -45,8 +45,8 @@ class CommandClear : public ICommand {
 	virtual std::string GetDescription() override { return "Clear the Console."; };
 	virtual bool IsCheat() override { return false; };
 
-	virtual void Execute(IBML* bml, std::vector<std::string> args) override;
-	virtual std::vector<std::string> GetTabCompletion(IBML* bml, std::vector<std::string> args) { return std::vector<std::string>(); };
+	virtual void Execute(IBML* bml, const std::vector<std::string>& args) override;
+	virtual const std::vector<std::string> GetTabCompletion(IBML* bml, const std::vector<std::string>& args) override { return std::vector<std::string>(); };
 };
 
 class CommandScore : public ICommand {
@@ -55,8 +55,8 @@ class CommandScore : public ICommand {
 	virtual std::string GetDescription() override { return "Manage Ingame Score."; };
 	virtual bool IsCheat() override { return true; };
 
-	virtual void Execute(IBML* bml, std::vector<std::string> args) override;
-	virtual std::vector<std::string> GetTabCompletion(IBML* bml, std::vector<std::string> args) {
+	virtual void Execute(IBML* bml, const std::vector<std::string>& args) override;
+	virtual const std::vector<std::string> GetTabCompletion(IBML* bml, const std::vector<std::string>& args) override {
 		return args.size() == 2 ? std::vector<std::string>({ "add", "sub", "set" }) : std::vector<std::string>();
 	};
 
@@ -70,8 +70,8 @@ class CommandSpeed : public ICommand {
 	virtual std::string GetDescription() override { return "Change Realtime Ball Speed."; };
 	virtual bool IsCheat() override { return true; };
 
-	virtual void Execute(IBML* bml, std::vector<std::string> args) override;
-	virtual std::vector<std::string> GetTabCompletion(IBML* bml, std::vector<std::string> args) { return std::vector<std::string>(); };
+	virtual void Execute(IBML* bml, const std::vector<std::string>& args) override;
+	virtual const std::vector<std::string> GetTabCompletion(IBML* bml, const std::vector<std::string>& args) override { return std::vector<std::string>(); };
 
 private:
 	CKDataArray* m_curLevel = nullptr, * m_phyBall = nullptr;
@@ -85,8 +85,8 @@ class CommandKill : public ICommand {
 	virtual std::string GetDescription() override { return "Suicide."; };
 	virtual bool IsCheat() override { return false; };
 
-	virtual void Execute(IBML* bml, std::vector<std::string> args) override;
-	virtual std::vector<std::string> GetTabCompletion(IBML* bml, std::vector<std::string> args) { return std::vector<std::string>(); };
+	virtual void Execute(IBML* bml, const std::vector<std::string>& args) override;
+	virtual const std::vector<std::string> GetTabCompletion(IBML* bml, const std::vector<std::string>& args) override { return std::vector<std::string>(); };
 
 private:
 	CKBehavior* m_deactBall = nullptr;
@@ -98,8 +98,8 @@ class CommandSetSpawn : public ICommand {
 	virtual std::string GetDescription() override { return "Set Ball Spawn Point to Current Position."; };
 	virtual bool IsCheat() override { return true; };
 
-	virtual void Execute(IBML* bml, std::vector<std::string> args) override;
-	virtual std::vector<std::string> GetTabCompletion(IBML* bml, std::vector<std::string> args) { return std::vector<std::string>(); };
+	virtual void Execute(IBML* bml, const std::vector<std::string>& args) override;
+	virtual const std::vector<std::string> GetTabCompletion(IBML* bml, const std::vector<std::string>& args) override { return std::vector<std::string>(); };
 
 private:
 	CKDataArray* m_curLevel;
@@ -111,8 +111,8 @@ class CommandSector : public ICommand {
 	virtual std::string GetDescription() override { return "Start playing specified sector."; };
 	virtual bool IsCheat() override { return true; };
 
-	virtual void Execute(IBML* bml, std::vector<std::string> args) override;
-	virtual std::vector<std::string> GetTabCompletion(IBML* bml, std::vector<std::string> args) { return std::vector<std::string>(); };
+	virtual void Execute(IBML* bml, const std::vector<std::string>& args) override;
+	virtual const std::vector<std::string> GetTabCompletion(IBML* bml, const std::vector<std::string>& args) override { return std::vector<std::string>(); };
 	void ResetBall(IBML* bml, CKContext* ctx);
 
 private:
@@ -126,6 +126,6 @@ class CommandWin : public ICommand {
 	virtual std::string GetDescription() override { return "Finish this Level."; };
 	virtual bool IsCheat() override { return true; };
 
-	virtual void Execute(IBML* bml, std::vector<std::string> args) override;
-	virtual std::vector<std::string> GetTabCompletion(IBML* bml, std::vector<std::string> args) { return std::vector<std::string>(); };
+	virtual void Execute(IBML* bml, const std::vector<std::string>& args) override;
+	virtual const std::vector<std::string> GetTabCompletion(IBML* bml, const std::vector<std::string>& args) override { return std::vector<std::string>(); };
 };

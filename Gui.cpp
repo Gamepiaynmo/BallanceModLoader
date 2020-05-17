@@ -18,6 +18,7 @@ Vx2DVector InputHook::m_lastMousePosition;
 
 CKMaterial* m_up = nullptr, * m_over = nullptr, * m_inactive = nullptr, * m_field = nullptr, * m_caret = nullptr, * m_highlight = nullptr;
 CKGroup* all_sound = nullptr;
+CKSTRING text_font = "Î¢ÈíÑÅºÚ";
 
 CKBOOL InputHook::IsKeyDown(CKDWORD iKey, CKDWORD* oStamp) {
 	CKBOOL res = InputHook::oIsKeyDown(iKey, oStamp);
@@ -266,6 +267,87 @@ namespace BGui {
 		m_2dentity->Show(visible ? CKSHOW : CKHIDE);
 	}
 
+	Text::Text(CKSTRING name) : Element(name) {
+		CKContext* ctx = ModLoader::m_instance->GetCKContext();
+		m_sprite = static_cast<CKSpriteText*>(ctx->CreateObject(CKCID_SPRITETEXT, name));
+		m_sprite->ModifyObjectFlags(CK_OBJECT_NOTTOBELISTEDANDSAVED, 0);
+		ctx->GetCurrentLevel()->AddObject(m_sprite);
+		m_sprite->SetHomogeneousCoordinates();
+		m_sprite->EnableClipToCamera(false);
+		m_sprite->EnableRatioOffset(false);
+		m_sprite->SetZOrder(20);
+		m_sprite->SetTextColor(0xffffffff);
+		m_sprite->SetAlign(CKSPRITETEXT_ALIGNMENT(CKSPRITETEXT_VCENTER | CKSPRITETEXT_LEFT));
+		m_sprite->SetFont(text_font, 10, 400);
+	}
+
+	Text::~Text() {
+		ModLoader::m_instance->GetCKContext()->DestroyObject(CKOBJID(m_sprite));
+	}
+
+	Vx2DVector Text::GetPosition() {
+		Vx2DVector res;
+		m_sprite->GetPosition(res, true);
+		return res;
+	}
+
+	void Text::SetPosition(Vx2DVector pos) {
+		m_sprite->SetPosition(pos, true);
+	}
+
+	Vx2DVector Text::GetSize() {
+		Vx2DVector res;
+		m_sprite->GetSize(res, true);
+		return res;
+	}
+
+	void Text::SetSize(Vx2DVector size) {
+		m_sprite->ReleaseAllSlots();
+		m_sprite->Create(int(ModLoader::m_instance->GetRenderContext()->GetWidth() * size.x),
+			int(ModLoader::m_instance->GetRenderContext()->GetHeight() * size.y), 32);
+		m_sprite->SetSize(size, true);
+	}
+
+	int Text::GetZOrder() {
+		return m_sprite->GetZOrder();
+	}
+
+	void Text::SetZOrder(int z) {
+		m_sprite->SetZOrder(z);
+	}
+
+	bool Text::IsVisible() {
+		return m_sprite->IsVisible();
+	}
+
+	void Text::SetVisible(bool visible) {
+		m_sprite->Show(visible ? CKSHOW : CKHIDE);
+	}
+
+	CKSTRING Text::GetText() {
+		return m_sprite->GetText();
+	}
+
+	void Text::SetText(CKSTRING text) {
+		m_sprite->SetText(text);
+	}
+
+	void Text::SetFont(CKSTRING FontName, int FontSize, int Weight, CKBOOL italic, CKBOOL underline) {
+		m_sprite->SetFont(FontName, FontSize, Weight, italic, underline);
+	}
+
+	void Text::SetAlignment(CKSPRITETEXT_ALIGNMENT align) {
+		m_sprite->SetAlign(align);
+	}
+
+	CKDWORD Text::GetTextColor() {
+		return m_sprite->GetTextColor();
+	}
+
+	void Text::SetTextColor(CKDWORD color) {
+		m_sprite->SetTextColor(color);
+	}
+
 	Panel::Panel(CKSTRING name) : Element(name) {
 		m_material = static_cast<CKMaterial*>(ModLoader::m_instance->GetCKContext()
 			->CreateObject(CKCID_MATERIAL, (std::string(name) + "_Mat").c_str()));
@@ -431,6 +513,7 @@ namespace BGui {
 	Input::Input(CKSTRING name) : Label(name) {
 		m_2dentity->UseSourceRect();
 		ScriptHelper::SetParamObject(m_text2d->GetInputParameter(8)->GetRealSource(), ::m_caret);
+		ScriptHelper::SetParamString(m_text2d->GetInputParameter(1)->GetRealSource(), "\b");
 	}
 
 	void Input::InvokeCallback(CKDWORD key) {
@@ -724,6 +807,15 @@ namespace BGui {
 		return label;
 	}
 
+	Text* Gui::AddText(CKSTRING name, CKSTRING text, float xPos, float yPos, float xSize, float ySize) {
+		Text* txt = new Text(name);
+		txt->SetText(text);
+		txt->SetPosition(Vx2DVector(xPos, yPos));
+		txt->SetSize(Vx2DVector(xSize, ySize));
+		m_elements.push_back(txt);
+		return txt;
+	}
+
 	Input* Gui::AddTextInput(CKSTRING name, ExecuteBB::FontType font, float xPos, float yPos, float xSize, float ySize, std::function<void(CKDWORD)> callback) {
 		Input* input = new Input(name);
 		input->SetFont(font);
@@ -828,5 +920,12 @@ namespace BGui {
 		m_caret = static_cast<CKMaterial*>(ModLoader::m_instance->GetCKContext()->GetObjectByNameAndClass("M_Caret", CKCID_MATERIAL));
 		m_highlight = static_cast<CKMaterial*>(ModLoader::m_instance->GetCKContext()->GetObjectByNameAndClass("M_Keys_Highlight", CKCID_MATERIAL));
 		all_sound = static_cast<CKGroup*>(ModLoader::m_instance->GetCKContext()->GetObjectByNameAndClass("All_Sound", CKCID_GROUP));
+
+		CKParameterManager* pm = ModLoader::m_instance->GetParameterManager();
+		CKEnumStruct* data = pm->GetEnumDescByType(pm->ParameterGuidToType(CKPGUID_FONTNAME));
+		for (int i = 0; i < data->GetNumEnums(); i++) {
+			if (!strcmp(data->GetEnumDescription(i), "Õ¾¿á¸ß¶ËºÚ"))
+				text_font = "Õ¾¿á¸ß¶ËºÚ";
+		}
 	}
 }

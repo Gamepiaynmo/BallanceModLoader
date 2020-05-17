@@ -184,6 +184,7 @@
     <ClCompile Include="RegisterBB.cpp" />
     <ClCompile Include="ScriptHelper.cpp" />
     <ClCompile Include="Timer.cpp" />
+    <ClCompile Include="Util.cpp" />
     <ClCompile Include="virtools\CK2dEntity.cpp" />
     <ClCompile Include="virtools\CK3dEntity.cpp" />
     <ClCompile Include="virtools\CKAttributeManager.cpp" />
@@ -257,6 +258,7 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="ScriptHelper.h" />
     <ClInclude Include="Timer.h" />
+    <ClInclude Include="Util.h" />
     <ClInclude Include="Version.h" />
     <ClInclude Include="virtools\CK2dEntity.h" />
     <ClInclude Include="virtools\CK3dEntity.h" />

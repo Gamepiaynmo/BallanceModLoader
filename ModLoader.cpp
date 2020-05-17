@@ -4,6 +4,7 @@
 #include "BMLMod.h"
 #include "ExecuteBB.h"
 #include <ImageHlp.h>
+#include <ctime>
 
 Player::StepFunc Player::m_step = &Player::Step;
 
@@ -39,10 +40,13 @@ ModLoader::~ModLoader() {
 }
 
 void ModLoader::Init() {
-	m_logfile = fopen("../ModLoader/ModLoader.log", "w");
+	m_logfile = fopen("..\\ModLoader\\ModLoader.log", "w");
 	m_logger = new Logger("ModLoader");
 
 	MakeSureDirectoryPathExists("..\\ModLoader\\Config\\");
+	MakeSureDirectoryPathExists("..\\ModLoader\\Maps\\");
+
+	srand((UINT)time(0));
 
 #ifdef _DEBUG
 	AllocConsole();
@@ -527,7 +531,7 @@ std::string ModLoader::TabCompleteCommand(CKSTRING cmd) {
 	else {
 		ICommand* command = FindCommand(args[0]);
 		if (command) {
-			for (std::string& str : command->GetTabCompletion(this, args))
+			for (const std::string& str : command->GetTabCompletion(this, args))
 				if (StartWith(str, args[args.size() - 1]))
 					res.push_back(str);
 		}
