@@ -913,13 +913,13 @@ namespace BGui {
 	}
 
 	void Gui::InitMaterials() {
-		m_up = static_cast<CKMaterial*>(ModLoader::m_instance->GetCKContext()->GetObjectByNameAndClass("M_Button_Up", CKCID_MATERIAL));
-		m_inactive = static_cast<CKMaterial*>(ModLoader::m_instance->GetCKContext()->GetObjectByNameAndClass("M_Button_Inactive", CKCID_MATERIAL));
-		m_over = static_cast<CKMaterial*>(ModLoader::m_instance->GetCKContext()->GetObjectByNameAndClass("M_Button_Over", CKCID_MATERIAL));
-		m_field = static_cast<CKMaterial*>(ModLoader::m_instance->GetCKContext()->GetObjectByNameAndClass("M_EntryBG", CKCID_MATERIAL));
-		m_caret = static_cast<CKMaterial*>(ModLoader::m_instance->GetCKContext()->GetObjectByNameAndClass("M_Caret", CKCID_MATERIAL));
-		m_highlight = static_cast<CKMaterial*>(ModLoader::m_instance->GetCKContext()->GetObjectByNameAndClass("M_Keys_Highlight", CKCID_MATERIAL));
-		all_sound = static_cast<CKGroup*>(ModLoader::m_instance->GetCKContext()->GetObjectByNameAndClass("All_Sound", CKCID_GROUP));
+		m_up = ModLoader::m_instance->GetMaterialByName("M_Button_Up");
+		m_inactive = ModLoader::m_instance->GetMaterialByName("M_Button_Inactive");
+		m_over = ModLoader::m_instance->GetMaterialByName("M_Button_Over");
+		m_field = ModLoader::m_instance->GetMaterialByName("M_EntryBG");
+		m_caret = ModLoader::m_instance->GetMaterialByName("M_Caret");
+		m_highlight = ModLoader::m_instance->GetMaterialByName("M_Keys_Highlight");
+		all_sound = ModLoader::m_instance->GetGroupByName("All_Sound");
 
 		CKParameterManager* pm = ModLoader::m_instance->GetParameterManager();
 		CKEnumStruct* data = pm->GetEnumDescByType(pm->ParameterGuidToType(CKPGUID_FONTNAME));

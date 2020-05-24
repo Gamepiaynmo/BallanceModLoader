@@ -179,8 +179,8 @@ namespace ExecuteBB {
 		return beh;
 	}
 
-	std::pair<XObjectArray*, CKObject*> ObjectLoad(CKSTRING file, CKSTRING mastername, CK_CLASSID filter, CKBOOL addToScene,
-		CKBOOL reuseMesh, CKBOOL reuseMtl, CKBOOL dynamic, bool rename) {
+	std::pair<XObjectArray*, CKObject*> ObjectLoad(CKSTRING file, bool rename, CKSTRING mastername, CK_CLASSID filter,
+		CKBOOL addToScene, CKBOOL reuseMesh, CKBOOL reuseMtl, CKBOOL dynamic) {
 		SetParamString(bbObjLoad->GetInputParameter(0)->GetDirectSource(), file);
 		SetParamString(bbObjLoad->GetInputParameter(1)->GetDirectSource(), mastername);
 		SetParamValue(bbObjLoad->GetInputParameter(2)->GetDirectSource(), filter);
@@ -207,14 +207,40 @@ namespace ExecuteBB {
 		return { array, bbObjLoad->GetOutputParameterObject(1) };
 	}
 
+	CKBehavior* bbPhyImpul;
+	CKBehavior* CreatePhysicsImpulse(CK3dEntity* target, VxVector position, CK3dEntity* posRef, VxVector direction,
+		CK3dEntity* dirRef, float impulse) {
+		CKBehavior* beh = CreateBB(ownerScript, TT_PHYSICSIMPLUSE, true);
+		beh->GetTargetParameter()->SetDirectSource(CreateParamObject(CKPGUID_3DENTITY, "Target", target));
+		beh->GetInputParameter(0)->SetDirectSource(CreateParamValue(CKPGUID_VECTOR, "Position", position));
+		beh->GetInputParameter(1)->SetDirectSource(CreateParamObject(CKPGUID_3DENTITY, "PosRef", posRef));
+		beh->GetInputParameter(2)->SetDirectSource(CreateParamValue(CKPGUID_VECTOR, "Direction", direction));
+		beh->GetInputParameter(3)->SetDirectSource(CreateParamObject(CKPGUID_3DENTITY, "DirRef", dirRef));
+		beh->GetInputParameter(4)->SetDirectSource(CreateParamValue(CKPGUID_FLOAT, "Impulse", impulse));
+		return beh;
+	}
+
+	void PhysicsImpulse(CK3dEntity* target, VxVector position, CK3dEntity* posRef, VxVector direction,
+		CK3dEntity* dirRef, float impulse) {
+		SetParamObject(bbPhyImpul->GetTargetParameter()->GetDirectSource(), target);
+		SetParamValue(bbPhyImpul->GetInputParameter(0)->GetDirectSource(), position);
+		SetParamObject(bbPhyImpul->GetInputParameter(1)->GetDirectSource(), posRef);
+		SetParamValue(bbPhyImpul->GetInputParameter(2)->GetDirectSource(), direction);
+		SetParamObject(bbPhyImpul->GetInputParameter(3)->GetDirectSource(), dirRef);
+		SetParamValue(bbPhyImpul->GetInputParameter(4)->GetDirectSource(), impulse);
+		bbPhyImpul->ActivateInput(0);
+		bbPhyImpul->Execute(0);
+	}
+
 	void Init(CKContext* context) {
 		for (int i = 0; i < 8; i++)
 			GameFonts[i] = i;
-		ownerScript = static_cast<CKBehavior*>(context->GetObjectByNameAndClass("Level_Init", CKCID_BEHAVIOR));
+		ownerScript = ModLoader::m_instance->GetScriptByName("Level_Init");
 
 		bbPhysConv = CreatePhysicalizeConvex();
 		bbPhysBall = CreatePhysicalizeBall();
 		bbPhysConc = CreatePhysicalizeConcave();
 		bbObjLoad = CreateObjectLoad();
+		bbPhyImpul = CreatePhysicsImpulse();
 	}
 }

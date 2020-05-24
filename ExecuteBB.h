@@ -79,6 +79,12 @@ namespace ExecuteBB {
 	CKBehavior* CreateObjectLoad(CKSTRING file = "", CKSTRING mastername = "", CK_CLASSID filter = CKCID_3DOBJECT,
 		CKBOOL addToScene = true, CKBOOL reuseMesh = true, CKBOOL reuseMtl = true, CKBOOL dynamic = true);
 
-	::std::pair<XObjectArray*, CKObject*> ObjectLoad(CKSTRING file = "", CKSTRING mastername = "", CK_CLASSID filter = CKCID_3DOBJECT,
-		CKBOOL addToScene = true, CKBOOL reuseMesh = true, CKBOOL reuseMtl = true, CKBOOL dynamic = true, bool rename = true);
+	::std::pair<XObjectArray*, CKObject*> ObjectLoad(CKSTRING file = "", bool rename = true, CKSTRING mastername = "",
+		CK_CLASSID filter = CKCID_3DOBJECT, CKBOOL addToScene = true, CKBOOL reuseMesh = true, CKBOOL reuseMtl = true, CKBOOL dynamic = true);
+
+	CKBehavior* CreatePhysicsImpulse(CK3dEntity* target = nullptr, VxVector position = VxVector(), CK3dEntity* posRef = nullptr,
+		VxVector direction = VxVector(), CK3dEntity* dirRef = nullptr, float impulse = 0.0f);
+
+	void PhysicsImpulse(CK3dEntity* target = nullptr, VxVector position = VxVector(), CK3dEntity* posRef = nullptr,
+		VxVector direction = VxVector(), CK3dEntity* dirRef = nullptr, float impulse = 0.0f);
 }

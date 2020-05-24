@@ -53,13 +53,13 @@ void CKBehaviorLink::SetActivationDelay(int delay) {
 }
 
 void CKBehaviorLink::ResetActivationDelay() {
-	SET_MEM(0x14, short, GET_MEM(0x18, short));
+	SET_MEM(0x14, short, GET_MEM(0x16, short));
 }
 
 void CKBehaviorLink::SetInitialActivationDelay(int delay) {
-	SET_MEM(0x18, short, delay);
+	SET_MEM(0x16, short, delay);
 }
 
 int CKBehaviorLink::GetInitialActivationDelay() {
-	RETURN_MEM(0x18, short);
+	RETURN_MEM(0x16, short);
 }

@@ -21,7 +21,6 @@
 	namespace XTools {
 #endif
 
-
 class XString;
 
 /************************************************
@@ -63,7 +62,6 @@ public:
 			m_Buffer = NULL;
 			m_Length = 0;
 		}
-		m_Allocated = m_Length;
 	}
 
 	// Dtor
@@ -160,7 +158,34 @@ public:
 
 	// Default Ctor 
 	XString():XBaseString() {}
-	XString(const char* iString) :XBaseString(iString) {}
+
+	// Substring Ctor
+	XString(const char* iString, const int iLength = 0);
+	void Constructor(const char* iString, const int iLength);
+
+	// Copy Ctor
+	XString(const XString& iSrc);
+	void Constructor(const XString& iSrc);
+
+	// Copy Ctor
+	XString(const XBaseString& iSrc);
+	void Constructor(const XBaseString& iSrc);
+
+	// Dtor
+	~XString();
+	void Deconstructor();
+
+	// operator =
+	XString& operator = (const XString& iSrc);
+
+	// operator =
+	XString& operator = (const char* iSrc);
+
+	// operator =
+	XString& operator = (const XBaseString& iSrc);
+
+	// Create from a string and a length
+	XString& Create(const char* iString, const int iLength = 0);
 
 	/************************************************
 	Summary: Conversion to a char*.

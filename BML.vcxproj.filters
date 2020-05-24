@@ -222,6 +222,9 @@
     <ClCompile Include="Util.cpp">
       <Filter>源文件\implement</Filter>
     </ClCompile>
+    <ClCompile Include="NewBallTypeMod.cpp">
+      <Filter>源文件\implement</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BMLAll.h">
@@ -528,6 +531,9 @@
       <Filter>头文件\virtools</Filter>
     </ClInclude>
     <ClInclude Include="Util.h">
+      <Filter>头文件\implement</Filter>
+    </ClInclude>
+    <ClInclude Include="NewBallTypeMod.h">
       <Filter>头文件\implement</Filter>
     </ClInclude>
   </ItemGroup>

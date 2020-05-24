@@ -1,6 +1,54 @@
 #include "CKDef.h"
 #include "XString.h"
 
+XString::XString(const char* iString, const int iLength) {
+	Constructor(iString, iLength);
+}
+
+NAKED void XString::Constructor(const char* iString, const int iLength) {
+	JUMP(0x2429E630);
+}
+
+XString::XString(const XString& iSrc) {
+	Constructor(iSrc);
+}
+
+NAKED void XString::Constructor(const XString& iSrc) {
+	JUMP(0x2429E7E0);
+}
+
+XString::XString(const XBaseString& iSrc) {
+	Constructor(iSrc);
+}
+
+NAKED void XString::Constructor(const XBaseString& iSrc) {
+	JUMP(0x2429E870);
+}
+
+XString::~XString() {
+	Deconstructor();
+}
+
+NAKED void XString::Deconstructor() {
+	JUMP(0x2429E7A0);
+}
+
+NAKED XString& XString::operator = (const XString& iSrc) {
+	JUMP(0x2429E990);
+}
+
+NAKED XString& XString::operator = (const char* iSrc) {
+	JUMP(0x2429E950);
+}
+
+NAKED XString& XString::operator = (const XBaseString& iSrc) {
+	JUMP(0x2429E990);
+}
+
+NAKED XString& XString::Create(const char* iString, const int iLength) {
+	JUMP(0x2429E900);
+}
+
 NAKED XString& XString::ToUpper() {
 	JUMP(0x2429EA00);
 }

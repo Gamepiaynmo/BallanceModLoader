@@ -31,7 +31,7 @@ public:
 	CKBOOL PasteShortcut(int i, int c, CKParameter* pout);
 	CKParameterOut* RemoveShortcut(int i, int c);
 
-	CKBOOL SetElementStringValue(int i, int c, char* svalue);
+	CKBOOL SetElementStringValue(int i, int c, const char* svalue);
 	int GetStringValue(CKDWORD key, int c, char* svalue);
 	int GetElementStringValue(int i, int c, char* svalue);
 

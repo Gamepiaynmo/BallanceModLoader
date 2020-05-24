@@ -14,6 +14,7 @@
 #include <map>
 
 class BMLMod;
+class NewBallTypeMod;
 
 class ModLoader : public IBML {
 	friend class BMLMod;
@@ -126,6 +127,35 @@ public:
 	virtual bool IsPaused() override { return m_paused; }
 	virtual bool IsPlaying() override { return m_ingame && !m_paused; }
 
+	virtual CKDataArray* GetArrayByName(CKSTRING name) {
+		return static_cast<CKDataArray*>(m_context->GetObjectByNameAndClass(name, CKCID_DATAARRAY)); }
+	virtual CKGroup* GetGroupByName(CKSTRING name) {
+		return static_cast<CKGroup*>(m_context->GetObjectByNameAndClass(name, CKCID_GROUP)); }
+	virtual CKMaterial* GetMaterialByName(CKSTRING name) {
+		return static_cast<CKMaterial*>(m_context->GetObjectByNameAndClass(name, CKCID_MATERIAL)); }
+	virtual CKMesh* GetMeshByName(CKSTRING name) {
+		return static_cast<CKMesh*>(m_context->GetObjectByNameAndClass(name, CKCID_MESH)); }
+	virtual CK2dEntity* Get2dEntityByName(CKSTRING name) {
+		return static_cast<CK2dEntity*>(m_context->GetObjectByNameAndClass(name, CKCID_2DENTITY)); }
+	virtual CK3dEntity* Get3dEntityByName(CKSTRING name) {
+		return static_cast<CK3dEntity*>(m_context->GetObjectByNameAndClass(name, CKCID_3DENTITY)); }
+	virtual CK3dObject* Get3dObjectByName(CKSTRING name) {
+		return static_cast<CK3dObject*>(m_context->GetObjectByNameAndClass(name, CKCID_3DOBJECT)); }
+	virtual CKCamera* GetCameraByName(CKSTRING name) {
+		return static_cast<CKCamera*>(m_context->GetObjectByNameAndClass(name, CKCID_CAMERA)); }
+	virtual CKTargetCamera* GetTargetCameraByName(CKSTRING name) {
+		return static_cast<CKTargetCamera*>(m_context->GetObjectByNameAndClass(name, CKCID_TARGETCAMERA)); }
+	virtual CKLight* GetLightByName(CKSTRING name) {
+		return static_cast<CKLight*>(m_context->GetObjectByNameAndClass(name, CKCID_LIGHT)); }
+	virtual CKTargetLight* GetTargetLightByName(CKSTRING name) {
+		return static_cast<CKTargetLight*>(m_context->GetObjectByNameAndClass(name, CKCID_TARGETLIGHT)); }
+	virtual CKSound* GetSoundByName(CKSTRING name) {
+		return static_cast<CKSound*>(m_context->GetObjectByNameAndClass(name, CKCID_SOUND)); }
+	virtual CKTexture* GetTextureByName(CKSTRING name) {
+		return static_cast<CKTexture*>(m_context->GetObjectByNameAndClass(name, CKCID_TEXTURE)); }
+	virtual CKBehavior* GetScriptByName(CKSTRING name) {
+		return static_cast<CKBehavior*>(m_context->GetObjectByNameAndClass(name, CKCID_BEHAVIOR)); }
+
 private:
 	bool m_inited = false;
 	bool m_exiting = false;
@@ -148,6 +178,7 @@ private:
 	CKTimeManager* m_timeManager = nullptr;
 
 	BMLMod* m_bmlmod;
+	NewBallTypeMod* m_ballTypeMod;
 	bool m_cheatEnabled = false;
 	std::vector<IMod*> m_mods;
 	std::vector<Config*> m_configs;

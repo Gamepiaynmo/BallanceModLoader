@@ -5,6 +5,7 @@
 #include "ExecuteBB.h"
 #include <ImageHlp.h>
 #include <ctime>
+#include "NewBallTypeMod.h"
 
 Player::StepFunc Player::m_step = &Player::Step;
 
@@ -89,6 +90,14 @@ void ModLoader::Init() {
 	m_logger->Info("Input Manager Hooks created");
 
 	GetContextsAndManagers();
+
+	std::string startPath = CKGetStartPath();
+	std::string bmlPath = startPath + "..\\ModLoader\\";
+	std::string texturePath = startPath + "..\\ModLoader\\Textures\\";
+	std::string soundPath = startPath + "..\\ModLoader\\Sounds\\";
+	m_pathManager->AddPath(DATA_PATH_IDX, bmlPath.c_str());
+	m_pathManager->AddPath(BITMAP_PATH_IDX, texturePath.c_str());
+	m_pathManager->AddPath(SOUND_PATH_IDX, soundPath.c_str());
 
 	m_logger->Info("Loading Mod Loader");
 
@@ -203,6 +212,9 @@ CKERROR ModLoader::Step(CKDWORD result) {
 
 			m_bmlmod = new BMLMod(this);
 			m_mods.push_back(m_bmlmod);
+
+			m_ballTypeMod = new NewBallTypeMod(this);
+			m_mods.push_back(m_ballTypeMod);
 
 /*
 #ifdef _DEBUG

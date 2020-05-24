@@ -1,6 +1,6 @@
 #include "CKPathManager.h"
 
-NAKED int CKPathManager::AddCategory(XString& cat) {
+NAKED int CKPathManager::AddCategory(const XString& cat) {
 	JUMP(0x24013759);
 }
 
@@ -16,15 +16,15 @@ NAKED CKERROR CKPathManager::GetCategoryName(int catIdx, XString& catName) {
 	JUMP(0x24013873);
 }
 
-NAKED int CKPathManager::GetCategoryIndex(XString& cat) {
+NAKED int CKPathManager::GetCategoryIndex(const XString& cat) {
 	JUMP(0x240138AC);
 }
 
-NAKED CKERROR CKPathManager::RenameCategory(int catIdx, XString& newName) {
+NAKED CKERROR CKPathManager::RenameCategory(int catIdx, const XString& newName) {
 	JUMP(0x24013890);
 }
 
-NAKED int CKPathManager::AddPath(int catIdx, XString& path) {
+NAKED int CKPathManager::AddPath(int catIdx, const XString& path) {
 	JUMP(0x24013936);
 }
 
@@ -44,11 +44,11 @@ NAKED CKERROR CKPathManager::GetPathName(int catIdx, int pathIdx, XString& path)
 	JUMP(0x24013911);
 }
 
-NAKED int CKPathManager::GetPathIndex(int catIdx, XString& path) {
+NAKED int CKPathManager::GetPathIndex(int catIdx, const XString& path) {
 	JUMP(0x24013980);
 }
 
-NAKED CKERROR CKPathManager::RenamePath(int catIdx, int pathIdx, XString& path) {
+NAKED CKERROR CKPathManager::RenamePath(int catIdx, int pathIdx, const XString& path) {
 	JUMP(0x240139D8);
 }
 
@@ -56,19 +56,19 @@ NAKED CKERROR CKPathManager::ResolveFileName(XString& file, int catIdx, int star
 	JUMP(0x24013B3C);
 }
 
-NAKED BOOL CKPathManager::PathIsAbsolute(XString& file) {
+NAKED BOOL CKPathManager::PathIsAbsolute(const XString& file) {
 	JUMP(0x24014068);
 }
 
-NAKED BOOL CKPathManager::PathIsUNC(XString& file) {
+NAKED BOOL CKPathManager::PathIsUNC(const XString& file) {
 	JUMP(0x240140B0);
 }
 
-NAKED BOOL CKPathManager::PathIsURL(XString& file) {
+NAKED BOOL CKPathManager::PathIsURL(const XString& file) {
 	JUMP(0x240140FE);
 }
 
-NAKED BOOL CKPathManager::PathIsFile(XString& file) {
+NAKED BOOL CKPathManager::PathIsFile(const XString& file) {
 	JUMP(0x24014185);
 }
 
@@ -76,10 +76,10 @@ NAKED void CKPathManager::RemoveEscapedSpace(char* str) {
 	JUMP(0x24013AE1);
 }
 
-NAKED void CKPathManager::AddEscapedSpace(XString& str) {
+NAKED void CKPathManager::AddEscapedSpace(const XString& str) {
 	JUMP(0x24013A92);
 }
 
-NAKED XString CKPathManager::GetVirtoolsTemporaryFolder() {
+NAKED const XString CKPathManager::GetVirtoolsTemporaryFolder() {
 	JUMP(0x24013A51);
 }

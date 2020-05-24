@@ -4,15 +4,15 @@
 #include <functional>
 
 namespace ScriptHelper {
-	bool FindBB(CKBehavior* script, std::function<bool(CKBehavior*)> callback, CKSTRING name = nullptr, bool hierarchically = true,
+	bool FindBB(CKBehavior* script, std::function<bool(CKBehavior*)> callback, CKSTRING name = nullptr, bool hierarchically = false,
 		int inputCnt = -1, int outputCnt = -1, int inputParamCnt = -1, int outputParamCnt = -1);
-	CKBehavior* FindFirstBB(CKBehavior* script, CKSTRING name = nullptr, bool hierarchically = true,
+	CKBehavior* FindFirstBB(CKBehavior* script, CKSTRING name = nullptr, bool hierarchically = false,
 		int inputCnt = -1, int outputCnt = -1, int inputParamCnt = -1, int outputParamCnt = -1);
 
-	CKBehaviorLink* CreateLink(CKBehavior* script, CKBehavior* inBeh, CKBehavior* outBeh, int inPos = 0, int outPos = 0);
-	CKBehaviorLink* CreateLink(CKBehavior* script, CKBehavior* inBeh, CKBehaviorIO* out, int inPos = 0);
-	CKBehaviorLink* CreateLink(CKBehavior* script, CKBehaviorIO* in, CKBehavior* outBeh, int outPos = 0);
-	CKBehaviorLink* CreateLink(CKBehavior* script, CKBehaviorIO* in, CKBehaviorIO* out);
+	CKBehaviorLink* CreateLink(CKBehavior* script, CKBehavior* inBeh, CKBehavior* outBeh, int inPos = 0, int outPos = 0, int delay = 0);
+	CKBehaviorLink* CreateLink(CKBehavior* script, CKBehavior* inBeh, CKBehaviorIO* out, int inPos = 0, int delay = 0);
+	CKBehaviorLink* CreateLink(CKBehavior* script, CKBehaviorIO* in, CKBehavior* outBeh, int outPos = 0, int delay = 0);
+	CKBehaviorLink* CreateLink(CKBehavior* script, CKBehaviorIO* in, CKBehaviorIO* out, int delay = 0);
 
 	CKBehavior* CreateBB(CKBehavior* script, CKGUID guid, bool target = false);
 	void InsertBB(CKBehavior* script, CKBehaviorLink* link, CKBehavior* beh, int inPos = 0, int outPos = 0);

@@ -76,7 +76,7 @@ NAKED CKParameterOut* CKDataArray::RemoveShortcut(int i, int c) {
 	JUMP(0x24027672);
 }
 
-NAKED CKBOOL CKDataArray::SetElementStringValue(int i, int c, char* svalue) {
+NAKED CKBOOL CKDataArray::SetElementStringValue(int i, int c, const char* svalue) {
 	JUMP(0x240278AB);
 }
 

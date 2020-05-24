@@ -98,4 +98,19 @@ public:
 	virtual bool IsIngame() = 0;
 	virtual bool IsPaused() = 0;
 	virtual bool IsPlaying() = 0;
+
+	virtual CKDataArray* GetArrayByName(CKSTRING name) = 0;
+	virtual CKGroup* GetGroupByName(CKSTRING name) = 0;
+	virtual CKMaterial* GetMaterialByName(CKSTRING name) = 0;
+	virtual CKMesh* GetMeshByName(CKSTRING name) = 0;
+	virtual CK2dEntity* Get2dEntityByName(CKSTRING name) = 0;
+	virtual CK3dEntity* Get3dEntityByName(CKSTRING name) = 0;
+	virtual CK3dObject* Get3dObjectByName(CKSTRING name) = 0;
+	virtual CKCamera* GetCameraByName(CKSTRING name) = 0;
+	virtual CKTargetCamera* GetTargetCameraByName(CKSTRING name) = 0;
+	virtual CKLight* GetLightByName(CKSTRING name) = 0;
+	virtual CKTargetLight* GetTargetLightByName(CKSTRING name) = 0;
+	virtual CKSound* GetSoundByName(CKSTRING name) = 0;
+	virtual CKTexture* GetTextureByName(CKSTRING name) = 0;
+	virtual CKBehavior* GetScriptByName(CKSTRING name) = 0;
 };

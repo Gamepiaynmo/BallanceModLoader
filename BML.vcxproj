@@ -96,6 +96,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <SupportJustMyCode>false</SupportJustMyCode>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -135,6 +136,7 @@
       <Optimization>MinSpace</Optimization>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <BufferSecurityCheck>false</BufferSecurityCheck>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -181,6 +183,7 @@
     <ClCompile Include="minhook\hook.c" />
     <ClCompile Include="minhook\trampoline.c" />
     <ClCompile Include="ModLoader.cpp" />
+    <ClCompile Include="NewBallTypeMod.cpp" />
     <ClCompile Include="RegisterBB.cpp" />
     <ClCompile Include="ScriptHelper.cpp" />
     <ClCompile Include="Timer.cpp" />
@@ -254,6 +257,7 @@
     <ClInclude Include="minhook\MinHook.h" />
     <ClInclude Include="minhook\trampoline.h" />
     <ClInclude Include="ModLoader.h" />
+    <ClInclude Include="NewBallTypeMod.h" />
     <ClInclude Include="RegisterBB.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="ScriptHelper.h" />

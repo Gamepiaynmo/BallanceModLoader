@@ -53,7 +53,7 @@ void CommandScore::Execute(IBML* bml, const std::vector<std::string>& args) {
 	if (bml->IsIngame() && args.size() > 2) {
 		int num = ParseInteger(args[2], 0);
 		if (!m_energy) {
-			m_energy = static_cast<CKDataArray*>(bml->GetCKContext()->GetObjectByNameAndClass("Energy", CKCID_DATAARRAY));
+			m_energy = bml->GetArrayByName("Energy");
 		}
 
 		if (m_energy) {
@@ -76,10 +76,10 @@ void CommandSpeed::Execute(IBML* bml, const std::vector<std::string>& args) {
 		float time = ParseFloat(args[1], 0, 1000);
 		if (!m_curLevel) {
 			CKContext* ctx = bml->GetCKContext();
-			m_curLevel = static_cast<CKDataArray*>(ctx->GetObjectByNameAndClass("CurrentLevel", CKCID_DATAARRAY));
-			m_phyBall = static_cast<CKDataArray*>(ctx->GetObjectByNameAndClass("Physicalize_GameBall", CKCID_DATAARRAY));
-			CKBehavior* ingame = static_cast<CKBehavior*>(ctx->GetObjectByNameAndClass("Gameplay_Ingame", CKCID_BEHAVIOR));
-			m_force = ScriptHelper::FindFirstBB(ingame, "Ball Navigation", false)->GetInputParameter(0)->GetRealSource();
+			m_curLevel = bml->GetArrayByName("CurrentLevel");
+			m_phyBall = bml->GetArrayByName("Physicalize_GameBall");
+			CKBehavior* ingame = bml->GetScriptByName("Gameplay_Ingame");
+			m_force = ScriptHelper::FindFirstBB(ingame, "Ball Navigation")->GetInputParameter(0)->GetRealSource();
 
 			for (int i = 0; i < m_phyBall->GetRowCount(); i++) {
 				char ballName[100];
@@ -120,9 +120,9 @@ void CommandSpeed::Execute(IBML* bml, const std::vector<std::string>& args) {
 void CommandKill::Execute(IBML* bml, const std::vector<std::string>& args) {
 	if (bml->IsPlaying() && !m_deactBall) {
 		CKContext* ctx = bml->GetCKContext();
-		CKBehavior* ingame = static_cast<CKBehavior*>(ctx->GetObjectByNameAndClass("Gameplay_Ingame", CKCID_BEHAVIOR));
-		CKBehavior* ballMgr = ScriptHelper::FindFirstBB(ingame, "BallManager", false);
-		m_deactBall = ScriptHelper::FindFirstBB(ballMgr, "Deactivate Ball", false);
+		CKBehavior* ingame = bml->GetScriptByName("Gameplay_Ingame");
+		CKBehavior* ballMgr = ScriptHelper::FindFirstBB(ingame, "BallManager");
+		m_deactBall = ScriptHelper::FindFirstBB(ballMgr, "Deactivate Ball");
 	}
 
 	if (m_deactBall) {
@@ -134,11 +134,11 @@ void CommandKill::Execute(IBML* bml, const std::vector<std::string>& args) {
 
 void CommandSetSpawn::Execute(IBML* bml, const std::vector<std::string>& args) {
 	if (bml->IsIngame() && !m_curLevel) {
-		m_curLevel = static_cast<CKDataArray*>(bml->GetCKContext()->GetObjectByNameAndClass("CurrentLevel", CKCID_DATAARRAY));
+		m_curLevel = bml->GetArrayByName("CurrentLevel");
 	}
 
 	if (m_curLevel) {
-		CK3dEntity* camRef = static_cast<CK3dEntity*>(bml->GetCKContext()->GetObjectByNameAndClass("Cam_OrientRef", CKCID_3DENTITY));
+		CK3dEntity* camRef = bml->Get3dEntityByName("Cam_OrientRef");
 		VxMatrix matrix = camRef->GetWorldMatrix();
 		for (int i = 0; i < 4; i++) {
 			std::swap(matrix[0][i], matrix[2][i]);
@@ -156,11 +156,11 @@ void CommandSector::Execute(IBML* bml, const std::vector<std::string>& args) {
 	if (bml->IsPlaying() && args.size() > 1) {
 		CKContext* ctx = bml->GetCKContext();
 		if (!m_curLevel) {
-			m_curLevel = static_cast<CKDataArray*>(ctx->GetObjectByNameAndClass("CurrentLevel", CKCID_DATAARRAY));
-			m_checkpoints = static_cast<CKDataArray*>(ctx->GetObjectByNameAndClass("Checkpoints", CKCID_DATAARRAY));
-			m_resetpoints = static_cast<CKDataArray*>(ctx->GetObjectByNameAndClass("ResetPoints", CKCID_DATAARRAY));
-			m_ingameParam = static_cast<CKDataArray*>(ctx->GetObjectByNameAndClass("IngameParameter", CKCID_DATAARRAY));
-			CKBehavior* events = static_cast<CKBehavior*>(ctx->GetObjectByNameAndClass("Gameplay_Events", CKCID_BEHAVIOR));
+			m_curLevel = bml->GetArrayByName("CurrentLevel");
+			m_checkpoints = bml->GetArrayByName("Checkpoints");
+			m_resetpoints = bml->GetArrayByName("ResetPoints");
+			m_ingameParam = bml->GetArrayByName("IngameParameter");
+			CKBehavior* events = bml->GetScriptByName("Gameplay_Events");
 			CKBehavior* id = ScriptHelper::FindNextBB(events, events->GetInput(0));
 			m_curSector = id->GetOutputParameter(0)->GetDestination(0);
 		}
@@ -179,7 +179,7 @@ void CommandSector::Execute(IBML* bml, const std::vector<std::string>& args) {
 
 				bml->SendIngameMessage(("Changed to Sector " + std::to_string(sector)).c_str());
 
-				CKBehavior* sectorMgr = static_cast<CKBehavior*>(ctx->GetObjectByNameAndClass("Gameplay_SectorManager", CKCID_BEHAVIOR));
+				CKBehavior* sectorMgr = bml->GetScriptByName("Gameplay_SectorManager");
 				ctx->GetCurrentScene()->Activate(sectorMgr, true);
 
 				bml->AddTimerLoop(1u, [this, bml, sector, sectorMgr, ctx]() {
@@ -202,7 +202,7 @@ void CommandSector::Execute(IBML* bml, const std::vector<std::string>& args) {
 						if (sector > m_checkpoints->GetRowCount()) {
 							CKMessageManager* mm = bml->GetMessageManager();
 							CKMessageType msg = mm->AddMessageType("last Checkpoint reached");
-							mm->SendMessageSingle(msg, static_cast<CKGroup*>(ctx->GetObjectByNameAndClass("All_Sound", CKCID_GROUP)));
+							mm->SendMessageSingle(msg, bml->GetGroupByName("All_Sound"));
 
 							ResetBall(bml, ctx);
 						}
@@ -231,8 +231,8 @@ void CommandSector::ResetBall(IBML* bml, CKContext* ctx) {
 	CKMessageManager* mm = bml->GetMessageManager();
 	CKMessageType ballDeact = mm->AddMessageType("BallNav deactivate");
 
-	mm->SendMessageSingle(ballDeact, static_cast<CKGroup*>(ctx->GetObjectByNameAndClass("All_Gameplay", CKCID_GROUP)));
-	mm->SendMessageSingle(ballDeact, static_cast<CKGroup*>(ctx->GetObjectByNameAndClass("All_Sound", CKCID_GROUP)));
+	mm->SendMessageSingle(ballDeact, bml->GetGroupByName("All_Gameplay"));
+	mm->SendMessageSingle(ballDeact, bml->GetGroupByName("All_Sound"));
 
 	bml->AddTimer(2u, [this, bml, ctx]() {
 		CK3dEntity* curBall = static_cast<CK3dEntity*>(m_curLevel->GetElementObject(0, 1));
@@ -247,7 +247,7 @@ void CommandSector::ResetBall(IBML* bml, CKContext* ctx) {
 				m_curLevel->GetElementValue(0, 3, &matrix);
 				curBall->SetWorldMatrix(matrix);
 
-				CK3dEntity* camMF = static_cast<CK3dEntity*>(ctx->GetObjectByNameAndClass("Cam_MF", CKCID_3DENTITY));
+				CK3dEntity* camMF = bml->Get3dEntityByName("Cam_MF");
 				bml->RestoreIC(camMF, true);
 				camMF->SetWorldMatrix(matrix);
 
@@ -270,7 +270,7 @@ void CommandWin::Execute(IBML* bml, const std::vector<std::string>& args) {
 		CKMessageType levelWin = mm->AddMessageType("Level_Finish");
 
 		CKContext* ctx = bml->GetCKContext();
-		mm->SendMessageSingle(levelWin, static_cast<CKGroup*>(ctx->GetObjectByNameAndClass("All_Gameplay", CKCID_GROUP)));
+		mm->SendMessageSingle(levelWin, bml->GetGroupByName("All_Gameplay"));
 		bml->SendIngameMessage("Level Finished");
 	}
 }

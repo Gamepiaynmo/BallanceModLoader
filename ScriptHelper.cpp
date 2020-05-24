@@ -32,20 +32,22 @@ namespace ScriptHelper {
 		return res;
 	}
 
-	CKBehaviorLink* CreateLink(CKBehavior* script, CKBehavior* inBeh, CKBehavior* outBeh, int inPos, int outPos) {
-		return CreateLink(script, inBeh->GetOutput(inPos), outBeh->GetInput(outPos));
+	CKBehaviorLink* CreateLink(CKBehavior* script, CKBehavior* inBeh, CKBehavior* outBeh, int inPos, int outPos, int delay) {
+		return CreateLink(script, inBeh->GetOutput(inPos), outBeh->GetInput(outPos), delay);
 	}
 
-	CKBehaviorLink* CreateLink(CKBehavior* script, CKBehavior* inBeh, CKBehaviorIO* out, int inPos) {
-		return CreateLink(script, inBeh->GetOutput(inPos), out);
+	CKBehaviorLink* CreateLink(CKBehavior* script, CKBehavior* inBeh, CKBehaviorIO* out, int inPos, int delay) {
+		return CreateLink(script, inBeh->GetOutput(inPos), out, delay);
 	}
 
-	CKBehaviorLink* CreateLink(CKBehavior* script, CKBehaviorIO* in, CKBehavior* outBeh, int outPos) {
-		return CreateLink(script, in, outBeh->GetInput(outPos));
+	CKBehaviorLink* CreateLink(CKBehavior* script, CKBehaviorIO* in, CKBehavior* outBeh, int outPos, int delay) {
+		return CreateLink(script, in, outBeh->GetInput(outPos), delay);
 	}
 
-	CKBehaviorLink* CreateLink(CKBehavior* script, CKBehaviorIO* in, CKBehaviorIO* out) {
+	CKBehaviorLink* CreateLink(CKBehavior* script, CKBehaviorIO* in, CKBehaviorIO* out, int delay) {
 		CKBehaviorLink* link = static_cast<CKBehaviorLink*>(script->GetCKContext()->CreateObject(CKCID_BEHAVIORLINK));
+		link->SetInitialActivationDelay(delay);
+		link->ResetActivationDelay();
 		link->SetInBehaviorIO(in);
 		link->SetOutBehaviorIO(out);
 		script->AddSubBehaviorLink(link);
