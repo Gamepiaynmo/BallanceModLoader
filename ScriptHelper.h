@@ -18,11 +18,11 @@ namespace ScriptHelper {
 	void InsertBB(CKBehavior* script, CKBehaviorLink* link, CKBehavior* beh, int inPos = 0, int outPos = 0);
 
 	CKParameterLocal* CreateLocalParameter(CKBehavior* script, CKSTRING name, CKGUID type);
-	CKParameter* CreateParamObject(CKBehavior* script, CKGUID guid, CKSTRING name, CKObject* value);
-	CKParameter* CreateParamString(CKBehavior* script, CKSTRING name, CKSTRING value);
+	CKParameterLocal* CreateParamObject(CKBehavior* script, CKSTRING name, CKGUID guid, CKObject* value);
+	CKParameterLocal* CreateParamString(CKBehavior* script, CKSTRING name, CKSTRING value);
 	template<typename T>
-	CKParameter* CreateParamValue(CKBehavior* script, CKGUID guid, CKSTRING name, T value) {
-		CKParameter* param = CreateLocalParameter(script, name, guid);
+	CKParameterLocal* CreateParamValue(CKBehavior* script, CKSTRING name, CKGUID guid, T value) {
+		CKParameterLocal* param = CreateLocalParameter(script, name, guid);
 		param->SetValue(&value, sizeof(T));
 		return param;
 	}

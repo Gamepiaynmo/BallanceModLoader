@@ -347,10 +347,8 @@ void NewBallTypeMod::OnEditScript_Gameplay_Ingame(CKBehavior* script) {
 		CKAttributeType trafoType = am->GetAttributeTypeByName("TrafoType");
 		for (BallTypeInfo& info : m_ballTypes) {
 			CKBehavior* setAttr = CreateBB(trafoAttr, VT_SETATTRIBUTE, true);
-			CKParameter* attr = CreateLocalParameter(trafoAttr, "Attr", CKPGUID_ATTRIBUTE);
-			SetParamValue(attr, trafoType);
-			CKParameter* attrParam = CreateLocalParameter(trafoAttr, "Param", CKPGUID_STRING);
-			SetParamString(attrParam, info.m_id.c_str());
+			CKParameter* attr = CreateParamValue(trafoAttr, "Attr", CKPGUID_ATTRIBUTE, trafoType);
+			CKParameter* attrParam = CreateParamString(trafoAttr, "Param", info.m_id.c_str());
 			setAttr->GetTargetParameter()->SetDirectSource(info.m_ballParam);
 			setAttr->GetInputParameter(0)->SetDirectSource(attr);
 			setAttr->CreateInputParameter("Param", CKPGUID_STRING)->SetDirectSource(attrParam);
@@ -366,10 +364,8 @@ void NewBallTypeMod::OnEditScript_Gameplay_Ingame(CKBehavior* script) {
 			CKBehavior* sop = FindFirstBB(pieceFlag, "Switch On Parameter");
 			CKParameterType booltype = m_bml->GetParameterManager()->ParameterGuidToType(CKPGUID_BOOL);
 			for (BallTypeInfo& info : m_ballTypes) {
-				CKParameter* id = CreateLocalParameter(pieceFlag, "Pin", CKPGUID_STRING);
-				SetParamString(id, info.m_id.c_str());
-				CKParameter* boolTrue = CreateLocalParameter(pieceFlag, "True", CKPGUID_BOOL);
-				SetParamValue(boolTrue, TRUE);
+				CKParameter* id = CreateParamString(pieceFlag, "Pin", info.m_id.c_str());
+				CKParameter* boolTrue = CreateParamValue(pieceFlag, "True", CKPGUID_BOOL, TRUE);
 				CKBehavior* identity = CreateBB(pieceFlag, VT_IDENTITY);
 				identity->GetInputParameter(0)->SetType(booltype);
 				identity->GetOutputParameter(0)->SetType(booltype);
@@ -393,10 +389,8 @@ void NewBallTypeMod::OnEditScript_Gameplay_Ingame(CKBehavior* script) {
 			CKBehavior* ps = FindFirstBB(explode, "Parameter Selector");
 			for (BallTypeInfo& info : m_ballTypes) {
 				std::string explosion = "Ball_Explosion_" + info.m_name;
-				CKParameter* id = CreateLocalParameter(explode, "Pin", CKPGUID_STRING);
-				SetParamString(id, info.m_id.c_str());
-				CKParameter* script = CreateLocalParameter(explode, "Pin", CKPGUID_STRING);
-				SetParamString(script, explosion.c_str());
+				CKParameter* id = CreateParamString(explode, "Pin", info.m_id.c_str());
+				CKParameter* script = CreateParamString(explode, "Pin", explosion.c_str());
 				sop->CreateInputParameter("Pin", CKPGUID_STRING)->SetDirectSource(id);
 				ps->CreateInputParameter("Pin", CKPGUID_STRING)->SetDirectSource(script);
 				CreateLink(explode, sop->CreateOutput("Out"), ps->CreateInput("In"));
@@ -408,8 +402,7 @@ void NewBallTypeMod::OnEditScript_Gameplay_Ingame(CKBehavior* script) {
 			CKBehavior* sop = FindFirstBB(setNewBall, "Switch On Parameter");
 			CKBehavior* ps = FindFirstBB(setNewBall, "Parameter Selector");
 			for (BallTypeInfo& info : m_ballTypes) {
-				CKParameter* id = CreateLocalParameter(setNewBall, "Pin", CKPGUID_STRING);
-				SetParamString(id, info.m_id.c_str());
+				CKParameter* id = CreateParamString(setNewBall, "Pin", info.m_id.c_str());
 				sop->CreateInputParameter("Pin", CKPGUID_STRING)->SetDirectSource(id);
 				ps->CreateInputParameter("Pin", CKPGUID_3DENTITY)->SetDirectSource(info.m_ballParam);
 				CreateLink(setNewBall, sop->CreateOutput("Out"), ps->CreateInput("In"));
@@ -427,12 +420,9 @@ void NewBallTypeMod::OnEditScript_Gameplay_Ingame(CKBehavior* script) {
 				else return true;
 				}, "Identity");
 			CKParameterType booltype = m_bml->GetParameterManager()->ParameterGuidToType(CKPGUID_BOOL);
-			CKParameter* time = CreateLocalParameter(fadeout, "Time", CKPGUID_TIME);
-			SetParamValue(time, 20000.0f);
-			CKParameter* reset = CreateLocalParameter(fadeout, "Reset", CKPGUID_BOOL);
-			SetParamValue(reset, TRUE);
-			CKParameter* setfalse = CreateLocalParameter(fadeout, "False", CKPGUID_BOOL);
-			SetParamValue(reset, FALSE);
+			CKParameter* time = CreateParamValue(fadeout, "Time", CKPGUID_TIME, 20000.0f);
+			CKParameter* reset = CreateParamValue(fadeout, "Reset", CKPGUID_BOOL, TRUE);
+			CKParameter* setfalse = CreateParamValue(fadeout, "False", CKPGUID_BOOL, FALSE);
 			for (BallTypeInfo& info : m_ballTypes) {
 				CKBehavior* binswitch[2] = { CreateBB(fadeout, VT_BINARYSWITCH), CreateBB(fadeout, VT_BINARYSWITCH) };
 				CKBehavior* seton = CreateBB(fadeout, VT_IDENTITY);
@@ -470,14 +460,10 @@ void NewBallTypeMod::OnEditScript_Gameplay_Ingame(CKBehavior* script) {
 		CKBehavior* ballNav = FindFirstBB(script, "Ball Navigation");
 		CKBehavior* oForce = FindFirstBB(ballNav, "SetPhysicsForce");
 		CKBehavior* forces[8], * keepActive[8], * perSecond[8];
-		m_stickyForce[0] = CreateLocalParameter(ballNav, "Force", CKPGUID_FLOAT);
-		m_stickyForce[1] = CreateLocalParameter(ballNav, "Force", CKPGUID_FLOAT);
-		SetParamValue(m_stickyForce[0], m_stickyImpulse);
-		SetParamValue(m_stickyForce[1], -m_stickyImpulse);
-		CKParameter* posRef[2] = { CreateLocalParameter(ballNav, "PosRef", CKPGUID_3DENTITY),
-			CreateLocalParameter(ballNav, "PosRef", CKPGUID_3DENTITY) };
-		SetParamObject(posRef[0], m_ballRef[0]);
-		SetParamObject(posRef[1], m_ballRef[1]);
+		m_stickyForce[0] = CreateParamValue(ballNav, "Force", CKPGUID_FLOAT, m_stickyImpulse);
+		m_stickyForce[1] = CreateParamValue(ballNav, "Force", CKPGUID_FLOAT, -m_stickyImpulse);
+		CKParameter* posRef[2] = { CreateParamObject(ballNav, "PosRef", CKPGUID_3DENTITY, m_ballRef[0]),
+			CreateParamObject(ballNav, "PosRef", CKPGUID_3DENTITY, m_ballRef[1]) };
 		for (int i = 0; i < 8; i++) {
 			keepActive[i] = CreateBB(ballNav, VT_KEEPACTIVE);
 			perSecond[i] = CreateBB(ballNav, VT_PERSECOND);
@@ -552,8 +538,7 @@ void NewBallTypeMod::OnEditScript_PhysicalizeNewBall(CKBehavior* graph) {
 	CKBehavior* op = FindNextBB(graph, graph->GetInput(0));
 
 	for (BallTypeInfo& info : m_ballTypes) {
-		CKParameter* ballName = CreateLocalParameter(graph, "Pin", CKPGUID_STRING);
-		SetParamString(ballName, info.m_objName.c_str());
+		CKParameter* ballName = CreateParamString(graph, "Pin", info.m_objName.c_str());
 		sop->CreateInputParameter("Pin", CKPGUID_STRING)->SetDirectSource(ballName);
 		CKBehavior* newPhy = nullptr;
 		if (info.m_radius > 0) {
@@ -580,8 +565,7 @@ void NewBallTypeMod::OnEditScript_ResetBallPieces(CKBehavior* graph) {
 
 	for (BallTypeInfo& info : m_ballTypes) {
 		std::string reset = "Ball_ResetPieces_" + info.m_name;
-		CKParameter* script = CreateLocalParameter(graph, "Pin", CKPGUID_STRING);
-		SetParamString(script, reset.c_str());
+		CKParameter* script = CreateParamString(graph, "Pin", reset.c_str());
 		ps->CreateInputParameter("Pin", CKPGUID_STRING)->SetDirectSource(script);
 
 		int cnt = seq->GetOutputCount() - 1;

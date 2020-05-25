@@ -71,12 +71,12 @@ namespace ScriptHelper {
 		return script->CreateLocalParameter(name, type);
 	}
 
-	CKParameter* CreateParamObject(CKBehavior* script, CKGUID guid, CKSTRING name, CKObject* value) {
-		return CreateParamValue<CK_ID>(script, guid, name, CKOBJID(value));
+	CKParameterLocal* CreateParamObject(CKBehavior* script, CKSTRING name, CKGUID guid, CKObject* value) {
+		return CreateParamValue<CK_ID>(script, name, guid, CKOBJID(value));
 	}
 
-	CKParameter* CreateParamString(CKBehavior* script, CKSTRING name, CKSTRING value) {
-		CKParameter* param = CreateLocalParameter(script, name, CKPGUID_STRING);
+	CKParameterLocal* CreateParamString(CKBehavior* script, CKSTRING name, CKSTRING value) {
+		CKParameterLocal* param = CreateLocalParameter(script, name, CKPGUID_STRING);
 		param->SetStringValue(value);
 		return param;
 	}

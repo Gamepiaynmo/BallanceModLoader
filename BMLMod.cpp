@@ -285,9 +285,7 @@ void BMLMod::OnEditScript_Menu_OptionsMenu(CKBehavior* script) {
 		return !(up_ps && down_ps);
 		}, "Parameter Selector");
 
-	CKParameterLocal* pin = CreateLocalParameter(graph, "Pin 5", CKPGUID_INT);
-	int value = 4;
-	pin->SetValue(&value, sizeof(value));
+	CKParameterLocal* pin = CreateParamValue(graph, "Pin 5", CKPGUID_INT, 4);
 	up_sop->CreateInputParameter("Pin 5", CKPGUID_INT)->SetDirectSource(pin); up_sop->AddOutput("Out 5");
 	down_sop->CreateInputParameter("Pin 5", CKPGUID_INT)->SetDirectSource(pin); down_sop->AddOutput("Out 5");
 	up_ps->CreateInputParameter("pIn 4", CKPGUID_INT)->SetDirectSource(pin); up_ps->AddInput("In 4");
@@ -297,11 +295,8 @@ void BMLMod::OnEditScript_Menu_OptionsMenu(CKBehavior* script) {
 	CKBehavior* pushbutton = CreateBB(graph, TT_PUSHBUTTON2, true);
 	CKBehavior* text2dref = FindFirstBB(graph, "2D Text");
 	CKBehavior* nop = FindFirstBB(graph, "Nop");
-	CKParameterLocal* entity2d = CreateLocalParameter(graph, "Button", CKPGUID_2DENTITY);
-	CK_ID buttonid = CKOBJID(buttons[4]);
-	entity2d->SetValue(&buttonid, sizeof(buttonid));
-	CKParameterLocal* buttonname = CreateLocalParameter(graph, "Text", CKPGUID_STRING);
-	buttonname->SetStringValue("Mods");
+	CKParameterLocal* entity2d = CreateParamObject(graph, "Button", CKPGUID_2DENTITY, buttons[4]);
+	CKParameterLocal* buttonname = CreateParamString(graph, "Text", "Mods");
 	int textflags;
 	text2dref->GetLocalParameterValue(0, &textflags);
 	text2d->SetLocalParameterValue(0, &textflags, sizeof(textflags));
@@ -377,19 +372,17 @@ void BMLMod::OnEditScript_Gameplay_Ingame(CKBehavior* script) {
 		return !nop[1];
 		}, "Nop");
 	CKBehavior* keyevent[2] = { CreateBB(ballNav, VT_KEYEVENT), CreateBB(ballNav, VT_KEYEVENT) };
-	m_ballForce[0] = CreateLocalParameter(ballNav, "Up", CKPGUID_KEY);
-	m_ballForce[1] = CreateLocalParameter(ballNav, "Down", CKPGUID_KEY);
+	m_ballForce[0] = CreateParamValue(ballNav, "Up", CKPGUID_KEY, CKKEYBOARD(0));
+	m_ballForce[1] = CreateParamValue(ballNav, "Down", CKPGUID_KEY, CKKEYBOARD(0));
 	CKBehavior* phyforce[2] = { CreateBB(ballNav, TT_SETPHYSICSFORCE, true), CreateBB(ballNav, TT_SETPHYSICSFORCE, true) };
 	CKBehavior* op = FindFirstBB(ballNav, "Op");
 	CKParameter* mass = op->GetInputParameter(0)->GetDirectSource();
 	CKBehavior* spf = FindFirstBB(ballNav, "SetPhysicsForce");
-	CKParameter* dir[2] = { CreateLocalParameter(ballNav, "Up", CKPGUID_VECTOR), CreateLocalParameter(ballNav, "Down", CKPGUID_VECTOR) };
-	SetParamValue(dir[0], VxVector(0, 1, 0));
-	SetParamValue(dir[1], VxVector(0, -1, 0));
+	CKParameter* dir[2] = { CreateParamValue(ballNav, "Up", CKPGUID_VECTOR, VxVector(0, 1, 0)),
+		CreateParamValue(ballNav, "Down", CKPGUID_VECTOR, VxVector(0, -1, 0)) };
 	CKBehavior* wake = FindFirstBB(ballNav, "Physics WakeUp");
 
 	for (int i = 0; i < 2; i++) {
-		SetParamValue(m_ballForce[i], CKKEYBOARD(0));
 		keyevent[i]->GetInputParameter(0)->SetDirectSource(m_ballForce[i]);
 		CreateLink(ballNav, nop[0], keyevent[i], 0, 0);
 		CreateLink(ballNav, nop[1], keyevent[i], 0, 1);
