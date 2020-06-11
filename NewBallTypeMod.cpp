@@ -35,8 +35,6 @@ void NewBallTypeMod::OnLoad() {
 	RegisterBallType("Ball_Sticky.nmo", "sticky", "Sticky", "Ball_Sticky", 10.0f, 0.0f, 1.4f, "Ball", 0.8f, 7.0f, 0.12f, 2.0f);
 	RegisterTrafo("P_Trafo_Sticky");
 
-	GetLogger()->Info("Sticky Ball Registered.");
-
 	for (int i = 0; i < 2; i++) {
 		m_ballRef[i] = static_cast<CK3dEntity*>(m_bml->GetCKContext()->CreateObject(CKCID_3DENTITY, "Ball_Sticky_Ref"));
 		m_bml->GetCKContext()->GetCurrentScene()->AddObjectToScene(m_ballRef[i]);
@@ -101,6 +99,8 @@ void NewBallTypeMod::RegisterBallType(CKSTRING ballFile, CKSTRING ballId, CKSTRI
 	info.m_linearDamp = linearDamp;
 	info.m_rotDamp = rotDamp;
 	info.m_force = force;
+
+	GetLogger()->Info("Registered New Ball Type: %s", ballName);
 }
 
 void NewBallTypeMod::RegisterFloorType(CKSTRING floorName, float friction, float elasticity, float mass, CKSTRING collGroup, bool enableColl) {
@@ -114,6 +114,8 @@ void NewBallTypeMod::RegisterFloorType(CKSTRING floorName, float friction, float
 	info.m_mass = mass;
 	info.m_collGroup = collGroup;
 	info.m_enableColl = enableColl;
+
+	GetLogger()->Info("Registered New Floor Type: %s", floorName);
 }
 
 void NewBallTypeMod::RegisterModulBall(CKSTRING modulName, bool fixed, float friction, float elasticity, float mass, CKSTRING collGroup,
@@ -134,6 +136,8 @@ void NewBallTypeMod::RegisterModulBall(CKSTRING modulName, bool fixed, float fri
 	info.m_linearDamp = linearDamp;
 	info.m_rotDamp = rotDamp;
 	info.m_radius = radius;
+
+	GetLogger()->Info("Registered New Modul Ball Type: %s", modulName);
 }
 
 void NewBallTypeMod::RegisterModulConvex(CKSTRING modulName, bool fixed, float friction, float elasticity, float mass, CKSTRING collGroup,
@@ -153,6 +157,8 @@ void NewBallTypeMod::RegisterModulConvex(CKSTRING modulName, bool fixed, float f
 	info.m_massCenter = calcMassCenter;
 	info.m_linearDamp = linearDamp;
 	info.m_rotDamp = rotDamp;
+
+	GetLogger()->Info("Registered New Modul Convex Type: %s", modulName);
 }
 
 void NewBallTypeMod::RegisterTrafo(CKSTRING modulName) {
@@ -161,6 +167,8 @@ void NewBallTypeMod::RegisterTrafo(CKSTRING modulName) {
 
 	info.m_name = modulName;
 	info.m_type = 0;
+
+	GetLogger()->Info("Registered New Ball Transformer Type: %s", modulName);
 }
 
 void NewBallTypeMod::RegisterModul(CKSTRING modulName) {
@@ -169,6 +177,8 @@ void NewBallTypeMod::RegisterModul(CKSTRING modulName) {
 
 	info.m_name = modulName;
 	info.m_type = 1;
+
+	GetLogger()->Info("Registered New Modul Type: %s", modulName);
 }
 
 void NewBallTypeMod::OnLoadBalls(XObjectArray* objArray) {
@@ -225,6 +235,8 @@ void NewBallTypeMod::OnLoadBalls(XObjectArray* objArray) {
 		for (int i = 0; i < info.m_allGroup->GetObjectCount(); i++)
 			m_allBalls->AddObject(info.m_allGroup->GetObject(i));
 	}
+
+	GetLogger()->Info("New Ball Types Registered");
 }
 
 void NewBallTypeMod::OnLoadLevelinit(XObjectArray* objArray) {
@@ -305,6 +317,8 @@ void NewBallTypeMod::OnLoadLevelinit(XObjectArray* objArray) {
 	}
 
 	m_bml->SetIC(phGroups);
+
+	GetLogger()->Info("New Modul & Floor Types Registered");
 }
 
 void NewBallTypeMod::OnLoadSounds(XObjectArray* objArray) {
@@ -325,9 +339,12 @@ void NewBallTypeMod::OnLoadSounds(XObjectArray* objArray) {
 		ballSound->SetElementStringValue(row, 6, (hit + "_Metal").c_str());
 		ballSound->SetElementStringValue(row, 7, (hit + "_Dome").c_str());
 	}
+
+	GetLogger()->Info("New Ball Sounds Registered");
 }
 
 void NewBallTypeMod::OnEditScript_Gameplay_Ingame(CKBehavior* script) {
+	GetLogger()->Info("Modify Ingame script to accommodate new ball types");
 	m_curLevel = m_bml->GetArrayByName("CurrentLevel");
 
 	{
@@ -502,6 +519,8 @@ void NewBallTypeMod::OnEditScript_Gameplay_Ingame(CKBehavior* script) {
 }
 
 void NewBallTypeMod::OnEditScript_Base_EventHandler(CKBehavior* script) {
+	GetLogger()->Info("Reset ball pieces for new ball types");
+
 	for (BallTypeInfo& info : m_ballTypes) {
 		info.m_ballParam = CreateLocalParameter(script, "Target", CKPGUID_BEOBJECT);
 		info.m_usedParam = CreateLocalParameter(script, "Used", CKPGUID_BOOL);
