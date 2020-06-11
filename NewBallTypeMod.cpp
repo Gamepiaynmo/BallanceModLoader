@@ -35,6 +35,8 @@ void NewBallTypeMod::OnLoad() {
 	RegisterBallType("Ball_Sticky.nmo", "sticky", "Sticky", "Ball_Sticky", 10.0f, 0.0f, 1.4f, "Ball", 0.8f, 7.0f, 0.12f, 2.0f);
 	RegisterTrafo("P_Trafo_Sticky");
 
+	GetLogger()->Info("Sticky Ball Registered.");
+
 	for (int i = 0; i < 2; i++) {
 		m_ballRef[i] = static_cast<CK3dEntity*>(m_bml->GetCKContext()->CreateObject(CKCID_3DENTITY, "Ball_Sticky_Ref"));
 		m_bml->GetCKContext()->GetCurrentScene()->AddObjectToScene(m_ballRef[i]);
@@ -168,7 +170,6 @@ void NewBallTypeMod::RegisterModul(CKSTRING modulName) {
 	info.m_name = modulName;
 	info.m_type = 1;
 }
-
 
 void NewBallTypeMod::OnLoadBalls(XObjectArray* objArray) {
 	m_physBall = m_bml->GetArrayByName("Physicalize_GameBall");

@@ -74,6 +74,8 @@ void BMLMod::OnLoadObject(CKSTRING filename, CKSTRING masterName, CK_CLASSID fil
 		m_level01 = m_bml->Get2dEntityByName("M_Start_But_01");
 		CKBehavior* menuMain = m_bml->GetScriptByName("Menu_Start");
 		m_exitStart = FindFirstBB(menuMain, "Exit");
+
+		m_smHook = new ScreenModeHook();
 	}
 
 	if (!strcmp(filename, "3D Entities\\MenuLevel.nmo")) {
@@ -152,6 +154,18 @@ void BMLMod::OnEditScript_Base_DefaultLevel(CKBehavior* script) {
 		DeleteBB(sm, rrs[0]);
 		DeleteBB(sm, rrs[3]);
 		CreateLink(sm, it, gc, 0, 0);
+	}
+
+	if (m_skipAnim->GetBoolean()) {
+		GetLogger()->Info("Skip Loading Animation");
+		CKBehavior* is = FindFirstBB(script, "Intro Start"),
+			* ie = FindFirstBB(script, "Intro Ende");
+
+		CKBehavior* ml = FindFirstBB(script, "Main Loading"),
+			* ps = FindFirstBB(script, "Preload Sound");
+
+		FindPreviousLink(script, is)->SetOutBehaviorIO(ml->GetInput(0));
+		FindNextLink(script, ps)->SetOutBehaviorIO(FindNextLink(script, ie)->GetOutBehaviorIO());
 	}
 }
 
@@ -653,10 +667,6 @@ void BMLMod::OnLoad() {
 	m_camZ[1]->SetComment("Move the camera");
 	m_camZ[1]->SetDefaultKey(CKKEY_X);
 
-	m_skipSpeed = m_skipAnim->GetBoolean();
-	if (m_skipSpeed)
-		GetLogger()->Info("Speed up to skip Loading Animation");
-
 	m_bml->RegisterCommand(new CommandBML());
 	m_bml->RegisterCommand(new CommandHelp());
 	m_bml->RegisterCommand(new CommandCheat());
@@ -677,9 +687,6 @@ void BMLMod::OnLoad() {
 }
 
 void BMLMod::OnProcess() {
-	if (m_skipSpeed)
-		m_bml->GetTimeManager()->SetTimeScaleFactor(100.0f);
-
 	CKContext* ctx = m_bml->GetCKContext();
 	InputHook* im = m_bml->GetInputManager();
 	if (im->IsKeyPressed(m_fullscreenKey->GetKey())) {
@@ -718,6 +725,7 @@ void BMLMod::OnProcess() {
 		m_ingameBanner->Process();
 		if (m_currentGui)
 			m_currentGui->Process();
+		m_smHook->Process();
 
 		if (m_cmdTyping) {
 			m_cmdBar->Process();
@@ -1080,26 +1088,6 @@ void BMLMod::AddIngameMessage(CKSTRING msg) {
 	m_msgCnt++;
 
 	GetLogger()->Info(msg);
-}
-
-void BMLMod::OnPostStartMenu() {
-	if (m_skipSpeed) {
-		m_skipSpeed = false;
-		m_bml->GetTimeManager()->SetTimeScaleFactor(1.0f);
-		GetLogger()->Info("Loading Animation ended, stop speeding up");
-
-		// Fix Ball Pieces
-		CKContext* context = m_bml->GetCKContext();
-		CKScene* scene = context->GetCurrentScene();
-		for (CKSTRING group_name : { "Ball_Paper_Pieces", "Ball_Stone_Pieces", "Ball_Wood_Pieces" }) {
-			CKGroup* group = m_bml->GetGroupByName(group_name);
-			int cnt = group->GetObjectCount();
-			for (int i = 0; i < cnt; i++) {
-				CKBeObject* obj = group->GetObject(i);
-				m_bml->RestoreIC(obj);
-			}
-		}
-	}
 }
 
 void BMLMod::ShowCheatBanner(bool show) {
@@ -1514,4 +1502,24 @@ void GuiModCategory::SaveAndExit() {
 
 void GuiModCategory::Exit() {
 	ModLoader::m_instance->m_bmlmod->ShowGui(m_parent);
+}
+
+void ScreenModeHook::OnScreenModeChanged() {
+	CKCamera* cams[] = { ModLoader::m_instance->GetTargetCameraByName("Cam_MenuLevel"),
+		ModLoader::m_instance->GetTargetCameraByName("InGameCam") };
+	CKRenderContext* rc = ModLoader::m_instance->GetRenderContext();
+	for (CKCamera* cam : cams) {
+		if (cam) {
+			cam->SetAspectRatio(rc->GetWidth(), rc->GetHeight());
+			cam->SetFov(0.75f * rc->GetWidth() / rc->GetHeight());
+			CKStateChunk* chunk = CKSaveObjectState(cam);
+
+			ModLoader::m_instance->RestoreIC(cam);
+			cam->SetAspectRatio(rc->GetWidth(), rc->GetHeight());
+			cam->SetFov(0.75f * rc->GetWidth() / rc->GetHeight());
+			ModLoader::m_instance->SetIC(cam);
+
+			CKReadObjectState(cam, chunk);
+		}
+	}
 }

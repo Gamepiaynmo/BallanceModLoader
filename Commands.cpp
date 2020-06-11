@@ -118,14 +118,14 @@ void CommandSpeed::Execute(IBML* bml, const std::vector<std::string>& args) {
 }
 
 void CommandKill::Execute(IBML* bml, const std::vector<std::string>& args) {
-	if (bml->IsPlaying() && !m_deactBall) {
+	if (!m_deactBall) {
 		CKContext* ctx = bml->GetCKContext();
 		CKBehavior* ingame = bml->GetScriptByName("Gameplay_Ingame");
 		CKBehavior* ballMgr = ScriptHelper::FindFirstBB(ingame, "BallManager");
 		m_deactBall = ScriptHelper::FindFirstBB(ballMgr, "Deactivate Ball");
 	}
 
-	if (m_deactBall) {
+	if (bml->IsPlaying() && m_deactBall) {
 		m_deactBall->ActivateInput(0);
 		m_deactBall->Activate();
 		bml->SendIngameMessage("Killed Ball");
@@ -133,11 +133,11 @@ void CommandKill::Execute(IBML* bml, const std::vector<std::string>& args) {
 }
 
 void CommandSetSpawn::Execute(IBML* bml, const std::vector<std::string>& args) {
-	if (bml->IsIngame() && !m_curLevel) {
+	if (!m_curLevel) {
 		m_curLevel = bml->GetArrayByName("CurrentLevel");
 	}
 
-	if (m_curLevel) {
+	if (bml->IsIngame() && m_curLevel) {
 		CK3dEntity* camRef = bml->Get3dEntityByName("Cam_OrientRef");
 		VxMatrix matrix = camRef->GetWorldMatrix();
 		for (int i = 0; i < 4; i++) {

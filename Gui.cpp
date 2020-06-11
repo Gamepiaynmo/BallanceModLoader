@@ -278,11 +278,16 @@ namespace BGui {
 		m_sprite->SetZOrder(20);
 		m_sprite->SetTextColor(0xffffffff);
 		m_sprite->SetAlign(CKSPRITETEXT_ALIGNMENT(CKSPRITETEXT_VCENTER | CKSPRITETEXT_LEFT));
-		m_sprite->SetFont(text_font, 10, 400);
+		m_sprite->SetFont(text_font, ctx->GetPlayerRenderContext()->GetHeight() / 85, 400);
 	}
 
 	Text::~Text() {
 		ModLoader::m_instance->GetCKContext()->DestroyObject(CKOBJID(m_sprite));
+	}
+
+	void Text::UpdateFont() {
+		CKContext* ctx = ModLoader::m_instance->GetCKContext();
+		m_sprite->SetFont(text_font, ctx->GetPlayerRenderContext()->GetHeight() / 85, 400);
 	}
 
 	Vx2DVector Text::GetPosition() {
@@ -634,6 +639,12 @@ namespace BGui {
 		m_2dentity->SetMaterial(nullptr);
 	}
 
+	Gui::Gui() {
+		CKRenderContext* rc = ModLoader::m_instance->GetRenderContext();
+		m_width = rc->GetWidth();
+		m_height = rc->GetHeight();
+	}
+
 	void Gui::OnCharTyped(CKDWORD key) {
 		if (key == CKKEY_ESCAPE)
 			if (m_back)
@@ -813,6 +824,7 @@ namespace BGui {
 		txt->SetPosition(Vx2DVector(xPos, yPos));
 		txt->SetSize(Vx2DVector(xSize, ySize));
 		m_elements.push_back(txt);
+		m_texts.push_back(txt);
 		return txt;
 	}
 
@@ -859,6 +871,13 @@ namespace BGui {
 	}
 
 	void Gui::Process() {
+		CKRenderContext* rc = ModLoader::m_instance->GetRenderContext();
+		if (rc->GetWidth() != m_width || rc->GetHeight() != m_height) {
+			m_width = rc->GetWidth();
+			m_height = rc->GetHeight();
+			OnScreenModeChanged();
+		}
+
 		for (Element* element : m_elements)
 			element->Process();
 
@@ -870,7 +889,6 @@ namespace BGui {
 				OnCharTyped(key);
 		}
 
-		CKRenderContext* rc = ModLoader::m_instance->GetRenderContext();
 		Vx2DVector mousePos, lastPos;
 		input->GetMousePosition(mousePos, false);
 		for (CK_MOUSEBUTTON button = CK_MOUSEBUTTON_LEFT; button < CK_MOUSEBUTTON_4;
@@ -927,5 +945,10 @@ namespace BGui {
 			if (!strcmp(data->GetEnumDescription(i), "Õ¾¿á¸ß¶ËºÚ"))
 				text_font = "Õ¾¿á¸ß¶ËºÚ";
 		}
+	}
+
+	void Gui::OnScreenModeChanged() {
+		for (Text* txt : m_texts)
+			txt->UpdateFont();
 	}
 }

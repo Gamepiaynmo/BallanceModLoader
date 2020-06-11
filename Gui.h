@@ -71,6 +71,8 @@ namespace BGui {
 		CKDWORD GetTextColor();
 		void SetTextColor(CKDWORD color);
 
+		void UpdateFont();
+
 	protected:
 		CKSpriteText* m_sprite;
 	};
@@ -166,6 +168,8 @@ namespace BGui {
 
 	class Gui {
 	public:
+		Gui();
+
 		Button* AddNormalButton(CKSTRING name, CKSTRING text, float yPos, float xPos = 0.35f, std::function<void()> callback = []() {});
 		Button* AddBackButton(CKSTRING name, CKSTRING text = "Back", float yPos = 0.85f, float xPos = 0.4031f, std::function<void()> callback = []() {});
 		Button* AddSettingButton(CKSTRING name, CKSTRING text, float yPos, float xPos = 0.35f, std::function<void()> callback = []() {});
@@ -188,6 +192,7 @@ namespace BGui {
 		virtual void OnMouseDown(float x, float y, CK_MOUSEBUTTON key);
 		virtual void OnMouseWheel(float w);
 		virtual void OnMouseMove(float x, float y, float lx, float ly);
+		virtual void OnScreenModeChanged();
 
 		virtual void Process();
 		virtual void SetVisible(bool visible);
@@ -201,9 +206,11 @@ namespace BGui {
 		std::vector<Element*> m_elements;
 		std::vector<Button*> m_buttons;
 		std::vector<Input*> m_inputs;
+		std::vector<Text*> m_texts;
 		Input* m_focus = nullptr;
 		Button* m_back = nullptr;
 		bool m_block = true;
+		int m_width = 0, m_height = 0;
 
 		bool intersect(float x, float y, Element* element);
 	};

@@ -104,6 +104,11 @@ private:
 	BGui::Button* m_exit;
 };
 
+class ScreenModeHook : public BGui::Gui {
+public:
+	virtual void OnScreenModeChanged() override;
+};
+
 class CommandTravel : public ICommand {
 	virtual std::string GetName() override { return "travel"; };
 	virtual std::string GetAlias() override { return ""; };
@@ -142,7 +147,6 @@ public:
 	virtual void OnCheatEnabled(bool enable) override;
 	virtual void OnModifyConfig(CKSTRING category, CKSTRING key, IProperty* prop) override;
 
-	virtual void OnPostStartMenu() override;
 	virtual void OnPostResetLevel() override;
 	virtual void OnStartLevel() override;
 	virtual void OnPostExitLevel() override;
@@ -197,7 +201,6 @@ private:
 	GuiModOption* m_modOption = nullptr;
 
 	IProperty* m_skipAnim;
-	bool m_skipSpeed = false;
 	IProperty* m_fullscreenKey;
 	IProperty* m_unlockRes;
 
@@ -243,4 +246,6 @@ private:
 	CKBehavior* m_exitStart;
 	BGui::Button* m_customMaps;
 	CKParameter* m_loadCustom, * m_mapFile, * m_levelRow;
+
+	ScreenModeHook* m_smHook = nullptr;
 };
