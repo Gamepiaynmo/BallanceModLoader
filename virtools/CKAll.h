@@ -54,3 +54,4 @@
 #include "CKStateObject.h"
 #include "CKObjectArray.h"
 #include "CKObjectDeclaration.h"
+#include "CKDependencies.h"

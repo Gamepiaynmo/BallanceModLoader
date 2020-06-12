@@ -6,6 +6,9 @@
 #include <ImageHlp.h>
 #include <ctime>
 #include "NewBallTypeMod.h"
+#include "Logger.h"
+#include <filesystem>
+#include "zip/unzip.h"
 
 Player::StepFunc Player::m_step = &Player::Step;
 
@@ -34,18 +37,29 @@ bool StartWith(const std::string& str, const std::string& start) {
 
 ModLoader::ModLoader() {
 	m_instance = this;
+
+	m_logfile = fopen("..\\ModLoader\\ModLoader.log", "w");
+	m_logger = new Logger("ModLoader");
 }
 
 ModLoader::~ModLoader() {
 	m_instance = nullptr;
 }
 
-void ModLoader::Init() {
-	m_logfile = fopen("..\\ModLoader\\ModLoader.log", "w");
-	m_logger = new Logger("ModLoader");
+void ModLoader::AddDataPath(const std::filesystem::path& path) {
+	std::filesystem::path abs = std::filesystem::absolute(path);
+	std::string texturePath = abs.string() + "\\Textures\\";
+	std::string soundPath = abs.string() + "\\Sounds\\";
+	m_pathManager->AddPath(DATA_PATH_IDX, (abs.string() + "\\").c_str());
+	m_pathManager->AddPath(BITMAP_PATH_IDX, texturePath.c_str());
+	m_pathManager->AddPath(SOUND_PATH_IDX, soundPath.c_str());
+}
 
+void ModLoader::Init() {
+	MakeSureDirectoryPathExists("..\\ModLoader\\Cache\\");
 	MakeSureDirectoryPathExists("..\\ModLoader\\Config\\");
 	MakeSureDirectoryPathExists("..\\ModLoader\\Maps\\");
+	MakeSureDirectoryPathExists("..\\ModLoader\\Mods\\");
 
 	srand((UINT)time(0));
 
@@ -91,13 +105,7 @@ void ModLoader::Init() {
 
 	GetContextsAndManagers();
 
-	std::string startPath = CKGetStartPath();
-	std::string bmlPath = startPath + "..\\ModLoader\\";
-	std::string texturePath = startPath + "..\\ModLoader\\Textures\\";
-	std::string soundPath = startPath + "..\\ModLoader\\Sounds\\";
-	m_pathManager->AddPath(DATA_PATH_IDX, bmlPath.c_str());
-	m_pathManager->AddPath(BITMAP_PATH_IDX, texturePath.c_str());
-	m_pathManager->AddPath(SOUND_PATH_IDX, soundPath.c_str());
+	AddDataPath("..\\ModLoader");
 
 	m_logger->Info("Loading Mod Loader");
 
@@ -216,6 +224,14 @@ CKERROR ModLoader::Step(CKDWORD result) {
 			m_ballTypeMod = new NewBallTypeMod(this);
 			m_mods.push_back(m_ballTypeMod);
 
+			for (auto& mod : m_preloadMods) {
+				if (mod.entry) {
+					m_mods.push_back(mod.entry(this));
+					if (!mod.modPath.empty())
+						AddDataPath(mod.modPath);
+				}
+			}
+
 /*
 #ifdef _DEBUG
 			class TestMod : public IMod {
@@ -239,8 +255,10 @@ CKERROR ModLoader::Step(CKDWORD result) {
 #endif
 */
 
-			for (IMod* mod : m_instance->m_mods)
+			for (IMod* mod : m_instance->m_mods) {
+				m_logger->Info("Loading Mod %s[%s] v%s by %s", mod->GetID(), mod->GetName(), mod->GetVersion(), mod->GetAuthor());
 				mod->OnLoad();
+			}
 
 			std::sort(m_cmds.begin(), m_cmds.end(), [](ICommand* A, ICommand* B) {
 				return A->GetName() < B->GetName();
@@ -263,6 +281,59 @@ CKERROR ModLoader::Step(CKDWORD result) {
 	}
 
 	return result;
+}
+
+void ModLoader::PreloadMods() {
+	for (auto& i : std::filesystem::directory_iterator("..\\ModLoader\\Cache"))
+		std::filesystem::remove_all(i.path());
+
+	for (auto& f : std::filesystem::directory_iterator("..\\ModLoader\\Mods")) {
+		std::filesystem::path ext = f.path().extension();
+		PreloadMod mod;
+
+		if (f.status().type() == std::filesystem::file_type::regular) {
+			if (ext == ".bmod") {
+				mod.dllPath = f.path().string();
+			}
+			else if (ext == ".zip") {
+				HZIP hz = OpenZip(f.path().string().c_str(), 0);
+				ZIPENTRY ze; GetZipItem(hz, -1, &ze); int numitems = ze.index;
+				std::string filepath = "..\\ModLoader\\Cache\\" + f.path().filename().string() + "\\";
+				mod.modPath = filepath;
+				for (int zi = 0; zi < numitems; zi++) {
+					ZIPENTRY ze; GetZipItem(hz, zi, &ze);
+					std::string path = filepath + ze.name;
+					UnzipItem(hz, zi, path.c_str());
+
+					if (!(ze.attr & FILE_ATTRIBUTE_DIRECTORY) &&
+						std::filesystem::path(path).extension() == ".bmod")
+						mod.dllPath = path;
+				}
+				CloseZip(hz);
+			}
+		}
+		else if (f.status().type() == std::filesystem::file_type::directory) {
+			mod.modPath = f.path().string();
+			for (auto& m : std::filesystem::directory_iterator(f.path())) {
+				if (m.status().type() == std::filesystem::file_type::regular
+					&& m.path().extension() == ".bmod")
+					mod.dllPath = m.path().string();
+			}
+		}
+
+		mod.handle = LoadLibrary(mod.dllPath.c_str());
+		mod.entry = reinterpret_cast<EntryFunc>(GetProcAddress(mod.handle, "BMLEntry"));
+		mod.registerBB = reinterpret_cast<RegisterBBFunc>(GetProcAddress(mod.handle, "RegisterBB"));
+		if (mod.entry || mod.registerBB)
+			m_preloadMods.push_back(mod);
+	}
+}
+
+void ModLoader::RegisterModBBs(XObjectDeclarationArray* reg) {
+	for (auto& mod : m_preloadMods) {
+		if (mod.registerBB)
+			mod.registerBB(reg);
+	}
 }
 
 void ModLoader::Process(CKERROR result) {
@@ -453,6 +524,10 @@ void ModLoader::OnPreCheckpointReached() {
 
 void ModLoader::OnPostCheckpointReached() {
 	BoardcastMessage("PostCheckpoint", &IMod::OnPostCheckpointReached);
+}
+
+void ModLoader::OnLevelFinish() {
+	BoardcastMessage("LevelFinish", &IMod::OnLevelFinish);
 }
 
 void ModLoader::OnGameOver() {

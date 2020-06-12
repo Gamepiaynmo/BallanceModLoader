@@ -240,9 +240,9 @@ void NewBallTypeMod::OnLoadBalls(XObjectArray* objArray) {
 }
 
 void NewBallTypeMod::OnLoadLevelinit(XObjectArray* objArray) {
-	CKDataArray* allLevel = m_bml->GetArrayByName("AllLevel");
-	for (int i = 0; i < allLevel->GetRowCount(); i++)
-		allLevel->SetElementStringValue(i, 1, "Ball_Sticky");
+	//CKDataArray* allLevel = m_bml->GetArrayByName("AllLevel");
+	//for (int i = 0; i < allLevel->GetRowCount(); i++)
+	//	allLevel->SetElementStringValue(i, 1, "Ball_Sticky");
 
 	CKDataArray* phGroups = m_bml->GetArrayByName("PH_Groups");
 	CKDataArray* physBalls = m_bml->GetArrayByName("Physicalize_Balls");

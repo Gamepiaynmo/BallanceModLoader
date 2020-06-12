@@ -8,7 +8,7 @@ typedef enum CK_PATHMANAGER_CATEGORY {
 	SOUND_PATH_IDX = 2	// Category index for sounds paths
 } CK_PATHMANAGER_CATEGORY;
 
-class CKPathManager : public CKBaseManager {
+class BML_EXPORT CKPathManager : public CKBaseManager {
 public:
 	int AddCategory(const XString& cat);
 	CKERROR RemoveCategory(int catIdx);

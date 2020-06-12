@@ -12,9 +12,13 @@
 #include "Timer.h"
 #include "Gui.h"
 #include <map>
+#include <filesystem>
 
 class BMLMod;
 class NewBallTypeMod;
+
+typedef IMod* (*EntryFunc)(IBML*);
+typedef void (*RegisterBBFunc)(XObjectDeclarationArray*);
 
 class ModLoader : public IBML {
 	friend class BMLMod;
@@ -73,6 +77,10 @@ public:
 			(mod->*callback)();
 	}
 
+	void AddDataPath(const std::filesystem::path &path);
+	void PreloadMods();
+	void RegisterModBBs(XObjectDeclarationArray* reg);
+
 	virtual void OnPreStartMenu() override;
 	virtual void OnPostStartMenu() override;
 	virtual void OnExitGame() override;
@@ -100,6 +108,7 @@ public:
 	virtual void OnBallOff() override;
 	virtual void OnPreCheckpointReached() override;
 	virtual void OnPostCheckpointReached() override;
+	virtual void OnLevelFinish() override;
 	virtual void OnGameOver() override;
 	virtual void OnExtraPoint() override;
 	virtual void OnPreSubLife() override;
@@ -185,6 +194,15 @@ private:
 	std::list<Timer> m_timers;
 	std::vector<ICommand*> m_cmds;
 	std::map<std::string, ICommand*> m_cmdm;
+
+	struct PreloadMod {
+		std::string dllPath;
+		std::string modPath;
+		HMODULE handle;
+		EntryFunc entry;
+		RegisterBBFunc registerBB;
+	};
+	std::vector<PreloadMod> m_preloadMods;
 
 	static int ObjectLoader(const CKBehaviorContext& behcontext);
 	typedef int (*ObjectLoaderFunc)(const CKBehaviorContext& behcontext);

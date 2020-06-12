@@ -225,6 +225,9 @@
     <ClCompile Include="NewBallTypeMod.cpp">
       <Filter>源文件\implement</Filter>
     </ClCompile>
+    <ClCompile Include="zip\unzip.cpp">
+      <Filter>源文件\implement</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BMLAll.h">
@@ -535,6 +538,12 @@
     </ClInclude>
     <ClInclude Include="NewBallTypeMod.h">
       <Filter>头文件\implement</Filter>
+    </ClInclude>
+    <ClInclude Include="zip\unzip.h">
+      <Filter>头文件\implement</Filter>
+    </ClInclude>
+    <ClInclude Include="virtools\CKDependencies.h">
+      <Filter>头文件\virtools</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

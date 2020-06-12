@@ -155,6 +155,7 @@ void RegisterBBs(XObjectDeclarationArray* reg) {
 	RegisterCallback(reg, "BML OnBallOff", "BallOff Hook.", BML_ONBALLOFF_GUID, []() { ModLoader::m_instance->OnBallOff(); });
 	RegisterCallback(reg, "BML OnPreCheckpoint", "PreCheckpoint Hook.", BML_ONPRECHECKPOINT_GUID, []() { ModLoader::m_instance->OnPreCheckpointReached(); });
 	RegisterCallback(reg, "BML OnPostCheckpoint", "PostCheckpoint Hook.", BML_ONPOSTCHECKPOINT_GUID, []() { ModLoader::m_instance->OnPostCheckpointReached(); });
+	RegisterCallback(reg, "BML OnLevelFinish", "LevelFinish Hook.", BML_ONLEVELFINISH_GUID, []() { ModLoader::m_instance->OnLevelFinish(); });
 	RegisterCallback(reg, "BML OnGameOver", "GameOver Hook.", BML_ONGAMEOVER_GUID, []() { ModLoader::m_instance->OnGameOver(); });
 	RegisterCallback(reg, "BML OnExtraPoint", "ExtraPoint Hook.", BML_ONEXTRAPOINT_GUID, []() { ModLoader::m_instance->OnExtraPoint(); });
 	RegisterCallback(reg, "BML OnPreSubLife", "PreSubLife Hook.", BML_ONPRESUBLIFE_GUID, []() { ModLoader::m_instance->OnPreSubLife(); });

@@ -6,9 +6,11 @@
 #include <string>
 #include <functional>
 
+#pragma warning(disable:4251)
+
 extern const CKGUID g_bmlGuid;
 
-class HookParams {
+class BML_EXPORT HookParams {
 public:
 	HookParams(CKBehavior* beh) : m_beh(beh) {}
 
@@ -36,7 +38,7 @@ public:
 	CKBehavior* m_beh;
 };
 
-class BBBuilder {
+class BML_EXPORT BBBuilder {
 public:
 	BBBuilder* SetName(CKSTRING name) { m_name = name; return this; }
 	BBBuilder* SetDescription(CKSTRING desc) { m_desc = desc; return this; }
@@ -76,7 +78,7 @@ public:
 	CKBEHAVIORFCT m_function = nullptr;
 };
 
-class HookBuilder : public BBBuilder {
+class BML_EXPORT HookBuilder : public BBBuilder {
 public:
 	HookBuilder() {
 		AddInput("In");
@@ -95,6 +97,7 @@ public:
 		m_outpos.push_back(m_pins.size());
 		AddInputParam(name, type);
 		AddOutputParam(name, type);
+		return this;
 	}
 
 	virtual CKBEHAVIORFCT BuildFunction() override;
@@ -137,6 +140,7 @@ void RegisterBBs(XObjectDeclarationArray* reg);
 #define BML_ONBALLOFF_GUID CKGUID(0x47c51895,0x4ff4616e)
 #define BML_ONPRECHECKPOINT_GUID CKGUID(0x76f824e9,0x5b903bc7)
 #define BML_ONPOSTCHECKPOINT_GUID CKGUID(0xbf6732a,0x3bb33205)
+#define BML_ONLEVELFINISH_GUID CKGUID(0x40a0230b,0x60634050)
 #define BML_ONGAMEOVER_GUID CKGUID(0xc8866ec,0xd73214b)
 #define BML_ONEXTRAPOINT_GUID CKGUID(0x511b3834,0x75ab7ecf)
 #define BML_ONPRESUBLIFE_GUID CKGUID(0x2f420ffc,0x1f79585d)

@@ -70,46 +70,46 @@ typedef XHashTable<CKObjectDeclaration*,CKGUID>::Iterator XObjDeclHashTableIt;
 //-----------------------------------------------
 // Initializations functions
 
-CKERROR CKStartUp();
-CKERROR CKShutdown();
+BML_EXPORT CKERROR CKStartUp();
+BML_EXPORT CKERROR CKShutdown();
 
 
-CKContext* GetCKContext(int pos);
+BML_EXPORT CKContext* GetCKContext(int pos);
 
-CKObject* CKGetObject(CKContext* iCtx,CK_ID iID);
+BML_EXPORT CKObject* CKGetObject(CKContext* iCtx,CK_ID iID);
 
-CKERROR CKCreateContext(CKContext** iContext,WIN_HANDLE iWin,const char* iConfigFile = NULL);
-CKERROR CKCloseContext(CKContext*);
+BML_EXPORT CKERROR CKCreateContext(CKContext** iContext,WIN_HANDLE iWin,const char* iConfigFile = NULL);
+BML_EXPORT CKERROR CKCloseContext(CKContext*);
 
-CKSTRING		CKGetStartPath();
-CKSTRING		CKGetPluginsPath();
+BML_EXPORT CKSTRING		CKGetStartPath();
+BML_EXPORT CKSTRING		CKGetPluginsPath();
 
-void CKDestroyObject(CKObject *o,DWORD Flags=0,CKDependencies* dep = NULL);
+BML_EXPORT void CKDestroyObject(CKObject *o,DWORD Flags=0,CKDependencies* dep = NULL);
 
-CKDWORD CKGetVersion();
+BML_EXPORT CKDWORD CKGetVersion();
 
 
-void CKBuildClassHierarchyTable();
+BML_EXPORT void CKBuildClassHierarchyTable();
 
-CKPluginManager* CKGetPluginManager();
+BML_EXPORT CKPluginManager* CKGetPluginManager();
 
 //----------------------------------------------------------
 // Behavior prototype declaration functions
 
-int					CKGetPrototypeDeclarationCount();
-CKObjectDeclaration *CKGetPrototypeDeclaration(int n);
+BML_EXPORT int					CKGetPrototypeDeclarationCount();
+BML_EXPORT CKObjectDeclaration *CKGetPrototypeDeclaration(int n);
 
 
-XObjDeclHashTableIt	CKGetPrototypeDeclarationStartIterator();
+BML_EXPORT XObjDeclHashTableIt	CKGetPrototypeDeclarationStartIterator();
 
-XObjDeclHashTableIt	CKGetPrototypeDeclarationEndIterator();
+BML_EXPORT XObjDeclHashTableIt	CKGetPrototypeDeclarationEndIterator();
 
-CKObjectDeclaration *CKGetObjectDeclarationFromGuid(CKGUID guid);
-CKBehaviorPrototype *CKGetPrototypeFromGuid(CKGUID guid);
-CKERROR				CKRemovePrototypeDeclaration(CKObjectDeclaration* objdecl);
-CKObjectDeclaration* CreateCKObjectDeclaration(CKSTRING Name);
-CKBehaviorPrototype* CreateCKBehaviorPrototype(CKSTRING Name);
-CKBehaviorPrototype* CreateCKBehaviorPrototypeRunTime(CKSTRING Name);
+BML_EXPORT CKObjectDeclaration *CKGetObjectDeclarationFromGuid(CKGUID guid);
+BML_EXPORT CKBehaviorPrototype *CKGetPrototypeFromGuid(CKGUID guid);
+BML_EXPORT CKERROR				CKRemovePrototypeDeclaration(CKObjectDeclaration* objdecl);
+BML_EXPORT CKObjectDeclaration* CreateCKObjectDeclaration(CKSTRING Name);
+BML_EXPORT CKBehaviorPrototype* CreateCKBehaviorPrototype(CKSTRING Name);
+BML_EXPORT CKBehaviorPrototype* CreateCKBehaviorPrototypeRunTime(CKSTRING Name);
 
 #ifdef VIRTOOLS_RUNTIME_VERSION
 #define CreateCKBehaviorPrototype CreateCKBehaviorPrototypeRunTime
@@ -178,78 +178,78 @@ struct CKClassDesc
 	}
 };
 
-int				CKGetClassCount();
-CKClassDesc*		CKGetClassDesc(CK_CLASSID cid);		
-CKSTRING			CKClassIDToString(CK_CLASSID cid);
-CK_CLASSID		CKStringToClassID(CKSTRING classname);
+BML_EXPORT int				CKGetClassCount();
+BML_EXPORT CKClassDesc*		CKGetClassDesc(CK_CLASSID cid);
+BML_EXPORT CKSTRING			CKClassIDToString(CK_CLASSID cid);
+BML_EXPORT CK_CLASSID		CKStringToClassID(CKSTRING classname);
 
-CKBOOL		CKIsChildClassOf(CK_CLASSID child,CK_CLASSID parent);
-CKBOOL		CKIsChildClassOf(CKObject *obj,CK_CLASSID parent);
-CK_CLASSID	CKGetParentClassID(CK_CLASSID child);
-CK_CLASSID	CKGetParentClassID(CKObject *obj);
-CK_CLASSID	CKGetCommonParent(CK_CLASSID cid1,CK_CLASSID cid2);
+BML_EXPORT CKBOOL		CKIsChildClassOf(CK_CLASSID child,CK_CLASSID parent);
+BML_EXPORT CKBOOL		CKIsChildClassOf(CKObject *obj,CK_CLASSID parent);
+BML_EXPORT CK_CLASSID	CKGetParentClassID(CK_CLASSID child);
+BML_EXPORT CK_CLASSID	CKGetParentClassID(CKObject *obj);
+BML_EXPORT CK_CLASSID	CKGetCommonParent(CK_CLASSID cid1,CK_CLASSID cid2);
 
 //-----------------------------------------------
 // Array Creation Functions	
 				
-CKObjectArray*  CreateCKObjectArray();
-void			   DeleteCKObjectArray(CKObjectArray * obj);
+BML_EXPORT CKObjectArray*  CreateCKObjectArray();
+BML_EXPORT void			   DeleteCKObjectArray(CKObjectArray * obj);
 
 //-----------------------------------------------
 // StateChunk Creation Functions
 					
-CKStateChunk*	CreateCKStateChunk(CK_CLASSID id,CKFile* file=NULL);
-CKStateChunk*	CreateCKStateChunk(CKStateChunk* chunk);
-void				DeleteCKStateChunk(CKStateChunk* chunk);
+BML_EXPORT CKStateChunk*	CreateCKStateChunk(CK_CLASSID id,CKFile* file=NULL);
+BML_EXPORT CKStateChunk*	CreateCKStateChunk(CKStateChunk* chunk);
+BML_EXPORT void				DeleteCKStateChunk(CKStateChunk* chunk);
 
-CKStateChunk*	CKSaveObjectState(CKObject* obj,CKDWORD Flags = CK_STATESAVE_ALL);
-CKERROR			CKReadObjectState(CKObject* obj,CKStateChunk* chunk);
+BML_EXPORT CKStateChunk*	CKSaveObjectState(CKObject* obj,CKDWORD Flags = CK_STATESAVE_ALL);
+BML_EXPORT CKERROR			CKReadObjectState(CKObject* obj,CKStateChunk* chunk);
 
 //-----------------------------------------------
 // Bitmap utilities 
 
-BITMAP_HANDLE	CKLoadBitmap(CKSTRING filename);
-CKBOOL			CKSaveBitmap(CKSTRING filename,BITMAP_HANDLE bm);
-CKBOOL			CKSaveBitmap(CKSTRING filename,VxImageDescEx& desc);
+BML_EXPORT BITMAP_HANDLE	CKLoadBitmap(CKSTRING filename);
+BML_EXPORT CKBOOL			CKSaveBitmap(CKSTRING filename,BITMAP_HANDLE bm);
+BML_EXPORT CKBOOL			CKSaveBitmap(CKSTRING filename,VxImageDescEx& desc);
 
 //------------------------------------------------
 //--- Endian Conversion utilities
 
-void CKConvertEndianArray32(void* buf,int DwordCount);
-void CKConvertEndianArray16(void* buf,int DwordCount);
-CKDWORD CKConvertEndian32(CKDWORD dw);
-CKWORD  CKConvertEndian16(CKWORD w);
+BML_EXPORT void CKConvertEndianArray32(void* buf,int DwordCount);
+BML_EXPORT void CKConvertEndianArray16(void* buf,int DwordCount);
+BML_EXPORT CKDWORD CKConvertEndian32(CKDWORD dw);
+BML_EXPORT CKWORD  CKConvertEndian16(CKWORD w);
 
 //------------------------------------------------
 // Compression utilities
 
-CKDWORD CKComputeDataCRC(char* data,int size,DWORD PreviousCRC=0);
-char* CKPackData(char* Data,int size,int &NewSize,int compressionlevel);
-char* CKUnPackData(int DestSize,char* SrcBuffer,int SrcSize);
+BML_EXPORT CKDWORD CKComputeDataCRC(char* data,int size,DWORD PreviousCRC=0);
+BML_EXPORT char* CKPackData(char* Data,int size,int &NewSize,int compressionlevel);
+BML_EXPORT char* CKUnPackData(int DestSize,char* SrcBuffer,int SrcSize);
 
 //-------------------------------------------------
 // String Utilities 
 
-CKSTRING CKStrdup(CKSTRING string);
-CKSTRING CKStrndup(CKSTRING iString, int iLength);
-void		CKStrdelete(CKSTRING str);
-CKSTRING CKStrupr(CKSTRING string);
-CKSTRING CKStrlwr(CKSTRING string);
+BML_EXPORT CKSTRING CKStrdup(CKSTRING string);
+BML_EXPORT CKSTRING CKStrndup(CKSTRING iString, int iLength);
+BML_EXPORT void		CKStrdelete(CKSTRING str);
+BML_EXPORT CKSTRING CKStrupr(CKSTRING string);
+BML_EXPORT CKSTRING CKStrlwr(CKSTRING string);
 
 //-------------------------------------------------
 // CKBitmapProperties Utilities 
 
-CKBitmapProperties* CKCopyBitmapProperties(CKBitmapProperties* bp);
+BML_EXPORT CKBitmapProperties* CKCopyBitmapProperties(CKBitmapProperties* bp);
 
 #define CKDeleteBitmapProperties(bp) CKDeletePointer((void *)bp)
 
 //-------------------------------------------------
 // Class Dependencies utilities
 
-void CKCopyDefaultClassDependencies(CKDependencies& d,CK_DEPENDENCIES_OPMODE mode);
-CKDependencies* CKGetDefaultClassDependencies(CK_DEPENDENCIES_OPMODE mode);
+BML_EXPORT void CKCopyDefaultClassDependencies(CKDependencies& d,CK_DEPENDENCIES_OPMODE mode);
+BML_EXPORT CKDependencies* CKGetDefaultClassDependencies(CK_DEPENDENCIES_OPMODE mode);
 
-void		CKDeletePointer(void* ptr);
+BML_EXPORT void		CKDeletePointer(void* ptr);
 
 //-------------------------------------------------------------------
 #ifdef DOCJETDUMMY // Docjet secret macro
@@ -257,13 +257,13 @@ void		CKDeletePointer(void* ptr);
 
 //-------------------------------------------------
 // Merge Utilities
-CKERROR CKCopyAllAttributes(CKBeObject* Src,CKBeObject* Dest);
-CKERROR CKMoveAllScripts(CKBeObject* Src,CKBeObject* Dest);
-CKERROR CKMoveScript(CKBeObject* Src,CKBeObject* Dest,CKBehavior *Beh);
-void CKRemapObjectParameterValue(CKContext *ckContext,CK_ID oldID,CK_ID newID,CK_CLASSID cid = CKCID_OBJECT,CKBOOL derived=TRUE);	
+BML_EXPORT CKERROR CKCopyAllAttributes(CKBeObject* Src,CKBeObject* Dest);
+BML_EXPORT CKERROR CKMoveAllScripts(CKBeObject* Src,CKBeObject* Dest);
+BML_EXPORT CKERROR CKMoveScript(CKBeObject* Src,CKBeObject* Dest,CKBehavior *Beh);
+BML_EXPORT void CKRemapObjectParameterValue(CKContext *ckContext,CK_ID oldID,CK_ID newID,CK_CLASSID cid = CKCID_OBJECT,CKBOOL derived=TRUE);
 
 typedef XArray<CKObjectDeclaration*> XObjectDeclarationArray;
-void CKStoreDeclaration(XObjectDeclarationArray* reg,CKObjectDeclaration *a);
+BML_EXPORT void CKStoreDeclaration(XObjectDeclarationArray* reg,CKObjectDeclaration *a);
 
 typedef CKERROR(*CK_INITINSTANCEFCT)	(CKContext* context);
 typedef CK_INITINSTANCEFCT CK_EXITINSTANCEFCT;
@@ -339,12 +339,12 @@ struct CKPluginInfo {
 }\
 
 
-void CKClassNeedNotificationFrom(CK_CLASSID Cid1,CK_CLASSID Cid2);						
-void CKClassRegisterAssociatedParameter(CK_CLASSID Cid,CKGUID pguid);					
-void CKClassRegisterDefaultDependencies(CK_CLASSID Cid,CKDWORD depend_Mask,int mode);	
-void CKClassRegisterDefaultOptions(CK_CLASSID Cid,CKDWORD options_Mask);					
-CK_CLASSID CKClassGetNewIdentifier();													
-void		  CKClassRegister(CK_CLASSID Cid,CK_CLASSID Parent_Cid,
+BML_EXPORT void CKClassNeedNotificationFrom(CK_CLASSID Cid1,CK_CLASSID Cid2);
+BML_EXPORT void CKClassRegisterAssociatedParameter(CK_CLASSID Cid,CKGUID pguid);
+BML_EXPORT void CKClassRegisterDefaultDependencies(CK_CLASSID Cid,CKDWORD depend_Mask,int mode);
+BML_EXPORT void CKClassRegisterDefaultOptions(CK_CLASSID Cid,CKDWORD options_Mask);
+BML_EXPORT CK_CLASSID CKClassGetNewIdentifier();
+BML_EXPORT void		  CKClassRegister(CK_CLASSID Cid,CK_CLASSID Parent_Cid,
 								CKCLASSREGISTERFCT registerfct,CKCLASSCREATIONFCT creafct,CKCLASSRELEASEFCT relfct,
 								CKCLASSNAMEFCT		NameFct,CKCLASSDEPENDENCIESFCT	DependsFct,
 								CKCLASSDEPENDENCIESCOUNTFCT	DependsCountFct);						

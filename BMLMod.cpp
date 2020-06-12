@@ -477,18 +477,22 @@ void BMLMod::OnEditScript_Gameplay_Energy(CKBehavior* script) {
 void BMLMod::OnEditScript_Gameplay_Events(CKBehavior* script) {
 	GetLogger()->Info("Insert Checkpoint & GameOver Hooks");
 	CKMessageManager* mm = m_bml->GetMessageManager();
-	CKMessageType checkpoint = mm->AddMessageType("Checkpoint reached"), gameover = mm->AddMessageType("Game Over");
-	CKBehavior* cp, * go;
-	FindBB(script, [script, checkpoint, gameover, &cp, &go](CKBehavior* beh) {
+	CKMessageType checkpoint = mm->AddMessageType("Checkpoint reached"),
+		gameover = mm->AddMessageType("Game Over"),
+		levelfinish = mm->AddMessageType("Level_Finish");
+	CKBehavior* cp, * go, * lf;
+	FindBB(script, [script, checkpoint, gameover, levelfinish, &cp, &go, &lf](CKBehavior* beh) {
 		CKMessageType msg = GetParamValue<CKMessageType>(beh->GetInputParameter(0)->GetDirectSource());
 		if (msg == checkpoint) cp = beh;
 		if (msg == gameover) go = beh;
+		if (msg == levelfinish) lf = beh;
 		return true;
 		}, "Wait Message");
 	CKBehavior* hook = CreateBB(script, BML_ONPRECHECKPOINT_GUID);
 	InsertBB(script, FindNextLink(script, cp, "set Resetpoint"), hook);
 	CreateLink(script, FindEndOfChain(script, hook), CreateBB(script, BML_ONPOSTCHECKPOINT_GUID));
 	InsertBB(script, FindNextLink(script, go, "Send Message"), CreateBB(script, BML_ONGAMEOVER_GUID));
+	InsertBB(script, FindNextLink(script, lf, "Send Message"), CreateBB(script, BML_ONLEVELFINISH_GUID));
 
 	CKBehavior* id = FindNextBB(script, script->GetInput(0));
 	m_curSector = id->GetOutputParameter(0)->GetDestination(0);

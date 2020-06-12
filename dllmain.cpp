@@ -11,12 +11,9 @@ void HookPrototypeRuntime() {
 }
 
 CKERROR InitInstance(CKContext* context) {
-    if (ModLoader::m_instance == nullptr) {
-        ModLoader::m_instance = new ModLoader();
-        ModLoader::m_instance->Init();
-        if (!ModLoader::m_instance->Inited())
-            delete ModLoader::m_instance;
-    }
+    ModLoader::m_instance->Init();
+    if (!ModLoader::m_instance->Inited())
+        delete ModLoader::m_instance;
     return CK_OK;
 }
 
@@ -62,6 +59,13 @@ BML_EXPORT CKPluginInfo* CKGetPluginInfo(int Index) {
 
 BML_EXPORT void RegisterBehaviorDeclarations(XObjectDeclarationArray* reg) {
     RegisterBBs(reg);
+
+    if (ModLoader::m_instance == nullptr) {
+        ModLoader::m_instance = new ModLoader();
+
+        ModLoader::m_instance->PreloadMods();
+        ModLoader::m_instance->RegisterModBBs(reg);
+    }
 }
 
 EXTERN_C_END

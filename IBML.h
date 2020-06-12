@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Export.h"
-#include "Logger.h"
+#include "ILogger.h"
 #include "virtools/CKAll.h"
 #include <functional>
 #include "Gui.h"
@@ -49,6 +49,8 @@ public:
 
 	virtual void OnPreCheckpointReached() {};
 	virtual void OnPostCheckpointReached() {};
+
+	virtual void OnLevelFinish() {};
 
 	virtual void OnGameOver() {};
 	

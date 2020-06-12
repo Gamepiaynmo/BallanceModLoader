@@ -82,8 +82,9 @@ void CommandSpeed::Execute(IBML* bml, const std::vector<std::string>& args) {
 			m_force = ScriptHelper::FindFirstBB(ingame, "Ball Navigation")->GetInputParameter(0)->GetRealSource();
 
 			for (int i = 0; i < m_phyBall->GetRowCount(); i++) {
-				char ballName[100];
-				m_phyBall->GetElementStringValue(i, 0, ballName);
+				std::string ballName(m_phyBall->GetElementStringValue(i, 0, nullptr), '\0');
+				m_phyBall->GetElementStringValue(i, 0, &ballName[0]);
+				ballName.pop_back();
 				float force;
 				m_phyBall->GetElementValue(i, 7, &force);
 				m_forces[ballName] = force;
@@ -102,8 +103,9 @@ void CommandSpeed::Execute(IBML* bml, const std::vector<std::string>& args) {
 			}
 
 			for (int i = 0; i < m_phyBall->GetRowCount(); i++) {
-				char ballName[100];
-				m_phyBall->GetElementStringValue(i, 0, ballName);
+				std::string ballName(m_phyBall->GetElementStringValue(i, 0, nullptr), '\0');
+				m_phyBall->GetElementStringValue(i, 0, &ballName[0]);
+				ballName.pop_back();
 				auto iter = m_forces.find(ballName);
 				if (iter != m_forces.end()) {
 					float force = iter->second;
