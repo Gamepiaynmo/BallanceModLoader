@@ -105,7 +105,7 @@
       <AdditionalDependencies>imagehlp.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PreBuildEvent>
-      <Command>python inc_ver.py</Command>
+      <Command>python inc_ver.py -b</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -147,8 +147,11 @@
       <AdditionalDependencies>imagehlp.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PreBuildEvent>
-      <Command>python inc_ver.py</Command>
+      <Command>python inc_ver.py -b</Command>
     </PreBuildEvent>
+    <PostBuildEvent>
+      <Command>python BML_Release.py</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>

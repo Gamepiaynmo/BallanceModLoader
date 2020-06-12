@@ -4,6 +4,109 @@
 #include "Version.h"
 #include <vector>
 #include <string>
+#include <functional>
+
+extern const CKGUID g_bmlGuid;
+
+class HookParams {
+public:
+	HookParams(CKBehavior* beh) : m_beh(beh) {}
+
+	void SetParamObject(int pos, CKObject* value) { m_beh->SetOutputParameterObject(pos, value); }
+	void SetParamString(int pos, CKSTRING value) { m_beh->GetOutputParameter(pos)->SetStringValue(value); }
+	template<typename T>
+	void SetParamValue(int pos, T value) {
+		m_beh->SetOutputParameterValue(pos, &value, sizeof(value));
+	}
+
+	CKObject* GetParamObject(int pos) { return m_beh->GetInputParameterObject(pos); }
+	CKSTRING GetParamString(int pos) { return static_cast<CKSTRING>(m_beh->GetInputParameterReadDataPtr(pos)); }
+	template<typename T>
+	T GetParamValue(int pos) {
+		T res;
+		m_beh->GetInputParameterValue(pos, &res);
+		return res;
+	}
+
+	void ActivateInput(int pos) { m_beh->ActivateInput(pos); }
+	void DeactivateInput(int pos) { m_beh->ActivateInput(pos, false); }
+	void ActivateOutput(int pos) { m_beh->ActivateOutput(pos); }
+	void DeactivateOutput(int pos) { m_beh->ActivateOutput(pos, false); }
+
+	CKBehavior* m_beh;
+};
+
+class BBBuilder {
+public:
+	BBBuilder* SetName(CKSTRING name) { m_name = name; return this; }
+	BBBuilder* SetDescription(CKSTRING desc) { m_desc = desc; return this; }
+	BBBuilder* SetCategory(CKSTRING cate) { m_cate = std::string("BML/") + cate; return this; }
+	BBBuilder* SetGuid(CKGUID guid) { m_guid = guid; return this; }
+
+	BBBuilder* SetAuthor(CKSTRING author) { m_author = author; return this; }
+	BBBuilder* SetAuthorGuid(CKGUID guid) { m_authorGuid = guid; return this; }
+	BBBuilder* SetVersion(CKDWORD version) { m_version = version; return this; }
+	BBBuilder* SetClassID(CK_CLASSID id) { m_classid = id; return this; }
+
+	BBBuilder* SetBehaviorFlags(CKDWORD flags) { m_bflags = flags; return this; }
+	BBBuilder* SetFlags(CK_BEHAVIORPROTOTYPE_FLAGS flags) { m_flags = flags; return this; }
+	BBBuilder* SetFunction(CKBEHAVIORFCT function) { m_function = function; return this; }
+	BBBuilder* SetCallback(CKBEHAVIORCALLBACKFCT fct, CKDWORD CallbackMask = CKCB_BEHAVIORALL, void* param = NULL)
+	{
+		m_callback = fct; m_callbackMask = CallbackMask; m_callbackParam = param; return this;
+	}
+
+	BBBuilder* AddInput(CKSTRING name) { m_ins.push_back(name); return this; }
+	BBBuilder* AddOutput(CKSTRING name) { m_outs.push_back(name); return this; }
+	BBBuilder* AddInputParam(CKSTRING name, CKGUID type) { m_pins.push_back({ name, type }); return this; }
+	BBBuilder* AddOutputParam(CKSTRING name, CKGUID type) { m_pouts.push_back({ name, type }); return this; }
+
+	CKObjectDeclaration* Build();
+	CKDLL_CREATEPROTOFUNCTION BuildProto();
+	virtual CKBEHAVIORFCT BuildFunction() { return m_function; }
+
+	std::string m_name, m_desc, m_cate, m_author = "Gamepiaynmo";
+	CKGUID m_guid, m_authorGuid = g_bmlGuid;
+	CKDWORD m_version = BML_MAJOR_VER << 16 | BML_MINOR_VER;
+	CK_CLASSID m_classid = CKCID_BEOBJECT;
+	std::vector<std::string> m_ins, m_outs;
+	std::vector<std::pair<std::string, CKGUID>> m_pins, m_pouts;
+	CKDWORD m_bflags = 0; CK_BEHAVIORPROTOTYPE_FLAGS m_flags = CK_BEHAVIORPROTOTYPE_NORMAL;
+	CKBEHAVIORCALLBACKFCT m_callback = nullptr; CKDWORD m_callbackMask; void* m_callbackParam;
+	CKBEHAVIORFCT m_function = nullptr;
+};
+
+class HookBuilder : public BBBuilder {
+public:
+	HookBuilder() {
+		AddInput("In");
+		AddOutput("Out");
+		SetCategory("Hook");
+	}
+
+	HookBuilder* SetName(CKSTRING name) { m_name = name; return this; }
+	HookBuilder* SetDescription(CKSTRING desc) { m_desc = desc; return this; }
+	HookBuilder* SetCategory(CKSTRING cate) { m_cate = std::string("BML/") + cate; return this; }
+	HookBuilder* SetGuid(CKGUID guid) { m_guid = guid; return this; }
+
+	HookBuilder* SetCancellable() { AddOutput("Cancelled"); return this; }
+	HookBuilder* AddInputParam(CKSTRING name, CKGUID type) { m_pins.push_back({ name, type }); return this; }
+	HookBuilder* AddModifiableParam(CKSTRING name, CKGUID type) {
+		m_outpos.push_back(m_pins.size());
+		AddInputParam(name, type);
+		AddOutputParam(name, type);
+	}
+
+	virtual CKBEHAVIORFCT BuildFunction() override;
+
+	typedef std::function<bool(HookParams*)> ProcessFunction;
+	HookBuilder* SetProcessFunction(ProcessFunction function) { m_procFunc = function; return this; }
+
+	std::vector<int> m_outpos;
+	ProcessFunction m_procFunc;
+};
+
+#ifdef BML_EXPORTS
 
 void RegisterBBs(XObjectDeclarationArray* reg);
 
@@ -59,3 +162,5 @@ void RegisterBBs(XObjectDeclarationArray* reg);
 #define VT_KEEPACTIVE CKGUID(0x7160133a,0x1f2532fe)
 #define VT_PERSECOND CKGUID(0x448e54ce, 0x75a655c5)
 #define VT_REMOVEATTRIBUTE CKGUID(0x6b6340c4,0x61e94a41)
+
+#endif
