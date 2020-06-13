@@ -228,6 +228,12 @@
     <ClCompile Include="zip\unzip.cpp">
       <Filter>源文件\implement</Filter>
     </ClCompile>
+    <ClCompile Include="virtools\VxQuaternion.cpp">
+      <Filter>源文件\virtools</Filter>
+    </ClCompile>
+    <ClCompile Include="virtools\VxMatrix.cpp">
+      <Filter>源文件\virtools</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BMLAll.h">

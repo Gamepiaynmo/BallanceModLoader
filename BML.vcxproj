@@ -236,6 +236,8 @@
     <ClCompile Include="virtools\CKTexture.cpp" />
     <ClCompile Include="virtools\CKTimeManager.cpp" />
     <ClCompile Include="virtools\VxMath.cpp" />
+    <ClCompile Include="virtools\VxMatrix.cpp" />
+    <ClCompile Include="virtools\VxQuaternion.cpp" />
     <ClCompile Include="virtools\XString.cpp" />
     <ClCompile Include="zip\unzip.cpp" />
   </ItemGroup>

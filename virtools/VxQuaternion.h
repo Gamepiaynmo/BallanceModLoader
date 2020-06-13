@@ -18,16 +18,16 @@ struct VxQuaternion;
 
 
 
-VX_EXPORT 	VxQuaternion	Vx3DQuaternionSnuggle(VxQuaternion* Quat, VxVector* Scale);
-VX_EXPORT 	VxQuaternion	Vx3DQuaternionFromMatrix(const VxMatrix& Mat);
-VX_EXPORT 	VxQuaternion	Vx3DQuaternionConjugate(const VxQuaternion& Quat);
-VX_EXPORT 	VxQuaternion	Vx3DQuaternionMultiply(const VxQuaternion& QuatL, const VxQuaternion& QuatR);
-VX_EXPORT 	VxQuaternion	Vx3DQuaternionDivide(const VxQuaternion& P, const VxQuaternion& Q);
-VX_EXPORT 	VxQuaternion	Slerp(float Theta, const VxQuaternion& Quat1, const VxQuaternion& Quat2);
-VX_EXPORT 	VxQuaternion	Squad(float Theta, const VxQuaternion& Quat1, const VxQuaternion& Quat1Out, const VxQuaternion& Quat2In, const VxQuaternion& Quat2);
-VX_EXPORT 	VxQuaternion	LnDif(const VxQuaternion& P, const VxQuaternion& Q);	// Ln(P/Q) = Ln(Q(-1).P)
-VX_EXPORT 	VxQuaternion	Ln(const VxQuaternion& Quat);
-VX_EXPORT 	VxQuaternion	Exp(const VxQuaternion& Quat);
+BML_EXPORT 	VxQuaternion	Vx3DQuaternionSnuggle(VxQuaternion* Quat, VxVector* Scale);
+BML_EXPORT 	VxQuaternion	Vx3DQuaternionFromMatrix(const VxMatrix& Mat);
+BML_EXPORT 	VxQuaternion	Vx3DQuaternionConjugate(const VxQuaternion& Quat);
+BML_EXPORT 	VxQuaternion	Vx3DQuaternionMultiply(const VxQuaternion& QuatL, const VxQuaternion& QuatR);
+BML_EXPORT 	VxQuaternion	Vx3DQuaternionDivide(const VxQuaternion& P, const VxQuaternion& Q);
+BML_EXPORT 	VxQuaternion	Slerp(float Theta, const VxQuaternion& Quat1, const VxQuaternion& Quat2);
+BML_EXPORT 	VxQuaternion	Squad(float Theta, const VxQuaternion& Quat1, const VxQuaternion& Quat1Out, const VxQuaternion& Quat2In, const VxQuaternion& Quat2);
+BML_EXPORT 	VxQuaternion	LnDif(const VxQuaternion& P, const VxQuaternion& Q);	// Ln(P/Q) = Ln(Q(-1).P)
+BML_EXPORT 	VxQuaternion	Ln(const VxQuaternion& Quat);
+BML_EXPORT 	VxQuaternion	Exp(const VxQuaternion& Quat);
 /**********************************************************
 {filename:VxQuaternion}
 Name: VxQuaternion
@@ -57,7 +57,7 @@ Elements can be accessed with x,y,z,w value or through the array v.
 
 See Also : VxMatrix,VxVector,Quaternions
 *********************************************************/
-typedef struct VxQuaternion
+struct BML_EXPORT VxQuaternion
 {
 #if defined(_LINUX) || defined(PSX2)
   float x,y,z;
@@ -84,14 +84,14 @@ public:
 	VxQuaternion(const VxVector& Vector,float Angle) { FromRotation(Vector,Angle); }
 	VxQuaternion(float X,float Y,float Z,float W) {	x=X; y=Y; z=Z; w=W;}
 
-	VX_EXPORT 	void	FromMatrix(const VxMatrix& Mat,BOOL MatIsUnit=TRUE,BOOL RestoreMat=TRUE);
-	VX_EXPORT	void	ToMatrix(VxMatrix& Mat) const;
-	VX_EXPORT 	void	Multiply(const VxQuaternion& Quat);
-	VX_EXPORT 	void	FromRotation(const VxVector& Vector,float Angle);
-	VX_EXPORT 	void	ToRotation(VxVector& Vector,float& Angle);
-	VX_EXPORT 	void	FromEulerAngles(float eax,float eay,float eaz);
-	VX_EXPORT 	void	ToEulerAngles(float *eax,float *eay,float *eaz) const;
-	VX_EXPORT 	void	Normalize();
+	void	FromMatrix(const VxMatrix& Mat, BOOL MatIsUnit = TRUE, BOOL RestoreMat = TRUE);
+	void	ToMatrix(VxMatrix& Mat) const;
+	void	Multiply(const VxQuaternion& Quat);
+	void	FromRotation(const VxVector& Vector, float Angle);
+	void	ToRotation(VxVector& Vector, float& Angle);
+	void	FromEulerAngles(float eax, float eay, float eaz);
+	void	ToEulerAngles(float* eax, float* eay, float* eaz) const;
+	void	Normalize();
 
         const float&	operator[](int i) const;
 	float&			operator[](int i);
@@ -116,7 +116,7 @@ public:
 
 	friend float	Magnitude (const VxQuaternion& q);
 	friend float	DotProduct (const VxQuaternion& p,const VxQuaternion& q);
-} VxQuaternion;  
+};  
 
 
 inline int operator == (const VxQuaternion& q1, const VxQuaternion& q2)
