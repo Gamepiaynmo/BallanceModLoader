@@ -63,7 +63,7 @@ void BMLMod::OnLoadObject(CKSTRING filename, CKSTRING masterName, CK_CLASSID fil
 		m_customMaps = m_ingameBanner->AddRightButton("M_Enter_Custom_Maps", 0.4f, 0.6238f, [this]() {
 			m_exitStart->ActivateInput(0);
 			m_exitStart->Activate();
-			m_bml->AddTimer(1u, [this]() { ShowGui(m_mapsGui); });
+			ShowGui(m_mapsGui);
 			});
 
 		GetLogger()->Info("Create Mod Options Gui");
@@ -1107,9 +1107,11 @@ void BMLMod::ShowModOptions() {
 void BMLMod::ShowGui(BGui::Gui* gui) {
 	if (m_currentGui != nullptr)
 		CloseCurrentGui();
-	m_currentGui = gui;
-	if (gui)
-		gui->SetVisible(true);
+	m_bml->AddTimer(1u, [this, gui]() {
+		m_currentGui = gui;
+		if (gui)
+			gui->SetVisible(true);
+		});
 }
 
 void BMLMod::CloseCurrentGui() {
@@ -1203,7 +1205,7 @@ GuiModOption::GuiModOption() {
 }
 
 BGui::Button* GuiModOption::CreateButton(int index) {
-	return AddSettingButton(("M_Opt_Mods_" + std::to_string(index)).c_str(), "", 0.25f + 0.15f * index);
+	return AddSettingButton(("M_Opt_Mods_" + std::to_string(index)).c_str(), "", 0.25f + 0.13f * index);
 }
 
 std::string GuiModOption::GetButtonText(int index) {
