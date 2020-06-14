@@ -38,6 +38,11 @@ bool StartWith(const std::string& str, const std::string& start) {
 ModLoader::ModLoader() {
 	m_instance = this;
 
+	MakeSureDirectoryPathExists("..\\ModLoader\\Cache\\");
+	MakeSureDirectoryPathExists("..\\ModLoader\\Config\\");
+	MakeSureDirectoryPathExists("..\\ModLoader\\Maps\\");
+	MakeSureDirectoryPathExists("..\\ModLoader\\Mods\\");
+
 	m_logfile = fopen("..\\ModLoader\\ModLoader.log", "w");
 	m_logger = new Logger("ModLoader");
 }
@@ -56,11 +61,6 @@ void ModLoader::AddDataPath(const std::filesystem::path& path) {
 }
 
 void ModLoader::Init() {
-	MakeSureDirectoryPathExists("..\\ModLoader\\Cache\\");
-	MakeSureDirectoryPathExists("..\\ModLoader\\Config\\");
-	MakeSureDirectoryPathExists("..\\ModLoader\\Maps\\");
-	MakeSureDirectoryPathExists("..\\ModLoader\\Mods\\");
-
 	srand((UINT)time(0));
 
 #ifdef _DEBUG
