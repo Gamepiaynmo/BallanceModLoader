@@ -1,6 +1,7 @@
 // Microsoft Visual C++ generated resource script.
 //
 #include "resource.h"
+#include "Version.h"
 
 #define APSTUDIO_READONLY_SYMBOLS
 /////////////////////////////////////////////////////////////////////////////
@@ -51,8 +52,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 0,0,0,65
- PRODUCTVERSION 0,0,0,65
+ FILEVERSION BML_MAJOR_VER, BML_MINOR_VER, 0, BML_BUILD_VER
+ PRODUCTVERSION BML_MAJOR_VER, BML_MINOR_VER, 0, BML_BUILD_VER
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -69,12 +70,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Gamepiaynmo"
             VALUE "FileDescription", "Mod Loader for Ballance"
-            VALUE "FileVersion", "0.0.0.65"
+            VALUE "FileVersion", BML_RC_VERSION
             VALUE "InternalName", "BML.dll"
             VALUE "LegalCopyright", "Copyright (C) 2020"
             VALUE "OriginalFilename", "BML.dll"
             VALUE "ProductName", "Ballance Mod Loader"
-            VALUE "ProductVersion", "0.0.0.65"
+            VALUE "ProductVersion", BML_RC_VERSION
         END
     END
     BLOCK "VarFileInfo"
