@@ -222,6 +222,7 @@
     <ClCompile Include="virtools\CKParameterManager.cpp" />
     <ClCompile Include="virtools\CKParameterOperation.cpp" />
     <ClCompile Include="virtools\CKPathManager.cpp" />
+    <ClCompile Include="virtools\CKPluginManager.cpp" />
     <ClCompile Include="virtools\CKRenderContext.cpp" />
     <ClCompile Include="virtools\CKRenderManager.cpp" />
     <ClCompile Include="virtools\CKRenderObject.cpp" />
@@ -307,6 +308,7 @@
     <ClInclude Include="virtools\CKParameterManager.h" />
     <ClInclude Include="virtools\CKParameterOperation.h" />
     <ClInclude Include="virtools\CKPathManager.h" />
+    <ClInclude Include="virtools\CKPluginManager.h" />
     <ClInclude Include="virtools\CKRenderContext.h" />
     <ClInclude Include="virtools\CKRenderManager.h" />
     <ClInclude Include="virtools\CKRenderObject.h" />

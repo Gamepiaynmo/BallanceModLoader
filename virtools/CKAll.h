@@ -40,6 +40,7 @@
 #include "CKParameter.h"
 #include "CKParameterIn.h"
 #include "CKParameterOperation.h"
+#include "CKPluginManager.h"
 #include "CKRenderObject.h"
 #include "CK2dEntity.h"
 #include "CKSprite.h"

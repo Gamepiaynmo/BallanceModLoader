@@ -234,6 +234,9 @@
     <ClCompile Include="virtools\VxMatrix.cpp">
       <Filter>源文件\virtools</Filter>
     </ClCompile>
+    <ClCompile Include="virtools\CKPluginManager.cpp">
+      <Filter>源文件\virtools</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BMLAll.h">
@@ -549,6 +552,9 @@
       <Filter>头文件\implement</Filter>
     </ClInclude>
     <ClInclude Include="virtools\CKDependencies.h">
+      <Filter>头文件\virtools</Filter>
+    </ClInclude>
+    <ClInclude Include="virtools\CKPluginManager.h">
       <Filter>头文件\virtools</Filter>
     </ClInclude>
   </ItemGroup>

@@ -44,7 +44,7 @@ NAKED CKERROR CKContext::Process() {
 	JUMP(0x24035231);
 }
 
-NAKED CKERROR CKContext::Reset(CKBOOL ToLevelScene) {
+NAKED CKERROR CKContext::Reset() {
 	JUMP(0x2403532F);
 }
 

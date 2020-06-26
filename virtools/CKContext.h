@@ -33,7 +33,7 @@ public:
 	CKERROR Pause();
 	CKERROR Play();
 	CKERROR Process();
-	CKERROR Reset(CKBOOL ToLevelScene = FALSE);
+	CKERROR Reset();
 
 	CKBOOL IsInInterfaceMode();
 	CKERROR OutputToConsole(CKSTRING str, CKBOOL bBeep = TRUE);
