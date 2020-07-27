@@ -6,6 +6,13 @@ Config::Config(IMod* mod) : m_mod(mod), m_modname(mod->GetID()) {
 	Load();
 }
 
+Config::~Config() {
+	for (Category& cate : m_data) {
+		for (Property* prop : cate.props)
+			delete prop;
+	}
+}
+
 void Config::Load() {
 	std::ifstream fin("../ModLoader/Config/" + m_modname + ".cfg");
 	if (fin.fail()) return;
@@ -24,46 +31,46 @@ void Config::Load() {
 		else if (inCate) {
 			std::string propname;
 			fin >> propname;
-			Property prop(nullptr, category, propname);
+			Property* prop = new Property(nullptr, category, propname);
 			switch (token[0]) {
 				case 'S': {
 					std::string value;
 					std::getline(fin, value);
 					trim(value);
-					prop.SetDefaultString(value.c_str());
+					prop->SetDefaultString(value.c_str());
 					break;
 				}
 				case 'B': {
 					bool value;
 					fin >> value;
-					prop.SetDefaultBoolean(value);
+					prop->SetDefaultBoolean(value);
 					break;
 				}
 				case 'K': {
 					int value;
 					fin >> value;
-					prop.SetDefaultKey(CKKEYBOARD(value));
+					prop->SetDefaultKey(CKKEYBOARD(value));
 					break;
 				}
 				case 'I': {
 					int value;
 					fin >> value;
-					prop.SetDefaultInteger(value);
+					prop->SetDefaultInteger(value);
 					break;
 				}
 				case 'F': {
 					float value;
 					fin >> value;
-					prop.SetDefaultFloat(value);
+					prop->SetDefaultFloat(value);
 					break;
 				}
 			}
-			prop.SetComment(comment.c_str());
-			m_data[category].second[propname] = prop;
+			prop->SetComment(comment.c_str());
+			GetCategory(category.c_str()).props.push_back(prop);
 		}
 		else {
 			category = token;
-			m_data[token].first = comment;
+			GetCategory(category.c_str()).comment = comment;
 			comment.clear();
 		}
 	}
@@ -74,28 +81,29 @@ void Config::Save() {
 	if (fout.fail()) return;
 
 	for (auto& category : m_data) {
-		for (auto iter = category.second.second.begin(); iter != category.second.second.end(); ) {
-			if (!iter->second.m_config)
-				iter = category.second.second.erase(iter);
-			else iter++;
+		for (auto iter = category.props.begin(); iter != category.props.end(); ) {
+			if (!(*iter)->m_config) {
+				delete (*iter);
+				iter = category.props.erase(iter);
+			} else iter++;
 		}
 	}
 
 	for (auto iter = m_data.begin(); iter != m_data.end(); ) {
-		if (iter->second.second.empty())
+		if (iter->props.empty())
 			iter = m_data.erase(iter);
 		else iter++;
 	}
 
 	fout << "# Configuration File for Mod: " << m_mod->GetName() << " - " << m_mod->GetVersion() << std::endl << std::endl;
 	for (auto& category : m_data) {
-		fout << "# " << category.second.first << std::endl;
-		fout << category.first << " {" << std::endl << std::endl;
+		fout << "# " << category.comment << std::endl;
+		fout << category.name << " {" << std::endl << std::endl;
 
-		for (auto& property : category.second.second) {
-			fout << "\t# " << property.second.GetComment() << std::endl;
+		for (auto property : category.props) {
+			fout << "\t# " << property->GetComment() << std::endl;
 			fout << "\t";
-			switch (property.second.GetType()) {
+			switch (property->GetType()) {
 				case IProperty::STRING: fout << "S "; break;
 				case IProperty::BOOLEAN: fout << "B "; break;
 				case IProperty::FLOAT: fout << "F "; break;
@@ -104,14 +112,14 @@ void Config::Save() {
 				default: fout << "I "; break;
 			}
 
-			fout << property.first << " ";
-			switch (property.second.GetType()) {
-				case IProperty::STRING: fout << property.second.GetString(); break;
-				case IProperty::BOOLEAN: fout << property.second.GetBoolean(); break;
-				case IProperty::FLOAT: fout << property.second.GetFloat(); break;
-				case IProperty::KEY: fout << (int)property.second.GetKey(); break;
+			fout << property->m_key << " ";
+			switch (property->GetType()) {
+				case IProperty::STRING: fout << property->GetString(); break;
+				case IProperty::BOOLEAN: fout << property->GetBoolean(); break;
+				case IProperty::FLOAT: fout << property->GetFloat(); break;
+				case IProperty::KEY: fout << (int)property->GetKey(); break;
 				case IProperty::INTEGER:
-				default: fout << property.second.GetInteger(); break;
+				default: fout << property->GetInteger(); break;
 			}
 
 			fout << std::endl << std::endl;
@@ -122,32 +130,57 @@ void Config::Save() {
 }
 
 bool Config::HasCategory(CKSTRING category) {
-	return m_data.count(category) > 0;
+	for (Category& cate : m_data)
+		if (cate.name == category)
+			return true;
+	return false;
 }
 
 bool Config::HasKey(CKSTRING category, CKSTRING key) {
-	auto iter = m_data.find(category);
-	if (iter != m_data.end())
-		return iter->second.second.count(key) > 0;
+	if (HasCategory(category))
+		for (Property* prop : GetCategory(category).props)
+			if (prop->m_key == key)
+				return true;
 	return false;
 }
 
 IProperty* Config::GetProperty(CKSTRING category, CKSTRING key) {
-	auto& cate = m_data[category].second;
-	bool exist = cate.find(key) != cate.end();
-	Property& prop = m_data[category].second[key];
-	prop.m_config = this;
+	bool exist = HasKey(category, key);
+	Property* prop = GetCategory(category).GetProperty(key);
+	prop->m_config = this;
 	if (!exist) {
-		prop.m_type = IProperty::NONE;
-		prop.m_value.m_int = 0;
-		prop.m_category = category;
-		prop.m_key = key;
+		prop->m_type = IProperty::NONE;
+		prop->m_value.m_int = 0;
+		prop->m_category = category;
+		prop->m_key = key;
 	}
-	return &prop;
+	return prop;
+}
+
+Config::Category& Config::GetCategory(CKSTRING name) {
+	for (Category& cate : m_data)
+		if (cate.name == name)
+			return cate;
+
+	Config::Category cate;
+	cate.name = name;
+	cate.config = this;
+	m_data.push_back(cate);
+	return m_data.back();
+}
+
+Property* Config::Category::GetProperty(CKSTRING name) {
+	for (Property* prop : props)
+		if (prop->m_key == name)
+			return prop;
+
+	Property* prop = new Property(config, this->name, name);
+	props.push_back(prop);
+	return props.back();
 }
 
 void Config::SetCategoryComment(CKSTRING category, CKSTRING comment) {
-	m_data[category].first = comment;
+	GetCategory(category).comment = comment;
 }
 
 
@@ -183,7 +216,8 @@ void Property::SetString(CKSTRING value) {
 	if (m_type != STRING || m_string != value) {
 		m_string = value;
 		m_type = STRING;
-		ModLoader::m_instance->OnModifyConfig(m_config->m_mod, m_category.c_str(), m_key.c_str(), this);
+		if (m_config)
+			ModLoader::m_instance->OnModifyConfig(m_config->m_mod, m_category.c_str(), m_key.c_str(), this);
 	}
 }
 
@@ -191,7 +225,8 @@ void Property::SetBoolean(bool value) {
 	if (m_type != BOOLEAN || m_value.m_bool != value) {
 		m_value.m_bool = value;
 		m_type = BOOLEAN;
-		ModLoader::m_instance->OnModifyConfig(m_config->m_mod, m_category.c_str(), m_key.c_str(), this);
+		if (m_config)
+			ModLoader::m_instance->OnModifyConfig(m_config->m_mod, m_category.c_str(), m_key.c_str(), this);
 	}
 }
 
@@ -199,7 +234,8 @@ void Property::SetInteger(int value) {
 	if (m_type != INTEGER || m_value.m_int != value) {
 		m_value.m_int = value;
 		m_type = INTEGER;
-		ModLoader::m_instance->OnModifyConfig(m_config->m_mod, m_category.c_str(), m_key.c_str(), this);
+		if (m_config)
+			ModLoader::m_instance->OnModifyConfig(m_config->m_mod, m_category.c_str(), m_key.c_str(), this);
 	}
 }
 
@@ -207,7 +243,8 @@ void Property::SetFloat(float value) {
 	if (m_type != FLOAT || m_value.m_float != value) {
 		m_value.m_float = value;
 		m_type = FLOAT;
-		ModLoader::m_instance->OnModifyConfig(m_config->m_mod, m_category.c_str(), m_key.c_str(), this);
+		if (m_config)
+			ModLoader::m_instance->OnModifyConfig(m_config->m_mod, m_category.c_str(), m_key.c_str(), this);
 	}
 }
 
@@ -215,7 +252,8 @@ void Property::SetKey(CKKEYBOARD value) {
 	if (m_type != KEY || m_value.m_key != value) {
 		m_value.m_key = value;
 		m_type = KEY;
-		ModLoader::m_instance->OnModifyConfig(m_config->m_mod, m_category.c_str(), m_key.c_str(), this);
+		if (m_config)
+			ModLoader::m_instance->OnModifyConfig(m_config->m_mod, m_category.c_str(), m_key.c_str(), this);
 	}
 }
 
@@ -262,13 +300,13 @@ void Property::SetDefaultKey(CKKEYBOARD value) {
 	}
 }
 
-void Property::CopyValue(Property& o) {
-	m_type = o.GetType();
+void Property::CopyValue(Property* o) {
+	m_type = o->GetType();
 	switch (m_type) {
-	case INTEGER: SetInteger(o.GetInteger()); break;
-	case FLOAT: SetFloat(o.GetFloat()); break;
-	case BOOLEAN: SetBoolean(o.GetBoolean()); break;
-	case KEY: SetKey(o.GetKey()); break;
-	case STRING: SetString(o.GetString()); break;
+	case INTEGER: SetInteger(o->GetInteger()); break;
+	case FLOAT: SetFloat(o->GetFloat()); break;
+	case BOOLEAN: SetBoolean(o->GetBoolean()); break;
+	case KEY: SetKey(o->GetKey()); break;
+	case STRING: SetString(o->GetString()); break;
 	}
 }

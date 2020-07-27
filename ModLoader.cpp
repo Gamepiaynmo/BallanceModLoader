@@ -322,10 +322,12 @@ void ModLoader::PreloadMods() {
 		}
 
 		mod.handle = LoadLibrary(mod.dllPath.c_str());
-		mod.entry = reinterpret_cast<EntryFunc>(GetProcAddress(mod.handle, "BMLEntry"));
-		mod.registerBB = reinterpret_cast<RegisterBBFunc>(GetProcAddress(mod.handle, "RegisterBB"));
-		if (mod.entry || mod.registerBB)
-			m_preloadMods.push_back(mod);
+		if (mod.handle) {
+			mod.entry = reinterpret_cast<EntryFunc>(GetProcAddress(mod.handle, "BMLEntry"));
+			mod.registerBB = reinterpret_cast<RegisterBBFunc>(GetProcAddress(mod.handle, "RegisterBB"));
+			if (mod.entry || mod.registerBB)
+				m_preloadMods.push_back(mod);
+		}
 	}
 }
 

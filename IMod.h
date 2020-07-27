@@ -4,7 +4,7 @@
 #include "IBML.h"
 #include "IConfig.h"
 
-class BML_EXPORT IMod : public IMessageReciver {
+class BML_EXPORT IMod : public IMessageReceiver {
 public:
 	IMod(IBML* bml) : m_bml(bml) {};
 	virtual ~IMod();

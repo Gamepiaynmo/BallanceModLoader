@@ -7,7 +7,7 @@
 #include "Gui.h"
 #include "ICommand.h"
 
-class BML_EXPORT IMessageReciver {
+class BML_EXPORT IMessageReceiver {
 public:
 	virtual void OnPreStartMenu() {};
 	virtual void OnPostStartMenu() {};
@@ -63,7 +63,7 @@ public:
 	virtual void OnPostLifeUp() {};
 };
 
-class BML_EXPORT IBML : public IMessageReciver {
+class BML_EXPORT IBML : public IMessageReceiver {
 public:
 	virtual CKContext* GetCKContext() = 0;
 	virtual CKRenderContext* GetRenderContext() = 0;

@@ -93,7 +93,7 @@ public:
 	void Exit();
 
 private:
-	std::map<std::string, Property> m_data;
+	std::vector<Property*> m_data;
 	std::vector<std::vector<BGui::Element*>> m_elements;
 	int m_curpage, m_maxpage, m_size;
 	BGui::Button* m_left, * m_right;

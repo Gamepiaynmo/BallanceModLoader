@@ -12,6 +12,8 @@ class Config;
 
 class Property : public IProperty {
 	friend class Config;
+	friend class GuiModMenu;
+	friend class GuiModCategory;
 public:
 	Property(Config* config, std::string category, std::string key);
 	Property() {};
@@ -39,22 +41,22 @@ public:
 
 	virtual PropertyType GetType() override { return m_type; }
 
-	void CopyValue(Property& o);
+	void CopyValue(Property* o);
 
 private:
 	union {
 		bool m_bool;
-		int m_int;
+		int m_int = 0;
 		float m_float;
 		CKKEYBOARD m_key;
 	} m_value;
 	std::string m_string;
 
-	PropertyType m_type;
+	PropertyType m_type = INTEGER;
 	std::string m_comment;
 
 	std::string m_category, m_key;
-	Config* m_config;
+	Config* m_config = nullptr;
 };
 
 class Config : public IConfig {
@@ -63,12 +65,15 @@ class Config : public IConfig {
 	friend class GuiModCategory;
 public:
 	Config(IMod* mod);
+	~Config();
+
 	IMod* GetMod() { return m_mod; }
 
 	virtual bool HasCategory(CKSTRING category) override;
 	virtual bool HasKey(CKSTRING category, CKSTRING key) override;
 
 	virtual IProperty* GetProperty(CKSTRING category, CKSTRING key) override;
+
 	virtual void SetCategoryComment(CKSTRING category, CKSTRING comment) override;
 
 	void Load();
@@ -83,6 +88,17 @@ private:
 	IMod* m_mod;
 	std::string m_modname;
 
-	typedef std::map<std::string, std::pair<std::string, std::map<std::string, Property>>> ConfigData;
-	ConfigData m_data;
+	struct Category {
+		std::string name;
+		std::string comment;
+		Config* config;
+
+		std::vector<Property*> props;
+
+		Property* GetProperty(CKSTRING name);
+	};
+
+	Category& GetCategory(CKSTRING name);
+
+	std::vector<Category> m_data;
 };
