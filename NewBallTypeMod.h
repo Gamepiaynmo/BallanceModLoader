@@ -70,13 +70,14 @@ public:
 	virtual CKSTRING GetID() override { return "NewBallType"; }
 	virtual CKSTRING GetVersion() override { return BML_VERSION; }
 	virtual CKSTRING GetName() override { return "New Ball Type"; }
-	virtual CKSTRING GetAuthor() override { return "Gamepiaynmo & YingChe"; }
+	virtual CKSTRING GetAuthor() override { return "Gamepiaynmo"; }
 	virtual CKSTRING GetDescription() override { return "Implementation of registering new ball types."; }
+	DECLARE_BML_VERSION;
 
 	virtual void OnLoad() override;
-	virtual void OnLoadObject(CKSTRING filename, CKSTRING masterName, CK_CLASSID filterClass,
-		BOOL addtoscene, BOOL reuseMeshes, BOOL reuseMaterials, BOOL dynamic,
-		XObjectArray* objArray, CKObject* masterObj) override;
+	virtual void OnLoadObject(CKSTRING filename, BOOL isMap, CKSTRING masterName,
+		CK_CLASSID filterClass, BOOL addtoscene, BOOL reuseMeshes, BOOL reuseMaterials,
+		BOOL dynamic, XObjectArray* objArray, CKObject* masterObj) override;
 	virtual void OnLoadScript(CKSTRING filename, CKBehavior* script) override;
 
 	void RegisterBallType(CKSTRING ballFile, CKSTRING ballId, CKSTRING ballName, CKSTRING objName, float friction, float elasticity,

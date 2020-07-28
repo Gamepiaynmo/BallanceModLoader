@@ -20,6 +20,11 @@ class NewBallTypeMod;
 typedef IMod* (*EntryFunc)(IBML*);
 typedef void (*RegisterBBFunc)(XObjectDeclarationArray*);
 
+template<typename T>
+void* func_addr(T func) {
+	return *reinterpret_cast<void**>(&func);
+}
+
 class ModLoader : public IBML {
 	friend class BMLMod;
 	friend class CommandBML;
@@ -71,11 +76,6 @@ public:
 	void OnModifyConfig(IMod* mod, CKSTRING category, CKSTRING key, IProperty* prop) { mod->OnModifyConfig(category, key, prop); }
 	void ExecuteCommand(CKSTRING cmd);
 	std::string TabCompleteCommand(CKSTRING cmd);
-	inline void BoardcastMessage(CKSTRING msg, void (IMod::* callback)()) {
-		m_logger->Info("On Message %s", msg);
-		for (IMod* mod : m_mods)
-			(mod->*callback)();
-	}
 
 	void AddDataPath(const std::filesystem::path &path);
 	void PreloadMods();
@@ -222,6 +222,21 @@ private:
 	ICommand* FindCommand(const std::string& name);
 
 	bool m_ingame = false, m_paused = false;
+
+	std::map<void*, std::vector<IMod*>> m_callback_map;
+	void FillCallbackMap(IMod* mod);
+
+	template<typename T>
+	void BoardcastCallback(T func, std::function<void(IMod*)> callback) {
+		for (IMod* mod : m_callback_map[func_addr(func)])
+			callback(mod);
+	}
+
+	template<typename T>
+	void BoardcastMessage(CKSTRING msg, T func) {
+		m_logger->Info("On Message %s", msg);
+		BoardcastCallback(func, func);
+	}
 };
 
 class Player {

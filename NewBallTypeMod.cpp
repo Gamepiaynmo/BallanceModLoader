@@ -32,7 +32,7 @@ void NewBallTypeMod::OnLoad() {
 	}
 }
 
-void NewBallTypeMod::OnLoadObject(CKSTRING filename, CKSTRING masterName, CK_CLASSID filterClass,
+void NewBallTypeMod::OnLoadObject(CKSTRING filename, BOOL isMap, CKSTRING masterName, CK_CLASSID filterClass,
 	BOOL addtoscene, BOOL reuseMeshes, BOOL reuseMaterials, BOOL dynamic,
 	XObjectArray* objArray, CKObject* masterObj) {
 	if (!strcmp(filename, "3D Entities\\Balls.nmo"))
@@ -213,10 +213,6 @@ void NewBallTypeMod::OnLoadBalls(XObjectArray* objArray) {
 }
 
 void NewBallTypeMod::OnLoadLevelinit(XObjectArray* objArray) {
-	//CKDataArray* allLevel = m_bml->GetArrayByName("AllLevel");
-	//for (int i = 0; i < allLevel->GetRowCount(); i++)
-	//	allLevel->SetElementStringValue(i, 1, "Ball_Sticky");
-
 	CKDataArray* phGroups = m_bml->GetArrayByName("PH_Groups");
 	CKDataArray* physBalls = m_bml->GetArrayByName("Physicalize_Balls");
 	CKDataArray* physConvexs = m_bml->GetArrayByName("Physicalize_Convex");

@@ -126,8 +126,7 @@ void ModLoader::Init() {
 void ModLoader::Release() {
 	m_inited = false;
 
-	for (IMod* mod : m_instance->m_mods)
-		mod->OnUnload();
+	BoardcastMessage("OnUnload", &IMod::OnUnload);
 
 	for (Config* config : m_instance->m_configs)
 		config->Save();
@@ -223,16 +222,18 @@ CKERROR ModLoader::Step(CKDWORD result) {
 			m_ballTypeMod = new NewBallTypeMod(this);
 			m_mods.push_back(m_ballTypeMod);
 
-			for (auto& mod : m_preloadMods) {
-				if (mod.entry) {
-					m_mods.push_back(mod.entry(this));
-					if (!mod.modPath.empty())
-						AddDataPath(mod.modPath);
+			for (auto& preload : m_preloadMods) {
+				if (preload.entry) {
+					IMod* mod = preload.entry(this);
+					m_mods.push_back(mod);
+					if (!preload.modPath.empty())
+						AddDataPath(preload.modPath);
 				}
 			}
 
 			for (IMod* mod : m_instance->m_mods) {
 				m_logger->Info("Loading Mod %s[%s] v%s by %s", mod->GetID(), mod->GetName(), mod->GetVersion(), mod->GetAuthor());
+				FillCallbackMap(mod);
 				mod->OnLoad();
 			}
 
@@ -243,13 +244,14 @@ CKERROR ModLoader::Step(CKDWORD result) {
 			for (Config* config : m_instance->m_configs)
 				config->Save();
 
+			BoardcastCallback(&IMod::OnLoadObject, std::bind(&IMod::OnLoadObject, std::placeholders::_1, "base.cmo", false,
+				"", CKCID_3DOBJECT, true, true, true, false, nullptr, nullptr));
 			int scriptCnt = m_context->GetObjectsCountByClassID(CKCID_BEHAVIOR);
 			CK_ID* scripts = m_context->GetObjectsListByClassID(CKCID_BEHAVIOR);
 			for (int i = 0; i < scriptCnt; i++) {
 				CKBehavior* beh = static_cast<CKBehavior*>(m_context->GetObject(scripts[i]));
 				if (beh->GetType() == CKBEHAVIORTYPE_SCRIPT)
-					for (IMod* mod : m_instance->m_mods)
-						mod->OnLoadScript("base.cmo", beh);
+					BoardcastCallback(&IMod::OnLoadScript, std::bind(&IMod::OnLoadScript, std::placeholders::_1, "base.cmo", beh));
 			}
 		}
 
@@ -321,15 +323,13 @@ void ModLoader::Process(CKERROR result) {
 		else iter++;
 	}
 
-	for (IMod* mod : m_instance->m_mods)
-		mod->OnProcess();
+	BoardcastCallback(&IMod::OnProcess, &IMod::OnProcess);
 
 	m_inputManager->Process();
 }
 
 void ModLoader::Render(CK_RENDER_FLAGS flags, CKERROR result) {
-	for (IMod* mod : m_instance->m_mods)
-		mod->OnRender(flags);
+	BoardcastCallback(&IMod::OnRender, std::bind(&IMod::OnRender, std::placeholders::_1, flags));
 }
 
 int ModLoader::ObjectLoader(const CKBehaviorContext& behcontext) {
@@ -355,16 +355,17 @@ int ModLoader::ObjectLoader(const CKBehaviorContext& behcontext) {
 		XObjectArray* oarray = *(XObjectArray**)beh->GetOutputParameterWriteDataPtr(0);
 		CKObject* masterobject = NULL;
 		beh->GetOutputParameterObject(1);
+		BOOL isMap = !strcmp(beh->GetOwnerScript()->GetName(), "Levelinit_build");
 
-		for (IMod* mod : m_instance->m_mods)
-			mod->OnLoadObject(filename, mastername, cid, addtoscene, reuseMeshes, reuseMaterials, dynamic, oarray, masterobject);
+		m_instance->BoardcastCallback(&IMod::OnLoadObject, std::bind(&IMod::OnLoadObject, std::placeholders::_1, filename, isMap,
+			mastername, cid, addtoscene, reuseMeshes, reuseMaterials, dynamic, oarray, masterobject));
+
 		for (CK_ID* id = oarray->Begin(); id != oarray->End(); id++) {
 			CKObject* obj = m_instance->m_context->GetObject(*id);
 			if (obj->GetClassID() == CKCID_BEHAVIOR) {
 				CKBehavior* beh = static_cast<CKBehavior*>(obj);
 				if (beh->GetType() == CKBEHAVIORTYPE_SCRIPT)
-					for (IMod* mod : m_instance->m_mods)
-						mod->OnLoadScript(filename, beh);
+					m_instance->BoardcastCallback(&IMod::OnLoadScript, std::bind(&IMod::OnLoadScript, std::placeholders::_1, filename, beh));
 			}
 		}
 	}
@@ -627,8 +628,7 @@ bool ModLoader::IsCheatEnabled() {
 void ModLoader::EnableCheat(bool enable) {
 	m_cheatEnabled = enable;
 	m_bmlmod->ShowCheatBanner(enable);
-	for (IMod* mod : m_mods)
-		mod->OnCheatEnabled(enable);
+	BoardcastCallback(&IMod::OnCheatEnabled, std::bind(&IMod::OnCheatEnabled, std::placeholders::_1, enable));
 }
 
 void ModLoader::SetIC(CKBeObject* obj, bool hierarchy) {
@@ -711,4 +711,75 @@ void ModLoader::RegisterTrafo(CKSTRING modulName) {
 
 void ModLoader::RegisterModul(CKSTRING modulName) {
 	m_ballTypeMod->RegisterModul(modulName);
+}
+
+void ModLoader::FillCallbackMap(IMod* mod) {
+	static class BlankMod : IMod {
+	public:
+		BlankMod(IBML* bml) : IMod(bml) {}
+		virtual CKSTRING GetID() override { return ""; }
+		virtual CKSTRING GetVersion() override { return ""; }
+		virtual CKSTRING GetName() override { return ""; }
+		virtual CKSTRING GetAuthor() override { return ""; }
+		virtual CKSTRING GetDescription() override { return ""; }
+		DECLARE_BML_VERSION;
+	} blank(this);
+
+	void** vtable[2] = {
+		*reinterpret_cast<void***>(&blank),
+		*reinterpret_cast<void***>(mod) };
+
+	int index = 0;
+#define CHECK_V_FUNC(IDX, FUNC) { \
+	auto idx = IDX; \
+	if (vtable[0][idx] != vtable[1][idx]) \
+		m_callback_map[func_addr(FUNC)].push_back(mod); \
+}
+
+	CHECK_V_FUNC(index++, &IMessageReceiver::OnPreStartMenu);
+	CHECK_V_FUNC(index++, &IMessageReceiver::OnPostStartMenu);
+	CHECK_V_FUNC(index++, &IMessageReceiver::OnExitGame);
+	CHECK_V_FUNC(index++, &IMessageReceiver::OnPreLoadLevel);
+	CHECK_V_FUNC(index++, &IMessageReceiver::OnPostLoadLevel);
+	CHECK_V_FUNC(index++, &IMessageReceiver::OnStartLevel);
+	CHECK_V_FUNC(index++, &IMessageReceiver::OnPreResetLevel);
+	CHECK_V_FUNC(index++, &IMessageReceiver::OnPostResetLevel);
+	CHECK_V_FUNC(index++, &IMessageReceiver::OnPauseLevel);
+	CHECK_V_FUNC(index++, &IMessageReceiver::OnUnpauseLevel);
+	CHECK_V_FUNC(index++, &IMessageReceiver::OnPreExitLevel);
+	CHECK_V_FUNC(index++, &IMessageReceiver::OnPostExitLevel);
+	CHECK_V_FUNC(index++, &IMessageReceiver::OnPreNextLevel);
+	CHECK_V_FUNC(index++, &IMessageReceiver::OnPostNextLevel);
+	CHECK_V_FUNC(index++, &IMessageReceiver::OnDead);
+	CHECK_V_FUNC(index++, &IMessageReceiver::OnPreEndLevel);
+	CHECK_V_FUNC(index++, &IMessageReceiver::OnPostEndLevel);
+	CHECK_V_FUNC(index++, &IMessageReceiver::OnCounterActive);
+	CHECK_V_FUNC(index++, &IMessageReceiver::OnCounterInactive);
+	CHECK_V_FUNC(index++, &IMessageReceiver::OnBallNavActive);
+	CHECK_V_FUNC(index++, &IMessageReceiver::OnBallNavInactive);
+	CHECK_V_FUNC(index++, &IMessageReceiver::OnCamNavActive);
+	CHECK_V_FUNC(index++, &IMessageReceiver::OnCamNavInactive);
+	CHECK_V_FUNC(index++, &IMessageReceiver::OnBallOff);
+	CHECK_V_FUNC(index++, &IMessageReceiver::OnPreCheckpointReached);
+	CHECK_V_FUNC(index++, &IMessageReceiver::OnPostCheckpointReached);
+	CHECK_V_FUNC(index++, &IMessageReceiver::OnLevelFinish);
+	CHECK_V_FUNC(index++, &IMessageReceiver::OnGameOver);
+	CHECK_V_FUNC(index++, &IMessageReceiver::OnExtraPoint);
+	CHECK_V_FUNC(index++, &IMessageReceiver::OnPreSubLife);
+	CHECK_V_FUNC(index++, &IMessageReceiver::OnPostSubLife);
+	CHECK_V_FUNC(index++, &IMessageReceiver::OnPreLifeUp);
+	CHECK_V_FUNC(index++, &IMessageReceiver::OnPostLifeUp);
+
+	index += 7;
+
+	CHECK_V_FUNC(index++, &IMod::OnLoad);
+	CHECK_V_FUNC(index++, &IMod::OnUnload);
+	CHECK_V_FUNC(index++, &IMod::OnModifyConfig);
+	CHECK_V_FUNC(index++, &IMod::OnLoadObject);
+	CHECK_V_FUNC(index++, &IMod::OnLoadScript);
+	CHECK_V_FUNC(index++, &IMod::OnProcess);
+	CHECK_V_FUNC(index++, &IMod::OnRender);
+	CHECK_V_FUNC(index++, &IMod::OnCheatEnabled);
+
+#undef CHECK_V_FUNC
 }

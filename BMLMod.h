@@ -137,11 +137,12 @@ public:
 	virtual CKSTRING GetName() override { return "Ballance Mod Loader"; }
 	virtual CKSTRING GetAuthor() override { return "Gamepiaynmo & YingChe"; }
 	virtual CKSTRING GetDescription() override { return "Implementation of functions provided by Ballance Mod Loader."; }
+	DECLARE_BML_VERSION;
 
 	virtual void OnLoad() override;
-	virtual void OnLoadObject(CKSTRING filename, CKSTRING masterName, CK_CLASSID filterClass,
-		BOOL addtoscene, BOOL reuseMeshes, BOOL reuseMaterials, BOOL dynamic,
-		XObjectArray* objArray, CKObject* masterObj) override;
+	virtual void OnLoadObject(CKSTRING filename, BOOL isMap, CKSTRING masterName,
+		CK_CLASSID filterClass, BOOL addtoscene, BOOL reuseMeshes, BOOL reuseMaterials,
+		BOOL dynamic, XObjectArray* objArray, CKObject* masterObj) override;
 	virtual void OnLoadScript(CKSTRING filename, CKBehavior* script) override;
 	virtual void OnProcess() override;
 	virtual void OnCheatEnabled(bool enable) override;
