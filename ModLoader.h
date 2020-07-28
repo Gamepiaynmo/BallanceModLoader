@@ -227,15 +227,15 @@ private:
 	void FillCallbackMap(IMod* mod);
 
 	template<typename T>
-	void BoardcastCallback(T func, std::function<void(IMod*)> callback) {
+	void BroadcastCallback(T func, std::function<void(IMod*)> callback) {
 		for (IMod* mod : m_callback_map[func_addr(func)])
 			callback(mod);
 	}
 
 	template<typename T>
-	void BoardcastMessage(CKSTRING msg, T func) {
+	void BroadcastMessage(CKSTRING msg, T func) {
 		m_logger->Info("On Message %s", msg);
-		BoardcastCallback(func, func);
+		BroadcastCallback(func, func);
 	}
 };
 

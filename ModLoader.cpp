@@ -126,7 +126,7 @@ void ModLoader::Init() {
 void ModLoader::Release() {
 	m_inited = false;
 
-	BoardcastMessage("OnUnload", &IMod::OnUnload);
+	BroadcastMessage("OnUnload", &IMod::OnUnload);
 
 	for (Config* config : m_instance->m_configs)
 		config->Save();
@@ -244,14 +244,14 @@ CKERROR ModLoader::Step(CKDWORD result) {
 			for (Config* config : m_instance->m_configs)
 				config->Save();
 
-			BoardcastCallback(&IMod::OnLoadObject, std::bind(&IMod::OnLoadObject, std::placeholders::_1, "base.cmo", false,
+			BroadcastCallback(&IMod::OnLoadObject, std::bind(&IMod::OnLoadObject, std::placeholders::_1, "base.cmo", false,
 				"", CKCID_3DOBJECT, true, true, true, false, nullptr, nullptr));
 			int scriptCnt = m_context->GetObjectsCountByClassID(CKCID_BEHAVIOR);
 			CK_ID* scripts = m_context->GetObjectsListByClassID(CKCID_BEHAVIOR);
 			for (int i = 0; i < scriptCnt; i++) {
 				CKBehavior* beh = static_cast<CKBehavior*>(m_context->GetObject(scripts[i]));
 				if (beh->GetType() == CKBEHAVIORTYPE_SCRIPT)
-					BoardcastCallback(&IMod::OnLoadScript, std::bind(&IMod::OnLoadScript, std::placeholders::_1, "base.cmo", beh));
+					BroadcastCallback(&IMod::OnLoadScript, std::bind(&IMod::OnLoadScript, std::placeholders::_1, "base.cmo", beh));
 			}
 		}
 
@@ -323,13 +323,13 @@ void ModLoader::Process(CKERROR result) {
 		else iter++;
 	}
 
-	BoardcastCallback(&IMod::OnProcess, &IMod::OnProcess);
+	BroadcastCallback(&IMod::OnProcess, &IMod::OnProcess);
 
 	m_inputManager->Process();
 }
 
 void ModLoader::Render(CK_RENDER_FLAGS flags, CKERROR result) {
-	BoardcastCallback(&IMod::OnRender, std::bind(&IMod::OnRender, std::placeholders::_1, flags));
+	BroadcastCallback(&IMod::OnRender, std::bind(&IMod::OnRender, std::placeholders::_1, flags));
 }
 
 int ModLoader::ObjectLoader(const CKBehaviorContext& behcontext) {
@@ -357,7 +357,7 @@ int ModLoader::ObjectLoader(const CKBehaviorContext& behcontext) {
 		beh->GetOutputParameterObject(1);
 		BOOL isMap = !strcmp(beh->GetOwnerScript()->GetName(), "Levelinit_build");
 
-		m_instance->BoardcastCallback(&IMod::OnLoadObject, std::bind(&IMod::OnLoadObject, std::placeholders::_1, filename, isMap,
+		m_instance->BroadcastCallback(&IMod::OnLoadObject, std::bind(&IMod::OnLoadObject, std::placeholders::_1, filename, isMap,
 			mastername, cid, addtoscene, reuseMeshes, reuseMaterials, dynamic, oarray, masterobject));
 
 		for (CK_ID* id = oarray->Begin(); id != oarray->End(); id++) {
@@ -365,7 +365,7 @@ int ModLoader::ObjectLoader(const CKBehaviorContext& behcontext) {
 			if (obj->GetClassID() == CKCID_BEHAVIOR) {
 				CKBehavior* beh = static_cast<CKBehavior*>(obj);
 				if (beh->GetType() == CKBEHAVIORTYPE_SCRIPT)
-					m_instance->BoardcastCallback(&IMod::OnLoadScript, std::bind(&IMod::OnLoadScript, std::placeholders::_1, filename, beh));
+					m_instance->BroadcastCallback(&IMod::OnLoadScript, std::bind(&IMod::OnLoadScript, std::placeholders::_1, filename, beh));
 			}
 		}
 	}
@@ -395,142 +395,142 @@ void ModLoader::OpenModsMenu() {
 }
 
 void ModLoader::OnPreStartMenu() {
-	BoardcastMessage("PreStartMenu", &IMod::OnPreStartMenu);
+	BroadcastMessage("PreStartMenu", &IMod::OnPreStartMenu);
 }
 
 void ModLoader::OnPostStartMenu() {
-	BoardcastMessage("PostStartMenu", &IMod::OnPostStartMenu);
+	BroadcastMessage("PostStartMenu", &IMod::OnPostStartMenu);
 }
 
 void ModLoader::OnExitGame() {
-	BoardcastMessage("ExitGame", &IMod::OnExitGame);
+	BroadcastMessage("ExitGame", &IMod::OnExitGame);
 }
 
 void ModLoader::OnPreLoadLevel() {
-	BoardcastMessage("PreLoadLevel", &IMod::OnPreLoadLevel);
+	BroadcastMessage("PreLoadLevel", &IMod::OnPreLoadLevel);
 }
 
 void ModLoader::OnPostLoadLevel() {
-	BoardcastMessage("PostLoadLevel", &IMod::OnPostLoadLevel);
+	BroadcastMessage("PostLoadLevel", &IMod::OnPostLoadLevel);
 }
 
 void ModLoader::OnStartLevel() {
-	BoardcastMessage("StartLevel", &IMod::OnStartLevel);
+	BroadcastMessage("StartLevel", &IMod::OnStartLevel);
 	m_ingame = true;
 	m_paused = false;
 }
 
 void ModLoader::OnPreResetLevel() {
-	BoardcastMessage("PreResetLevel", &IMod::OnPreResetLevel);
+	BroadcastMessage("PreResetLevel", &IMod::OnPreResetLevel);
 }
 
 void ModLoader::OnPostResetLevel() {
-	BoardcastMessage("PostResetLevel", &IMod::OnPostResetLevel);
+	BroadcastMessage("PostResetLevel", &IMod::OnPostResetLevel);
 }
 
 void ModLoader::OnPauseLevel() {
-	BoardcastMessage("PauseLevel", &IMod::OnPauseLevel);
+	BroadcastMessage("PauseLevel", &IMod::OnPauseLevel);
 	m_paused = true;
 }
 
 void ModLoader::OnUnpauseLevel() {
-	BoardcastMessage("UnpauseLevel", &IMod::OnUnpauseLevel);
+	BroadcastMessage("UnpauseLevel", &IMod::OnUnpauseLevel);
 	m_paused = false;
 }
 
 void ModLoader::OnPreExitLevel() {
-	BoardcastMessage("PreExitLevel", &IMod::OnPreExitLevel);
+	BroadcastMessage("PreExitLevel", &IMod::OnPreExitLevel);
 }
 
 void ModLoader::OnPostExitLevel() {
-	BoardcastMessage("PostExitLevel", &IMod::OnPostExitLevel);
+	BroadcastMessage("PostExitLevel", &IMod::OnPostExitLevel);
 	m_ingame = false;
 }
 
 void ModLoader::OnPreNextLevel() {
-	BoardcastMessage("PreNextLevel", &IMod::OnPreNextLevel);
+	BroadcastMessage("PreNextLevel", &IMod::OnPreNextLevel);
 }
 
 void ModLoader::OnPostNextLevel() {
-	BoardcastMessage("PostNextLevel", &IMod::OnPostNextLevel);
+	BroadcastMessage("PostNextLevel", &IMod::OnPostNextLevel);
 }
 
 void ModLoader::OnDead() {
-	BoardcastMessage("Dead", &IMod::OnDead);
+	BroadcastMessage("Dead", &IMod::OnDead);
 	m_ingame = false;
 }
 
 void ModLoader::OnPreEndLevel() {
-	BoardcastMessage("PreEndLevel", &IMod::OnPreEndLevel);
+	BroadcastMessage("PreEndLevel", &IMod::OnPreEndLevel);
 }
 
 void ModLoader::OnPostEndLevel() {
-	BoardcastMessage("PostEndLevel", &IMod::OnPostEndLevel);
+	BroadcastMessage("PostEndLevel", &IMod::OnPostEndLevel);
 	m_ingame = false;
 }
 
 void ModLoader::OnCounterActive() {
-	BoardcastMessage("CounterActive", &IMod::OnCounterActive);
+	BroadcastMessage("CounterActive", &IMod::OnCounterActive);
 }
 
 void ModLoader::OnCounterInactive() {
-	BoardcastMessage("CounterInactive", &IMod::OnCounterInactive);
+	BroadcastMessage("CounterInactive", &IMod::OnCounterInactive);
 }
 
 void ModLoader::OnBallNavActive() {
-	BoardcastMessage("BallNavActive", &IMod::OnBallNavActive);
+	BroadcastMessage("BallNavActive", &IMod::OnBallNavActive);
 }
 
 void ModLoader::OnBallNavInactive() {
-	BoardcastMessage("BallNavInactive", &IMod::OnBallNavInactive);
+	BroadcastMessage("BallNavInactive", &IMod::OnBallNavInactive);
 }
 
 void ModLoader::OnCamNavActive() {
-	BoardcastMessage("CamNavActive", &IMod::OnCamNavActive);
+	BroadcastMessage("CamNavActive", &IMod::OnCamNavActive);
 }
 
 void ModLoader::OnCamNavInactive() {
-	BoardcastMessage("CamNavInactive", &IMod::OnCamNavInactive);
+	BroadcastMessage("CamNavInactive", &IMod::OnCamNavInactive);
 }
 
 void ModLoader::OnBallOff() {
-	BoardcastMessage("BallOff", &IMod::OnBallOff);
+	BroadcastMessage("BallOff", &IMod::OnBallOff);
 }
 
 void ModLoader::OnPreCheckpointReached() {
-	BoardcastMessage("PreCheckpoint", &IMod::OnPreCheckpointReached);
+	BroadcastMessage("PreCheckpoint", &IMod::OnPreCheckpointReached);
 }
 
 void ModLoader::OnPostCheckpointReached() {
-	BoardcastMessage("PostCheckpoint", &IMod::OnPostCheckpointReached);
+	BroadcastMessage("PostCheckpoint", &IMod::OnPostCheckpointReached);
 }
 
 void ModLoader::OnLevelFinish() {
-	BoardcastMessage("LevelFinish", &IMod::OnLevelFinish);
+	BroadcastMessage("LevelFinish", &IMod::OnLevelFinish);
 }
 
 void ModLoader::OnGameOver() {
-	BoardcastMessage("GameOver", &IMod::OnGameOver);
+	BroadcastMessage("GameOver", &IMod::OnGameOver);
 }
 
 void ModLoader::OnExtraPoint() {
-	BoardcastMessage("ExtraPoint", &IMod::OnExtraPoint);
+	BroadcastMessage("ExtraPoint", &IMod::OnExtraPoint);
 }
 
 void ModLoader::OnPreSubLife() {
-	BoardcastMessage("PreSubLife", &IMod::OnPreSubLife);
+	BroadcastMessage("PreSubLife", &IMod::OnPreSubLife);
 }
 
 void ModLoader::OnPostSubLife() {
-	BoardcastMessage("PostSubLife", &IMod::OnPostSubLife);
+	BroadcastMessage("PostSubLife", &IMod::OnPostSubLife);
 }
 
 void ModLoader::OnPreLifeUp() {
-	BoardcastMessage("PreLifeUp", &IMod::OnPreLifeUp);
+	BroadcastMessage("PreLifeUp", &IMod::OnPreLifeUp);
 }
 
 void ModLoader::OnPostLifeUp() {
-	BoardcastMessage("PostLifeUp", &IMod::OnPostLifeUp);
+	BroadcastMessage("PostLifeUp", &IMod::OnPostLifeUp);
 }
 
 void ModLoader::AddTimer(CKDWORD delay, std::function<void()> callback) {
@@ -628,7 +628,7 @@ bool ModLoader::IsCheatEnabled() {
 void ModLoader::EnableCheat(bool enable) {
 	m_cheatEnabled = enable;
 	m_bmlmod->ShowCheatBanner(enable);
-	BoardcastCallback(&IMod::OnCheatEnabled, std::bind(&IMod::OnCheatEnabled, std::placeholders::_1, enable));
+	BroadcastCallback(&IMod::OnCheatEnabled, std::bind(&IMod::OnCheatEnabled, std::placeholders::_1, enable));
 }
 
 void ModLoader::SetIC(CKBeObject* obj, bool hierarchy) {
