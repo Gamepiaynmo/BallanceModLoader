@@ -1271,18 +1271,14 @@ GuiCustomMap::GuiCustomMap(BMLMod* mod) : GuiList(), m_mod(mod) {
 	m_right->SetPosition(Vx2DVector(0.6238f, 0.4f));
 
 	AddTextLabel("M_Opt_Mods_Title", "Custom Maps", ExecuteBB::GAMEFONT_02, 0.35f, 0.07f, 0.3f, 0.1f);
-	WIN32_FIND_DATA findData;
-	HANDLE hFind = FindFirstFile("..\\ModLoader\\Maps\\*.nmo", &findData);
-	if (hFind != INVALID_HANDLE_VALUE) {
-		do {
-			for (int i = strlen(findData.cFileName) - 1; i >= 0; i--) {
-				if (findData.cFileName[i] == '.') {
-					findData.cFileName[i] = '\0';
-					break;
-				}
+	for (auto& f : std::filesystem::recursive_directory_iterator("..\\ModLoader\\Maps")) {
+		if (f.status().type() == std::filesystem::file_type::regular) {
+			std::string filename = f.path().filename().string();
+			std::transform(filename.begin(), filename.end(), filename.begin(), tolower);
+			if (std::filesystem::path(filename).extension() == ".nmo") {
+				m_maps.push_back({ f.path().filename().string(), Text2Pinyin(filename) });
 			}
-			m_maps.push_back({ findData.cFileName, Text2Pinyin(findData.cFileName) });
-		} while (FindNextFileA(hFind, &findData));
+		}
 	}
 
 	m_exit = AddLeftButton("M_Exit_Custom_Maps", 0.4f, 0.34f, [this]() {
@@ -1316,7 +1312,7 @@ BGui::Button* GuiCustomMap::CreateButton(int index) {
 	m_texts.push_back(AddText(("M_Opt_ModMenu_" + std::to_string(index)).c_str(), "", 0.44f, 0.23f + 0.06f * index, 0.3f, 0.05f));
 	return AddLevelButton(("M_Opt_ModMenu_" + std::to_string(index)).c_str(), "", 0.23f + 0.06f * index, 0.4031f, [this, index]() {
 		GuiList::Exit();
-		SetParamString(m_mod->m_mapFile, ("..\\ModLoader\\Maps\\" + m_searchRes[m_curpage * m_maxsize + index] + ".NMO").c_str());
+		SetParamString(m_mod->m_mapFile, ("..\\ModLoader\\Maps\\" + m_searchRes[m_curpage * m_maxsize + index]).c_str());
 		SetParamValue(m_mod->m_loadCustom, TRUE);
 		int level = rand() % 10 + 2;
 		m_mod->m_curLevel->SetElementValue(0, 0, &level);

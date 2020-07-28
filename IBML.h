@@ -115,4 +115,14 @@ public:
 	virtual CKSound* GetSoundByName(CKSTRING name) = 0;
 	virtual CKTexture* GetTextureByName(CKSTRING name) = 0;
 	virtual CKBehavior* GetScriptByName(CKSTRING name) = 0;
+
+	virtual void RegisterBallType(CKSTRING ballFile, CKSTRING ballId, CKSTRING ballName, CKSTRING objName, float friction, float elasticity,
+		float mass, CKSTRING collGroup, float linearDamp, float rotDamp, float force, float radius) = 0;
+	virtual void RegisterFloorType(CKSTRING floorName, float friction, float elasticity, float mass, CKSTRING collGroup, bool enableColl) = 0;
+	virtual void RegisterModulBall(CKSTRING modulName, bool fixed, float friction, float elasticity, float mass, CKSTRING collGroup,
+		bool frozen, bool enableColl, bool calcMassCenter, float linearDamp, float rotDamp, float radius) = 0;
+	virtual void RegisterModulConvex(CKSTRING modulName, bool fixed, float friction, float elasticity, float mass, CKSTRING collGroup,
+		bool frozen, bool enableColl, bool calcMassCenter, float linearDamp, float rotDamp) = 0;
+	virtual void RegisterTrafo(CKSTRING modulName) = 0;
+	virtual void RegisterModul(CKSTRING modulName) = 0;
 };

@@ -3,7 +3,6 @@
 #include <iostream>
 #include "BMLMod.h"
 #include "ExecuteBB.h"
-#include <ImageHlp.h>
 #include <ctime>
 #include "NewBallTypeMod.h"
 #include "Logger.h"
@@ -38,10 +37,10 @@ bool StartWith(const std::string& str, const std::string& start) {
 ModLoader::ModLoader() {
 	m_instance = this;
 
-	MakeSureDirectoryPathExists("..\\ModLoader\\Cache\\");
-	MakeSureDirectoryPathExists("..\\ModLoader\\Config\\");
-	MakeSureDirectoryPathExists("..\\ModLoader\\Maps\\");
-	MakeSureDirectoryPathExists("..\\ModLoader\\Mods\\");
+	std::filesystem::create_directories("..\\ModLoader\\Cache\\");
+	std::filesystem::create_directories("..\\ModLoader\\Config\\");
+	std::filesystem::create_directories("..\\ModLoader\\Maps\\");
+	std::filesystem::create_directories("..\\ModLoader\\Mods\\");
 
 	m_logfile = fopen("..\\ModLoader\\ModLoader.log", "w");
 	m_logger = new Logger("ModLoader");
@@ -231,29 +230,6 @@ CKERROR ModLoader::Step(CKDWORD result) {
 						AddDataPath(mod.modPath);
 				}
 			}
-
-/*
-#ifdef _DEBUG
-			class TestMod : public IMod {
-			public:
-				TestMod(IBML* bml, int id) : IMod(bml), m_id(id) {
-					m_modid = "mod" + std::to_string(m_id);
-					m_name = "Mod #" + std::to_string(m_id);
-				}
-				virtual CKSTRING GetID() override { return m_modid.c_str(); }
-				virtual CKSTRING GetVersion() override { return "1.0"; }
-				virtual CKSTRING GetName() override { return m_name.c_str(); }
-				virtual CKSTRING GetAuthor() override { return "Gamepiaynmo"; }
-				virtual CKSTRING GetDescription() override { return "Test Mod Description"; }
-			private:
-				int m_id;
-				std::string m_modid, m_name;
-			};
-
-			for (int i = 1; i < 10; i++)
-				m_mods.push_back(new TestMod(this, i));
-#endif
-*/
 
 			for (IMod* mod : m_instance->m_mods) {
 				m_logger->Info("Loading Mod %s[%s] v%s by %s", mod->GetID(), mod->GetName(), mod->GetVersion(), mod->GetAuthor());
@@ -705,4 +681,34 @@ void ModLoader::Show(CKBeObject* obj, CK_OBJECT_SHOWOPTION show, bool hierarchy)
 				Show(entity->GetChild(i), show, true);
 		}
 	}
+}
+
+void ModLoader::RegisterBallType(CKSTRING ballFile, CKSTRING ballId, CKSTRING ballName, CKSTRING objName, float friction, float elasticity,
+	float mass, CKSTRING collGroup, float linearDamp, float rotDamp, float force, float radius) {
+	m_ballTypeMod->RegisterBallType(ballFile, ballId, ballName, objName, friction, elasticity,
+		mass, collGroup, linearDamp, rotDamp, force, radius);
+}
+
+void ModLoader::RegisterFloorType(CKSTRING floorName, float friction, float elasticity, float mass, CKSTRING collGroup, bool enableColl) {
+	m_ballTypeMod->RegisterFloorType(floorName, friction, elasticity, mass, collGroup, enableColl);
+}
+
+void ModLoader::RegisterModulBall(CKSTRING modulName, bool fixed, float friction, float elasticity, float mass, CKSTRING collGroup,
+	bool frozen, bool enableColl, bool calcMassCenter, float linearDamp, float rotDamp, float radius) {
+	m_ballTypeMod->RegisterModulBall(modulName, fixed, friction, elasticity, mass, collGroup,
+		frozen, enableColl, calcMassCenter, linearDamp, rotDamp, radius);
+}
+
+void ModLoader::RegisterModulConvex(CKSTRING modulName, bool fixed, float friction, float elasticity, float mass, CKSTRING collGroup,
+	bool frozen, bool enableColl, bool calcMassCenter, float linearDamp, float rotDamp) {
+	m_ballTypeMod->RegisterModulConvex(modulName, fixed, friction, elasticity, mass, collGroup,
+		frozen, enableColl, calcMassCenter, linearDamp, rotDamp);
+}
+
+void ModLoader::RegisterTrafo(CKSTRING modulName) {
+	m_ballTypeMod->RegisterTrafo(modulName);
+}
+
+void ModLoader::RegisterModul(CKSTRING modulName) {
+	m_ballTypeMod->RegisterModul(modulName);
 }

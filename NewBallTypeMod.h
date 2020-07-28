@@ -78,7 +78,6 @@ public:
 		BOOL addtoscene, BOOL reuseMeshes, BOOL reuseMaterials, BOOL dynamic,
 		XObjectArray* objArray, CKObject* masterObj) override;
 	virtual void OnLoadScript(CKSTRING filename, CKBehavior* script) override;
-	virtual void OnProcess() override;
 
 	void RegisterBallType(CKSTRING ballFile, CKSTRING ballId, CKSTRING ballName, CKSTRING objName, float friction, float elasticity,
 		float mass, CKSTRING collGroup, float linearDamp, float rotDamp, float force, float radius);
@@ -97,11 +96,6 @@ private:
 	void OnLoadLevelinit(XObjectArray* objArray);
 	void OnLoadSounds(XObjectArray* objArray);
 
-	CK3dEntity* m_ballRef[2] = { 0 };
-	CK3dEntity* m_camTarget = nullptr;
-	CKDataArray* m_curLevel = nullptr;
-	float m_stickyImpulse;
-	CKParameter* m_stickyForce[2];
 	void OnEditScript_Gameplay_Ingame(CKBehavior* script);
 	void OnEditScript_Base_EventHandler(CKBehavior* script);
 	void OnEditScript_PhysicalizeNewBall(CKBehavior* graph);

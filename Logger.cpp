@@ -31,7 +31,7 @@ void Logger::Log(const char* level, const char* fmt, va_list args) {
 	GetLocalTime(&sys);
 
 	FILE* out_files[] = {
-#if _DEBUG
+#ifdef _DEBUG
 		stdout,
 #endif
 		ModLoader::m_instance->GetLogFile()

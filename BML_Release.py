@@ -9,11 +9,8 @@ with open('BuildVer.h', 'r') as fin:
 
 shutil.rmtree('..\\dist', True)
 
-dist_dir = '..\\dist\\BML-' + str(version[0]) + '.' + str(version[1]) + '-dist'
+dist_dir = '..\\dist\\BML-' + str(version[0]) + '.' + str(version[1]) + '.' + str(version[2]) + '-dist'
 os.makedirs(dist_dir)
-
-os.mkdir(dist_dir + '\\bin')
-shutil.copy('D:\\Program Files (x86)\\Ballance\\BuildingBlocks\\BML.dll', dist_dir + '\\bin')
 
 os.makedirs(dist_dir + '\\include\\BML')
 shutil.copy('BMLAll.h', dist_dir + '\\include\\BML')
@@ -31,7 +28,13 @@ shutil.copy('ScriptHelper.h', dist_dir + '\\include\\BML')
 shutil.copy('Version.h', dist_dir + '\\include\\BML')
 shutil.copytree('virtools', dist_dir + '\\include\\BML\\virtools', ignore = shutil.ignore_patterns('*.cpp'))
 
+os.mkdir(dist_dir + '\\bin')
 os.mkdir(dist_dir + '\\lib')
+
+shutil.copy('D:\\Program Files (x86)\\Ballance\\BuildingBlocks\\BML.dll', dist_dir + '\\bin')
 shutil.copy('D:\\Program Files (x86)\\Ballance\\BuildingBlocks\\BML.lib', dist_dir + '\\lib')
+
+shutil.copy('Debug\\BML.dll', dist_dir + '\\bin\\BMLd.dll')
+shutil.copy('Debug\\BML.lib', dist_dir + '\\lib\\BMLd.lib')
 
 shutil.make_archive(dist_dir, 'zip', dist_dir)

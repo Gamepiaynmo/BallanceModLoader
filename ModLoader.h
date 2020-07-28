@@ -136,34 +136,44 @@ public:
 	virtual bool IsPaused() override { return m_paused; }
 	virtual bool IsPlaying() override { return m_ingame && !m_paused; }
 
-	virtual CKDataArray* GetArrayByName(CKSTRING name) {
+	virtual CKDataArray* GetArrayByName(CKSTRING name) override {
 		return static_cast<CKDataArray*>(m_context->GetObjectByNameAndClass(name, CKCID_DATAARRAY)); }
-	virtual CKGroup* GetGroupByName(CKSTRING name) {
+	virtual CKGroup* GetGroupByName(CKSTRING name) override {
 		return static_cast<CKGroup*>(m_context->GetObjectByNameAndClass(name, CKCID_GROUP)); }
-	virtual CKMaterial* GetMaterialByName(CKSTRING name) {
+	virtual CKMaterial* GetMaterialByName(CKSTRING name) override {
 		return static_cast<CKMaterial*>(m_context->GetObjectByNameAndClass(name, CKCID_MATERIAL)); }
-	virtual CKMesh* GetMeshByName(CKSTRING name) {
+	virtual CKMesh* GetMeshByName(CKSTRING name) override {
 		return static_cast<CKMesh*>(m_context->GetObjectByNameAndClass(name, CKCID_MESH)); }
-	virtual CK2dEntity* Get2dEntityByName(CKSTRING name) {
+	virtual CK2dEntity* Get2dEntityByName(CKSTRING name) override {
 		return static_cast<CK2dEntity*>(m_context->GetObjectByNameAndClass(name, CKCID_2DENTITY)); }
-	virtual CK3dEntity* Get3dEntityByName(CKSTRING name) {
+	virtual CK3dEntity* Get3dEntityByName(CKSTRING name) override {
 		return static_cast<CK3dEntity*>(m_context->GetObjectByNameAndClass(name, CKCID_3DENTITY)); }
-	virtual CK3dObject* Get3dObjectByName(CKSTRING name) {
+	virtual CK3dObject* Get3dObjectByName(CKSTRING name) override {
 		return static_cast<CK3dObject*>(m_context->GetObjectByNameAndClass(name, CKCID_3DOBJECT)); }
-	virtual CKCamera* GetCameraByName(CKSTRING name) {
+	virtual CKCamera* GetCameraByName(CKSTRING name) override {
 		return static_cast<CKCamera*>(m_context->GetObjectByNameAndClass(name, CKCID_CAMERA)); }
-	virtual CKTargetCamera* GetTargetCameraByName(CKSTRING name) {
+	virtual CKTargetCamera* GetTargetCameraByName(CKSTRING name) override {
 		return static_cast<CKTargetCamera*>(m_context->GetObjectByNameAndClass(name, CKCID_TARGETCAMERA)); }
-	virtual CKLight* GetLightByName(CKSTRING name) {
+	virtual CKLight* GetLightByName(CKSTRING name) override {
 		return static_cast<CKLight*>(m_context->GetObjectByNameAndClass(name, CKCID_LIGHT)); }
-	virtual CKTargetLight* GetTargetLightByName(CKSTRING name) {
+	virtual CKTargetLight* GetTargetLightByName(CKSTRING name) override {
 		return static_cast<CKTargetLight*>(m_context->GetObjectByNameAndClass(name, CKCID_TARGETLIGHT)); }
-	virtual CKSound* GetSoundByName(CKSTRING name) {
+	virtual CKSound* GetSoundByName(CKSTRING name) override {
 		return static_cast<CKSound*>(m_context->GetObjectByNameAndClass(name, CKCID_SOUND)); }
-	virtual CKTexture* GetTextureByName(CKSTRING name) {
+	virtual CKTexture* GetTextureByName(CKSTRING name) override {
 		return static_cast<CKTexture*>(m_context->GetObjectByNameAndClass(name, CKCID_TEXTURE)); }
-	virtual CKBehavior* GetScriptByName(CKSTRING name) {
+	virtual CKBehavior* GetScriptByName(CKSTRING name) override {
 		return static_cast<CKBehavior*>(m_context->GetObjectByNameAndClass(name, CKCID_BEHAVIOR)); }
+
+	virtual void RegisterBallType(CKSTRING ballFile, CKSTRING ballId, CKSTRING ballName, CKSTRING objName, float friction, float elasticity,
+		float mass, CKSTRING collGroup, float linearDamp, float rotDamp, float force, float radius) override;
+	virtual void RegisterFloorType(CKSTRING floorName, float friction, float elasticity, float mass, CKSTRING collGroup, bool enableColl) override;
+	virtual void RegisterModulBall(CKSTRING modulName, bool fixed, float friction, float elasticity, float mass, CKSTRING collGroup,
+		bool frozen, bool enableColl, bool calcMassCenter, float linearDamp, float rotDamp, float radius) override;
+	virtual void RegisterModulConvex(CKSTRING modulName, bool fixed, float friction, float elasticity, float mass, CKSTRING collGroup,
+		bool frozen, bool enableColl, bool calcMassCenter, float linearDamp, float rotDamp) override;
+	virtual void RegisterTrafo(CKSTRING modulName) override;
+	virtual void RegisterModul(CKSTRING modulName) override;
 
 private:
 	bool m_inited = false;
