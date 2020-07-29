@@ -200,11 +200,11 @@ void BMLMod::OnEditScript_Base_EventHandler(CKBehavior* script) {
 
 	GetLogger()->Info("Insert message Exit Level Hook");
 	InsertBB(script, FindNextLink(script, FindNextBB(script, som, nullptr, 7, 0)), CreateBB(script, BML_ONPREEXITLEVEL_GUID));
-	CreateLink(script, FindEndOfChain(script, FindNextBB(script, bs, nullptr, 0, 0)), CreateBB(script, BML_ONPOSTEXITLEVEL_GUID));
+	InsertBB(script, FindNextLink(script, FindNextBB(script, bs, nullptr, 0, 0)), CreateBB(script, BML_ONPOSTEXITLEVEL_GUID));
 
 	GetLogger()->Info("Insert message Next Level Hook");
 	InsertBB(script, FindNextLink(script, FindNextBB(script, som, nullptr, 8, 0)), CreateBB(script, BML_ONPRENEXTLEVEL_GUID));
-	CreateLink(script, FindEndOfChain(script, FindNextBB(script, bs, nullptr, 1, 0)), CreateBB(script, BML_ONPOSTNEXTLEVEL_GUID));
+	InsertBB(script, FindNextLink(script, FindNextBB(script, bs, nullptr, 1, 0)), CreateBB(script, BML_ONPOSTNEXTLEVEL_GUID));
 
 	GetLogger()->Info("Insert message Dead Hook");
 	CreateLink(script, FindEndOfChain(script, FindNextBB(script, som, nullptr, 9, 0)), CreateBB(script, BML_ONDEAD_GUID));
@@ -1291,8 +1291,11 @@ GuiCustomMap::GuiCustomMap(BMLMod* mod) : GuiList(), m_mod(mod) {
 	AddPanel("M_Map_Search_Bg", VxColor(0, 0, 0, 110), 0.4f, 0.18f, 0.2f, 0.03f);
 	m_searchBar = AddTextInput("M_Search_Map", ExecuteBB::GAMEFONT_03, 0.4f, 0.18f, 0.2f, 0.03f, [this](CKDWORD) {
 		m_searchRes.clear();
+		std::string text = m_searchBar->GetText();
+		std::transform(text.begin(), text.end(), text.begin(), tolower);
+
 		for (auto& p : m_maps) {
-			if (m_searchBar->GetText()[0] == 0 || p.second.find(m_searchBar->GetText()) != std::string::npos) {
+			if (text.length() == 0 || p.second.find(text) != std::string::npos) {
 				m_searchRes.push_back(p.first);
 			}
 		}

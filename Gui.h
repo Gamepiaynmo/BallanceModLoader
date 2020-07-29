@@ -166,7 +166,7 @@ namespace BGui {
 		std::function<void()> m_keycb;
 	};
 
-	class Gui {
+	class BML_EXPORT Gui {
 	public:
 		Gui();
 
@@ -216,9 +216,7 @@ namespace BGui {
 	};
 }
 
-#pragma warning(pop)
-
-class InputHook : public CKInputManager {
+class BML_EXPORT InputHook : public CKInputManager {
 public:
 	CKBOOL IsKeyDown(CKDWORD iKey, CKDWORD* oStamp = NULL);
 	CKBOOL IsKeyUp(CKDWORD iKey);
@@ -265,15 +263,20 @@ public:
 private:
 	static bool m_block;
 
-	static IsKeyDownFunc mIsKeyDown, mIsKeyToggled;
+	static IsKeyDownFunc mIsKeyDown;
+	static IsKeyDownFunc mIsKeyToggled;
 	static IsKeyUpFunc mIsKeyUp;
 	static GetKeyboardStateFunc mGetKeyboardState;
 	static GetNumberOfKeyInBufferFunc mGetNumberOfKeyInBuffer;
 	static GetKeyFromBufferFunc mGetKeyFromBuffer;
-	static IsMouseDownFunc mIsMouseButtonDown, mIsMouseClicked, mIsMouseToggled;
+	static IsMouseDownFunc mIsMouseButtonDown;
+	static IsMouseDownFunc mIsMouseClicked;
+	static IsMouseDownFunc mIsMouseToggled;
 	static GetMouseButtonsStateFunc mGetMouseButtonsState;
 
 	static unsigned char m_keyboardState[256];
 	static unsigned char m_lastKeyboard[256];
 	static Vx2DVector m_lastMousePosition;
 };
+
+#pragma warning(pop)
