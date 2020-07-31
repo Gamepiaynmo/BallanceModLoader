@@ -6,7 +6,7 @@ If you play Minecraft and have heard of Forge, then you would easily understand 
 
 Ballance Mod Loader is a free, open-source modding API used to extend the content of original Ballance game.
 
-For more information, please read [The Wiki](wiki).
+For more information, please read [The Wiki](https://github.com/Gamepiaynmo/BallanceModLoader/wiki).
 
 ### Installing
 
