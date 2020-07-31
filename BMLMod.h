@@ -193,7 +193,7 @@ private:
 	} m_msg[MSG_MAXSIZE];
 
 	BGui::Gui* m_ingameBanner = nullptr;
-	BGui::Label* m_cheat[3], * m_fps, * m_srScore, * m_srTitle = nullptr;
+	BGui::Label* m_cheat, * m_fps, * m_srScore, * m_srTitle = nullptr;
 	int m_fpscnt = 0, m_fpstimer = 0;
 	float m_srtimer = 0.0f;
 	bool m_sractive = false;
@@ -204,6 +204,8 @@ private:
 	IProperty* m_skipAnim;
 	IProperty* m_fullscreenKey;
 	IProperty* m_unlockRes;
+	IProperty* m_showFPS;
+	IProperty* m_showSR;
 
 	IProperty* m_ballCheat[2];
 	IProperty* m_suicide;

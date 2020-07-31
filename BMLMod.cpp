@@ -47,19 +47,19 @@ void BMLMod::OnLoadObject(CKSTRING filename, BOOL isMap, CKSTRING masterName, CK
 		GetLogger()->Info("Create BML Gui");
 		m_ingameBanner = new BGui::Gui();
 		m_ingameBanner->AddTextLabel("M_Use_BML", "Ballance Mod Loader " BML_VERSION, ExecuteBB::GAMEFONT_01, 0, 0, 1, 0.03f);
-		m_cheat[0] = m_ingameBanner->AddTextLabel("M_Use_Cheat", "Cheat Mode Enabled", ExecuteBB::GAMEFONT_03, 0, 0.9f, 1, 0.03f);
-		m_cheat[1] = m_ingameBanner->AddTextLabel("M_Use_Cheat", "Cheat Mode Enabled", ExecuteBB::GAMEFONT_03A, 0.001f, 0.901f, 1, 0.03f);
-		m_cheat[2] = m_ingameBanner->AddTextLabel("M_Use_Cheat", "Cheat Mode Enabled", ExecuteBB::GAMEFONT_03A, 0.002f, 0.902f, 1, 0.03f);
+		m_cheat = m_ingameBanner->AddTextLabel("M_Use_Cheat", "Cheat Mode Enabled", ExecuteBB::GAMEFONT_01, 0, 0.85f, 1, 0.05f);
+		//m_cheat[1] = m_ingameBanner->AddTextLabel("M_Use_Cheat", "Cheat Mode Enabled", ExecuteBB::GAMEFONT_03A, 0.001f, 0.901f, 1, 0.03f);
+		//m_cheat[2] = m_ingameBanner->AddTextLabel("M_Use_Cheat", "Cheat Mode Enabled", ExecuteBB::GAMEFONT_03A, 0.002f, 0.902f, 1, 0.03f);
 		m_fps = m_ingameBanner->AddTextLabel("M_Show_Fps", "", ExecuteBB::GAMEFONT_01, 0, 0, 0.2f, 0.03f);
 		m_srTitle = m_ingameBanner->AddTextLabel("M_Time_Counter_Title", "SR Timer", ExecuteBB::GAMEFONT_01, 0.03f, 0.8f, 0.2f, 0.03f);
 		m_srScore = m_ingameBanner->AddTextLabel("M_Time_Counter", "", ExecuteBB::GAMEFONT_01, 0.05f, 0.83f, 0.2f, 0.03f);
 		m_fps->SetAlignment(ALIGN_LEFT);
+		m_fps->SetVisible(m_showFPS->GetBoolean());
 		m_srTitle->SetAlignment(ALIGN_LEFT);
 		m_srTitle->SetVisible(false);
 		m_srScore->SetAlignment(ALIGN_LEFT);
 		m_srScore->SetVisible(false);
-		for (int i = 0; i < 3; i++)
-			m_cheat[i]->SetVisible(false);
+		m_cheat->SetVisible(false);
 		m_customMaps = m_ingameBanner->AddRightButton("M_Enter_Custom_Maps", 0.4f, 0.6238f, [this]() {
 			m_exitStart->ActivateInput(0);
 			m_exitStart->Activate();
@@ -536,6 +536,13 @@ void BMLMod::OnModifyConfig(CKSTRING category, CKSTRING key, IProperty* prop) {
 			m_oclinks[i]->SetOutBehaviorIO(m_oclinkio[i][m_overclock->GetBoolean()]);
 		}
 	}
+	if (prop == m_showFPS) {
+		m_fps->SetVisible(prop->GetBoolean());
+	}
+	if (prop == m_showSR && m_bml->IsIngame()) {
+		m_srScore->SetVisible(m_showSR->GetBoolean());
+		m_srTitle->SetVisible(m_showSR->GetBoolean());
+	}
 }
 
 void BMLMod::OnLoad() {
@@ -556,11 +563,19 @@ void BMLMod::OnLoad() {
 	m_overclock->SetComment("Remove delay of spawn / respawn");
 	m_overclock->SetDefaultBoolean(false);
 
+	m_showFPS = GetConfig()->GetProperty("Misc", "ShowFPS");
+	m_showFPS->SetComment("Show FPS at top-left corner");
+	m_showFPS->SetDefaultBoolean(true);
+
+	m_showSR = GetConfig()->GetProperty("Misc", "ShowSRTimer");
+	m_showSR->SetComment("Show SR Timer above Time Score");
+	m_showSR->SetDefaultBoolean(true);
+
+	GetConfig()->SetCategoryComment("Debug", "Debug Utilities");
 	m_suicide = GetConfig()->GetProperty("Debug", "Suicide");
 	m_suicide->SetComment("Suicide");
 	m_suicide->SetDefaultKey(CKKEY_R);
 
-	GetConfig()->SetCategoryComment("Debug", "Debug Utilities");
 	m_ballCheat[0] = GetConfig()->GetProperty("Debug", "BallUp");
 	m_ballCheat[0]->SetComment("Apply an upward force to the ball");
 	m_ballCheat[0]->SetDefaultKey(CKKEY_F1);
@@ -726,7 +741,8 @@ void BMLMod::OnProcess() {
 		}
 
 		m_msgLog->Process();
-		m_ingameBanner->Process();
+		if (!IsInTravelCam())
+			m_ingameBanner->Process();
 		if (m_currentGui)
 			m_currentGui->Process();
 		m_smHook->Process();
@@ -1021,8 +1037,10 @@ void BMLMod::OnPostResetLevel() {
 void BMLMod::OnStartLevel() {
 	m_srtimer = 0.0f;
 	m_srScore->SetText("00:00:00.000");
-	m_srScore->SetVisible(true);
-	m_srTitle->SetVisible(true);
+	if (m_showSR->GetBoolean()) {
+		m_srScore->SetVisible(true);
+		m_srTitle->SetVisible(true);
+	}
 	SetParamValue(m_loadCustom, FALSE);
 }
 
@@ -1095,8 +1113,7 @@ void BMLMod::AddIngameMessage(CKSTRING msg) {
 }
 
 void BMLMod::ShowCheatBanner(bool show) {
-	for (int i = 0; i < 3; i++)
-		m_cheat[i]->SetVisible(show);
+	m_cheat->SetVisible(show);
 }
 
 void BMLMod::ShowModOptions() {
@@ -1139,10 +1156,14 @@ void CommandTravel::Execute(IBML* bml, const std::vector<std::string>& args) {
 		if (m_mod->IsInTravelCam()) {
 			m_mod->ExitTravelCam();
 			m_mod->AddIngameMessage("Exit Travel Camera");
+			bml->GetGroupByName("HUD_sprites")->Show();
+			bml->GetGroupByName("LifeBalls")->Show();
 		}
 		else {
 			m_mod->EnterTravelCam();
 			m_mod->AddIngameMessage("Enter Travel Camera");
+			bml->GetGroupByName("HUD_sprites")->Show(CKHIDE);
+			bml->GetGroupByName("LifeBalls")->Show(CKHIDE);
 		}
 	}
 }
