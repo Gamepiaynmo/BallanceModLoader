@@ -8,6 +8,8 @@ Ballance Mod Loader is a free, open-source modding API used to extend the conten
 
 For more information, please read [The Wiki](https://github.com/Gamepiaynmo/BallanceModLoader/wiki).
 
+The source code of built-in mods is in [another repository](https://github.com/Gamepiaynmo/BML-Mods).
+
 ### Installing
 
 Go to the Release page and download the latest build (Do not download the dev package unless you would like to develop your own mod). Extract all contents into your Ballance root folder. After that you can find the following files in your Ballance directory:
@@ -22,6 +24,15 @@ Before launching the game please check if the compatibility mode of Player.exe i
 ### Uninstalling
 
 Go to Ballance root folder, and delete BML.dll in BuildingBlocks directory. If you would like to remove the entire data of BML (installed mods, maps, configs etc.), delete the ModLoader folder as well.
+
+### Building
+
+* Clone this repository.
+* Open BML.sln with Visual Studio 2019.
+* Go to Project Properties -> C/C++ -> Precompile Header, and disable it.
+* Set building configuration to Release, x86.
+* Change the output path to what you want.
+* Build the solution.
 
 ### Troubleshooting
 
