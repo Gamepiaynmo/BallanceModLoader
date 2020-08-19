@@ -1005,7 +1005,7 @@ void BMLMod::OnProcess() {
 	}
 
 	if (m_sractive) {
-		m_srtimer += m_bml->GetTimeManager()->GetLastDeltaTimeFree();
+		m_srtimer += m_bml->GetTimeManager()->GetLastDeltaTime();
 		int counter = int(m_srtimer);
 		int ms = counter % 1000;
 		counter /= 1000;
