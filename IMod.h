@@ -8,23 +8,24 @@
 #define DECLARE_BML_VERSION \
 virtual BMLVersion GetBMLVersion() override { return { BML_MAJOR_VER, BML_MINOR_VER, BML_BUILD_VER }; }
 
+struct BMLVersion {
+	BMLVersion() : major(BML_MAJOR_VER), minor(BML_MINOR_VER), build(BML_BUILD_VER) {}
+	BMLVersion(int mj, int mn, int bd) : major(mj), minor(mn), build(bd) {}
+	int major, minor, build;
+	bool operator <(BMLVersion& o) {
+		if (major == o.major) {
+			if (minor == o.minor)
+				return build < o.build;
+			return minor < o.minor;
+		}
+		return major < o.major;
+	}
+};
+
 class BML_EXPORT IMod : public IMessageReceiver {
 public:
 	IMod(IBML* bml) : m_bml(bml) {};
 	virtual ~IMod();
-
-	struct BMLVersion {
-		BMLVersion(int mj, int mn, int bd) : major(mj), minor(mn), build(bd) {}
-		int major, minor, build;
-		bool operator <(BMLVersion& o) {
-			if (major == o.major) {
-				if (minor == o.minor)
-					return build < o.build;
-				return minor < o.minor;
-			}
-			return major < o.major;
-		}
-	};
 
 	virtual CKSTRING GetID() = 0;
 	virtual CKSTRING GetVersion() = 0;

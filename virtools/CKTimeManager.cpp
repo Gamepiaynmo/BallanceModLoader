@@ -89,6 +89,10 @@ void CKTimeManager::SetAbsoluteTime(float time) {
 	SET_MEM(0x34, float, time);
 }
 
+void CKTimeManager::SetMainTickCount(CKDWORD tick) {
+	SET_MEM(0x28, CKDWORD, tick);
+}
+
 NAKED void CKTimeManager::GetTimeToWaitForLimits(float& TimeBeforeRender, float& TimeBeforeBeh) {
 	JUMP(0x24017EF6);
 }

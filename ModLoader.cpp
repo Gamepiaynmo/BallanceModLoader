@@ -42,6 +42,12 @@ ModLoader::ModLoader() {
 	std::filesystem::create_directories("..\\ModLoader\\Maps\\");
 	std::filesystem::create_directories("..\\ModLoader\\Mods\\");
 
+	for (auto& i : std::filesystem::directory_iterator("..\\ModLoader\\Cache"))
+		std::filesystem::remove_all(i.path());
+
+	std::filesystem::create_directories("..\\ModLoader\\Cache\\Maps");
+	std::filesystem::create_directories("..\\ModLoader\\Cache\\Mods");
+
 	m_logfile = fopen("..\\ModLoader\\ModLoader.log", "w");
 	m_logger = new Logger("ModLoader");
 }
@@ -68,6 +74,7 @@ void ModLoader::Init() {
 #endif
 
 	m_logger->Info("Initializing Mod Loader version " BML_VERSION);
+	m_logger->Info("Website: https://github.com/Gamepiaynmo/BallanceModLoader");
 
 	if (MH_Initialize() != MH_OK) {
 		m_logger->Error("MinHook Initialize Failed");
@@ -135,8 +142,6 @@ void ModLoader::Release() {
 	for (IMod* mod : m_instance->m_mods)
 		delete mod;
 	m_instance->m_mods.clear();
-
-	m_logger->Info("Unloading Mod Loader");
 
 	m_logger->Info("Releasing Mod Loader");
 
@@ -222,9 +227,16 @@ CKERROR ModLoader::Step(CKDWORD result) {
 			m_ballTypeMod = new NewBallTypeMod(this);
 			m_mods.push_back(m_ballTypeMod);
 
+			BMLVersion curVer;
 			for (auto& preload : m_preloadMods) {
 				if (preload.entry) {
 					IMod* mod = preload.entry(this);
+					BMLVersion reqVer = mod->GetBMLVersion();
+					if (curVer < reqVer) {
+						m_logger->Warn("Mod %s[%s] requires BML %d.%d.%d", mod->GetID(), mod->GetName(), reqVer.major, reqVer.minor, reqVer.build);
+						continue;
+					}
+
 					m_mods.push_back(mod);
 					if (!preload.modPath.empty())
 						AddDataPath(preload.modPath);
@@ -262,44 +274,47 @@ CKERROR ModLoader::Step(CKDWORD result) {
 }
 
 void ModLoader::PreloadMods() {
-	for (auto& i : std::filesystem::directory_iterator("..\\ModLoader\\Cache"))
-		std::filesystem::remove_all(i.path());
-
 	for (auto& f : std::filesystem::directory_iterator("..\\ModLoader\\Mods")) {
-		std::filesystem::path ext = f.path().extension();
+		std::filesystem::path modpath = f.path();
+		std::string modext = modpath.extension().string();
+		std::transform(modext.begin(), modext.end(), modext.begin(), tolower);
 		PreloadMod mod;
 
 		if (f.status().type() == std::filesystem::file_type::regular) {
-			if (ext == ".bmod") {
-				mod.dllPath = f.path().string();
+			if (modext == ".bmod") {
+				mod.dllPath = modpath.string();
 			}
-			else if (ext == ".zip") {
-				HZIP hz = OpenZip(f.path().string().c_str(), 0);
+			else if (modext == ".zip") {
+				HZIP hz = OpenZip(modpath.string().c_str(), 0);
 				ZIPENTRY ze; GetZipItem(hz, -1, &ze); int numitems = ze.index;
-				std::string filepath = "..\\ModLoader\\Cache\\" + f.path().filename().string() + "\\";
+				std::string filepath = "..\\ModLoader\\Cache\\Mods\\" + modpath.filename().string() + "\\";
 				mod.modPath = filepath;
 				for (int zi = 0; zi < numitems; zi++) {
 					ZIPENTRY ze; GetZipItem(hz, zi, &ze);
 					std::string path = filepath + ze.name;
 					UnzipItem(hz, zi, path.c_str());
 
-					if (!(ze.attr & FILE_ATTRIBUTE_DIRECTORY) &&
-						std::filesystem::path(path).extension() == ".bmod")
+					std::string ext = std::filesystem::path(path).extension().string();
+					std::transform(ext.begin(), ext.end(), ext.begin(), tolower);
+					if (!(ze.attr & FILE_ATTRIBUTE_DIRECTORY) && ext == ".bmod")
 						mod.dllPath = path;
 				}
 				CloseZip(hz);
 			}
 		}
 		else if (f.status().type() == std::filesystem::file_type::directory) {
-			mod.modPath = f.path().string();
-			for (auto& m : std::filesystem::directory_iterator(f.path())) {
-				if (m.status().type() == std::filesystem::file_type::regular
-					&& m.path().extension() == ".bmod")
-					mod.dllPath = m.path().string();
+			mod.modPath = modpath.string();
+			for (auto& m : std::filesystem::directory_iterator(modpath)) {
+				if (m.status().type() == std::filesystem::file_type::regular) {
+					std::string ext = m.path().extension().string();
+					std::transform(ext.begin(), ext.end(), ext.begin(), tolower);
+					if (ext == ".bmod")
+						mod.dllPath = m.path().string();
+				}
 			}
 		}
 
-		mod.handle = LoadLibrary(mod.dllPath.c_str());
+		mod.handle = LoadLibraryEx(mod.dllPath.c_str(), NULL, LOAD_WITH_ALTERED_SEARCH_PATH);
 		if (mod.handle) {
 			mod.entry = reinterpret_cast<EntryFunc>(GetProcAddress(mod.handle, "BMLEntry"));
 			mod.registerBB = reinterpret_cast<RegisterBBFunc>(GetProcAddress(mod.handle, "RegisterBB"));
@@ -782,4 +797,12 @@ void ModLoader::FillCallbackMap(IMod* mod) {
 	CHECK_V_FUNC(index++, &IMod::OnCheatEnabled);
 
 #undef CHECK_V_FUNC
+}
+
+int ModLoader::GetModCount() {
+	return m_mods.size();
+}
+
+IMod* ModLoader::GetMod(int index) {
+	return m_mods[index];
 }

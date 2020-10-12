@@ -18,7 +18,8 @@ Vx2DVector InputHook::m_lastMousePosition;
 
 CKMaterial* m_up = nullptr, * m_over = nullptr, * m_inactive = nullptr, * m_field = nullptr, * m_caret = nullptr, * m_highlight = nullptr;
 CKGroup* all_sound = nullptr;
-CKSTRING text_font = "Î¢ÈíÑÅºÚ";
+CKSTRING g_text_font = nullptr;
+CKSTRING g_avail_fonts[] = { "Microsoft YaHei UI", "Microsoft YaHei" };
 
 CKBOOL InputHook::IsKeyDown(CKDWORD iKey, CKDWORD* oStamp) {
 	CKBOOL res = InputHook::oIsKeyDown(iKey, oStamp);
@@ -278,7 +279,7 @@ namespace BGui {
 		m_sprite->SetZOrder(20);
 		m_sprite->SetTextColor(0xffffffff);
 		m_sprite->SetAlign(CKSPRITETEXT_ALIGNMENT(CKSPRITETEXT_VCENTER | CKSPRITETEXT_LEFT));
-		m_sprite->SetFont(text_font, ctx->GetPlayerRenderContext()->GetHeight() / 85, 400);
+		m_sprite->SetFont(g_text_font, ctx->GetPlayerRenderContext()->GetHeight() / 85, 400);
 	}
 
 	Text::~Text() {
@@ -287,7 +288,7 @@ namespace BGui {
 
 	void Text::UpdateFont() {
 		CKContext* ctx = ModLoader::m_instance->GetCKContext();
-		m_sprite->SetFont(text_font, ctx->GetPlayerRenderContext()->GetHeight() / 85, 400);
+		m_sprite->SetFont(g_text_font, ctx->GetPlayerRenderContext()->GetHeight() / 85, 400);
 	}
 
 	Vx2DVector Text::GetPosition() {
@@ -941,10 +942,21 @@ namespace BGui {
 
 		CKParameterManager* pm = ModLoader::m_instance->GetParameterManager();
 		CKEnumStruct* data = pm->GetEnumDescByType(pm->ParameterGuidToType(CKPGUID_FONTNAME));
-		for (int i = 0; i < data->GetNumEnums(); i++) {
-			if (!strcmp(data->GetEnumDescription(i), "Õ¾¿á¸ß¶ËºÚ"))
-				text_font = "Õ¾¿á¸ß¶ËºÚ";
+		for (CKSTRING avail_font : g_avail_fonts) {
+			for (int i = 0; i < data->GetNumEnums(); i++) {
+				CKSTRING fontname = data->GetEnumDescription(i);
+				if (!strcmp(fontname, avail_font)) {
+					g_text_font = avail_font;
+					break;
+				}
+			}
+
+			if (g_text_font)
+				break;
 		}
+
+		if (!g_text_font)
+			g_text_font = "";
 	}
 
 	void Gui::OnScreenModeChanged() {

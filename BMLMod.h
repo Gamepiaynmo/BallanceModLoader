@@ -72,8 +72,15 @@ public:
 	virtual void Exit() override;
 
 private:
-	std::vector<std::pair<std::string, std::string>> m_maps;
-	std::vector<std::string> m_searchRes;
+	struct MapInfo {
+		std::string displayname, searchname, filepath;
+		bool operator <(const MapInfo& o) {
+			return displayname < o.displayname;
+		}
+	};
+
+	std::vector<MapInfo> m_maps;
+	std::vector<MapInfo*> m_searchRes;
 	std::vector<BGui::Text*> m_texts;
 	BGui::Input* m_searchBar = nullptr;
 	BGui::Button* m_exit = nullptr;
@@ -136,7 +143,8 @@ public:
 	virtual CKSTRING GetVersion() override { return BML_VERSION; }
 	virtual CKSTRING GetName() override { return "Ballance Mod Loader"; }
 	virtual CKSTRING GetAuthor() override { return "Gamepiaynmo & YingChe"; }
-	virtual CKSTRING GetDescription() override { return "Implementation of functions provided by Ballance Mod Loader."; }
+	virtual CKSTRING GetDescription() override { return "Implementation of functions provided by Ballance Mod Loader."
+		"\n\n https://github.com/Gamepiaynmo/BallanceModLoader"; }
 	DECLARE_BML_VERSION;
 
 	virtual void OnLoad() override;
@@ -175,6 +183,7 @@ private:
 	void OnEditScript_Gameplay_Energy(CKBehavior* script);
 	void OnEditScript_Gameplay_Events(CKBehavior* script);
 	void OnEditScript_Levelinit_build(CKBehavior* script);
+	void OnEditScript_ExtraLife_Fix(CKBehavior* script);
 
 	void OnCmdEdit(CKDWORD key);
 
@@ -206,6 +215,7 @@ private:
 	IProperty* m_unlockRes;
 	IProperty* m_showFPS;
 	IProperty* m_showSR;
+	IProperty* m_fixLifeBall;
 
 	IProperty* m_ballCheat[2];
 	IProperty* m_suicide;

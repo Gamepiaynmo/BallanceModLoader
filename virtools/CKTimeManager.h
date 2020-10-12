@@ -53,6 +53,7 @@ public:
 	void SetLastDeltaTime(float DtSet);
 	void SetLastDeltaTimeFree(float DtSet);
 	void SetAbsoluteTime(float time);
+	void SetMainTickCount(CKDWORD tick);
 	void GetTimeToWaitForLimits(float& TimeBeforeRender, float& TimeBeforeBeh);
 	void ResetChronos(CKBOOL RenderChrono, CKBOOL BehavioralChrono);
 

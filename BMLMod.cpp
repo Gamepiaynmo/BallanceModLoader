@@ -10,6 +10,8 @@
 #include "Commands.h"
 #include "Config.h"
 #include "Util.h"
+#include <locale>
+#include <codecvt>
 
 using namespace ScriptHelper;
 
@@ -130,6 +132,12 @@ void BMLMod::OnLoadScript(CKSTRING filename, CKBehavior* script) {
 
 	if (!strcmp(script->GetName(), "Levelinit_build"))
 		OnEditScript_Levelinit_build(script);
+
+	if (m_fixLifeBall) {
+		if (!strcmp(script->GetName(), "P_Extra_Life_Particle_Blob Script")
+			|| !strcmp(script->GetName(), "P_Extra_Life_Particle_Fizz Script"))
+			OnEditScript_ExtraLife_Fix(script);
+	}
 }
 
 void BMLMod::OnEditScript_Base_DefaultLevel(CKBehavior* script) {
@@ -513,6 +521,14 @@ void BMLMod::OnEditScript_Levelinit_build(CKBehavior* script) {
 	m_mapFile = objLoad->GetInputParameter(0)->GetDirectSource();
 }
 
+void BMLMod::OnEditScript_ExtraLife_Fix(CKBehavior* script) {
+	CKBehavior* emitter = FindFirstBB(script, "SphericalParticleSystem");
+	emitter->CreateInputParameter("Real-Time Mode", CKPGUID_BOOL)
+		->SetDirectSource(CreateParamValue<CKBOOL>(script, "Real-Time Mode", CKPGUID_BOOL, 1));
+	emitter->CreateInputParameter("DeltaTime", CKPGUID_FLOAT)
+		->SetDirectSource(CreateParamValue<float>(script, "DeltaTime", CKPGUID_FLOAT, 20.0f));
+}
+
 void BMLMod::OnCheatEnabled(bool enable) {
 	if (enable) {
 		SetParamValue(m_ballForce[0], m_ballCheat[0]->GetKey());
@@ -570,6 +586,10 @@ void BMLMod::OnLoad() {
 	m_showSR = GetConfig()->GetProperty("Misc", "ShowSRTimer");
 	m_showSR->SetComment("Show SR Timer above Time Score");
 	m_showSR->SetDefaultBoolean(true);
+
+	m_fixLifeBall = GetConfig()->GetProperty("Misc", "FixLifeBallFreeze");
+	m_fixLifeBall->SetComment("Game won't freeze when picking up life balls");
+	m_fixLifeBall->SetDefaultBoolean(true);
 
 	GetConfig()->SetCategoryComment("Debug", "Debug Utilities");
 	m_suicide = GetConfig()->GetProperty("Debug", "Suicide");
@@ -1292,12 +1312,29 @@ GuiCustomMap::GuiCustomMap(BMLMod* mod) : GuiList(), m_mod(mod) {
 	m_right->SetPosition(Vx2DVector(0.6238f, 0.4f));
 
 	AddTextLabel("M_Opt_Mods_Title", "Custom Maps", ExecuteBB::GAMEFONT_02, 0.35f, 0.07f, 0.3f, 0.1f);
+	using convert_type = std::codecvt_byname<wchar_t, char, std::mbstate_t>;
+	std::wstring_convert<convert_type, wchar_t> converter(new convert_type("zh-CN"));
+
 	for (auto& f : std::filesystem::recursive_directory_iterator("..\\ModLoader\\Maps")) {
 		if (f.status().type() == std::filesystem::file_type::regular) {
-			std::string filename = f.path().filename().string();
-			std::transform(filename.begin(), filename.end(), filename.begin(), tolower);
-			if (std::filesystem::path(filename).extension() == ".nmo") {
-				m_maps.push_back({ f.path().filename().string(), Text2Pinyin(filename) });
+			std::string ext = f.path().extension().string();
+			std::transform(ext.begin(), ext.end(), ext.begin(), tolower);
+			if (ext == ".nmo") {
+				MapInfo info;
+				try {
+					info.displayname = f.path().stem().string();
+					info.searchname = Text2Pinyin(info.displayname);
+					info.filepath = "..\\ModLoader\\Maps\\" + info.displayname + ".nmo";
+				}
+				catch (std::system_error e) {
+					std::string filename = converter.to_bytes(f.path().stem().wstring());
+					info.displayname = info.searchname = Text2Pinyin(filename);
+					info.filepath = "..\\ModLoader\\Cache\\Maps\\" + info.displayname + ".nmo";
+					std::filesystem::copy_file(std::filesystem::absolute(f.path()), info.filepath);
+				}
+
+				std::transform(info.searchname.begin(), info.searchname.end(), info.searchname.begin(), tolower);
+				m_maps.push_back(info);
 			}
 		}
 	}
@@ -1316,8 +1353,8 @@ GuiCustomMap::GuiCustomMap(BMLMod* mod) : GuiList(), m_mod(mod) {
 		std::transform(text.begin(), text.end(), text.begin(), tolower);
 
 		for (auto& p : m_maps) {
-			if (text.length() == 0 || p.second.find(text) != std::string::npos) {
-				m_searchRes.push_back(p.first);
+			if (text.length() == 0 || p.searchname.find(text) != std::string::npos) {
+				m_searchRes.push_back(&p);
 			}
 		}
 		m_size = m_searchRes.size();
@@ -1327,7 +1364,7 @@ GuiCustomMap::GuiCustomMap(BMLMod* mod) : GuiList(), m_mod(mod) {
 
 	std::sort(m_maps.begin(), m_maps.end());
 	for (auto& p : m_maps)
-		m_searchRes.push_back(p.first);
+		m_searchRes.push_back(&p);
 	Init(m_searchRes.size(), 10);
 	SetVisible(false);
 }
@@ -1336,10 +1373,11 @@ BGui::Button* GuiCustomMap::CreateButton(int index) {
 	m_texts.push_back(AddText(("M_Opt_ModMenu_" + std::to_string(index)).c_str(), "", 0.44f, 0.23f + 0.06f * index, 0.3f, 0.05f));
 	return AddLevelButton(("M_Opt_ModMenu_" + std::to_string(index)).c_str(), "", 0.23f + 0.06f * index, 0.4031f, [this, index]() {
 		GuiList::Exit();
-		SetParamString(m_mod->m_mapFile, ("..\\ModLoader\\Maps\\" + m_searchRes[m_curpage * m_maxsize + index]).c_str());
+		SetParamString(m_mod->m_mapFile, m_searchRes[m_curpage * m_maxsize + index]->filepath.c_str());
 		SetParamValue(m_mod->m_loadCustom, TRUE);
 		int level = rand() % 10 + 2;
 		m_mod->m_curLevel->SetElementValue(0, 0, &level);
+		level--;
 		SetParamValue(m_mod->m_levelRow, level);
 
 		CKContext* ctx = m_mod->m_bml->GetCKContext();
@@ -1373,7 +1411,7 @@ void GuiCustomMap::SetPage(int page) {
 	for (int i = 0; i < m_maxsize; i++)
 		m_texts[i]->SetVisible(i < size);
 	for (int i = 0; i < size; i++)
-		m_texts[i]->SetText(m_searchRes[page * m_maxsize + i].c_str());
+		m_texts[i]->SetText(m_searchRes[page * m_maxsize + i]->displayname.c_str());
 	m_mod->m_bml->AddTimer(1u, [this, page]() { m_exit->SetVisible(page == 0); });
 }
 

@@ -175,6 +175,9 @@ public:
 	virtual void RegisterTrafo(CKSTRING modulName) override;
 	virtual void RegisterModul(CKSTRING modulName) override;
 
+	virtual int GetModCount() override;
+	virtual IMod* GetMod(int index) override;
+
 private:
 	bool m_inited = false;
 	bool m_exiting = false;

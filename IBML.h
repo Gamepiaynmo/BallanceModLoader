@@ -125,4 +125,7 @@ public:
 		bool frozen, bool enableColl, bool calcMassCenter, float linearDamp, float rotDamp) = 0;
 	virtual void RegisterTrafo(CKSTRING modulName) = 0;
 	virtual void RegisterModul(CKSTRING modulName) = 0;
+
+	virtual int GetModCount() = 0;
+	virtual class IMod* GetMod(int index) = 0;
 };
