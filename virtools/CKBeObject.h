@@ -46,4 +46,7 @@ public:
 protected:
 	CKBeObject() {};
 	~CKBeObject() {};
+
+private:
+	BYTE placeholder[0x4f];
 };
