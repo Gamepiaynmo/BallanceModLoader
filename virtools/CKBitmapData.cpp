@@ -28,10 +28,6 @@ NAKED CKBOOL CKBitmapData::ReleaseSurfacePtr(int Slot) {
 	JUMP(0x24030151);
 }
 
-NAKED CKBOOL CKBitmapData::FlushSurfacePtr(int Slot) {
-	UNDEFINED;
-}
-
 NAKED CKSTRING CKBitmapData::GetSlotFileName(int Slot) {
 	JUMP(0x24030170);
 }
@@ -149,14 +145,6 @@ NAKED CKBOOL CKBitmapData::IsVolumeMap() {
 }
 
 NAKED CKBOOL CKBitmapData::HasOriginalFile() {
-	UNDEFINED;
-}
-
-NAKED void CKBitmapData::SetDesiredVideoFormat(VX_PIXELFORMAT pf) {
-	JUMPV(0x8c);
-}
-
-NAKED VX_PIXELFORMAT CKBitmapData::GetDesiredVideoFormat() {
 	UNDEFINED;
 }
 

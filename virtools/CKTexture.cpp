@@ -56,34 +56,22 @@ NAKED CKBOOL CKTexture::GetSystemTextureDesc(VxImageDescEx& desc) {
 	JUMPV(0x88);
 }
 
-NAKED CKBOOL CKTexture::SetUserMipMapMode(CKBOOL UserMipmap) {
-	UNDEFINED;
+NAKED void CKTexture::SetDesiredVideoFormat(VX_PIXELFORMAT pf) {
+	JUMPV(0x8c);
+}
+
+NAKED VX_PIXELFORMAT CKTexture::GetDesiredVideoFormat() {
+	JUMPV(0x90);
+}
+
+NAKED CKBOOL CKTexture::FlushSurfacePtr(int Slot) {
+	JUMPV(0x94);
 }
 
 NAKED BOOL CKTexture::GetUserMipMapLevel(int Level, VxImageDescEx& ResultImage) {
-	UNDEFINED;
+	JUMPV(0x98);
 }
 
 NAKED int CKTexture::GetRstTextureIndex() {
-	UNDEFINED;
-}
-
-NAKED BOOL CKTexture::LockVideoMemory(VxImageDescEx& Surface, int MipLevel, VX_LOCKFLAGS Flags) {
-	UNDEFINED;
-}
-
-NAKED void CKTexture::UnlockVideoMemory(int MipLevel) {
-	UNDEFINED;
-}
-
-NAKED BOOL CKTexture::VideoToSystemMemory() {
-	UNDEFINED;
-}
-
-NAKED void* CKTexture::GetRstTextureObject() {
-	UNDEFINED;
-}
-
-NAKED BOOL CKTexture::EnsureVideoMemory(CKRenderContext* ctx, CKBOOL Clamping) {
-	UNDEFINED;
+	JUMPV(0x9c);
 }

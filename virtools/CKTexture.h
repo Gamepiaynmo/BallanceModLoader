@@ -23,14 +23,11 @@ public:
 	CKBOOL GetVideoTextureDesc(VxImageDescEx& desc);
 	VX_PIXELFORMAT GetVideoPixelFormat();
 	CKBOOL GetSystemTextureDesc(VxImageDescEx& desc);
-	CKBOOL SetUserMipMapMode(CKBOOL UserMipmap);
+	void SetDesiredVideoFormat(VX_PIXELFORMAT pf);
+	VX_PIXELFORMAT GetDesiredVideoFormat();
+	CKBOOL FlushSurfacePtr(int Slot = -1);
 	BOOL GetUserMipMapLevel(int Level, VxImageDescEx& ResultImage);
 	int GetRstTextureIndex();
-	BOOL LockVideoMemory(VxImageDescEx& Surface, int MipLevel, VX_LOCKFLAGS Flags = VX_LOCK_DEFAULT);
-	void UnlockVideoMemory(int MipLevel);
-	BOOL VideoToSystemMemory();
-	void* GetRstTextureObject();
-	BOOL EnsureVideoMemory(CKRenderContext* ctx, CKBOOL Clamping = FALSE);
 
 protected:
 	CKTexture() {};

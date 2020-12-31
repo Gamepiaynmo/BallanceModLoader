@@ -78,7 +78,6 @@ public:
 	CKMovieReader* GetMovieReader();
 	CKBYTE* LockSurfacePtr(int Slot = -1);
 	CKBOOL ReleaseSurfacePtr(int Slot = -1);
-	CKBOOL FlushSurfacePtr(int Slot = -1);
 	CKSTRING GetSlotFileName(int Slot);
 	CKBOOL SetSlotFileName(int Slot, CKSTRING Filename);
 	int GetWidth();
@@ -109,8 +108,6 @@ public:
 	void SetVolumeMap(CKBOOL VolumeMap);
 	CKBOOL IsVolumeMap();
 	CKBOOL HasOriginalFile();
-	void SetDesiredVideoFormat(VX_PIXELFORMAT pf);
-	VX_PIXELFORMAT GetDesiredVideoFormat();
 	CKBOOL ResizeImages(int Width, int Height);
 	void SetDynamicHint(CKBOOL Dynamic);
 	CKBOOL GetDynamicHint();
