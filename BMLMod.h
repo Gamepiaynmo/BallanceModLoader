@@ -102,6 +102,7 @@ public:
 private:
 	std::vector<Property*> m_data;
 	std::vector<std::vector<BGui::Element*>> m_elements;
+	std::vector<std::pair<BGui::Element*, BGui::Element*>> m_inputs;
 	int m_curpage, m_maxpage, m_size;
 	BGui::Button* m_left, * m_right;
 

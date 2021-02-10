@@ -1236,7 +1236,7 @@ void GuiList::Exit() {
 
 void GuiList::SetVisible(bool visible) {
 	Gui::SetVisible(visible);
-	if (visible) SetPage(0);
+	if (visible) SetPage(m_curpage);
 }
 
 GuiModOption::GuiModOption() {
@@ -1450,79 +1450,84 @@ GuiModCategory::GuiModCategory(GuiModMenu* parent, Config* config, std::string c
 	for (Property* prop : m_data) {
 		std::string name = prop->m_key;
 		switch (prop->GetType()) {
-		case IProperty::STRING: {
-			BGui::Button* bg = AddSettingButton(name.c_str(), name.c_str(), cnt);
-			bg->SetAlignment(ALIGN_TOP);
-			bg->SetFont(ExecuteBB::GAMEFONT_03);
-			bg->SetZOrder(15);
-			bg->SetOffset(offset);
-			elements.push_back(bg);
-			BGui::Input* input = AddTextInput(name.c_str(), ExecuteBB::GAMEFONT_03, 0.43f, cnt + 0.05f, 0.18f, 0.025f);
-			input->SetText(prop->GetString());
-			input->SetCallback([this, prop, input](CKDWORD) { prop->SetString(input->GetText()); });
-			elements.push_back(input);
-			BGui::Panel* panel = AddPanel(name.c_str(), VxColor(0, 0, 0, 110), 0.43f, cnt + 0.05f, 0.18f, 0.025f);
-			elements.push_back(panel);
-			cnt += 0.12f;
-			break;
-		}
-		case IProperty::INTEGER: {
-			BGui::Button* bg = AddSettingButton(name.c_str(), name.c_str(), cnt);
-			bg->SetAlignment(ALIGN_TOP);
-			bg->SetFont(ExecuteBB::GAMEFONT_03);
-			bg->SetZOrder(15);
-			bg->SetOffset(offset);
-			elements.push_back(bg);
-			BGui::Input* input = AddTextInput(name.c_str(), ExecuteBB::GAMEFONT_03, 0.43f, cnt + 0.05f, 0.18f, 0.025f);
-			input->SetText(std::to_string(prop->GetInteger()).c_str());
-			input->SetCallback([this, prop, input](CKDWORD) { prop->SetInteger(atoi(input->GetText())); });
-			elements.push_back(input);
-			BGui::Panel* panel = AddPanel(name.c_str(), VxColor(0, 0, 0, 110), 0.43f, cnt + 0.05f, 0.18f, 0.025f);
-			elements.push_back(panel);
-			cnt += 0.12f;
-			break;
-		}
-		case IProperty::FLOAT: {
-			BGui::Button* bg = AddSettingButton(name.c_str(), name.c_str(), cnt);
-			bg->SetAlignment(ALIGN_TOP);
-			bg->SetFont(ExecuteBB::GAMEFONT_03);
-			bg->SetZOrder(15);
-			bg->SetOffset(offset);
-			elements.push_back(bg);
-			BGui::Input* input = AddTextInput(name.c_str(), ExecuteBB::GAMEFONT_03, 0.43f, cnt + 0.05f, 0.18f, 0.025f);
-			input->SetText(std::to_string(prop->GetFloat()).c_str());
-			input->SetCallback([this, prop, input](CKDWORD) { prop->SetFloat((float) atof(input->GetText())); });
-			elements.push_back(input);
-			BGui::Panel* panel = AddPanel(name.c_str(), VxColor(0, 0, 0, 110), 0.43f, cnt + 0.05f, 0.18f, 0.025f);
-			elements.push_back(panel);
-			cnt += 0.12f;
-			break;
-		}
-		case IProperty::KEY: {
-			std::pair<BGui::Button*, BGui::KeyInput*> key = AddKeyButton(name.c_str(), name.c_str(), cnt);
-			key.second->SetKey(prop->GetKey());
-			key.second->SetCallback([this, prop](CKDWORD key) { prop->SetKey(CKKEYBOARD(key)); });
-			elements.push_back(key.first);
-			elements.push_back(key.second);
-			cnt += 0.06f;
-			break;
-		}
-		case IProperty::BOOLEAN: {
-			BGui::Button* bg = AddSettingButton(name.c_str(), name.c_str(), cnt);
-			bg->SetAlignment(ALIGN_TOP);
-			bg->SetFont(ExecuteBB::GAMEFONT_03);
-			bg->SetZOrder(15);
-			bg->SetOffset(offset);
-			elements.push_back(bg);
-			std::pair<BGui::Button*, BGui::Button*> yesno = AddYesNoButton(name.c_str(), cnt + 0.043f, 0.4350f, 0.5200f,
-				[this, prop](bool value) { prop->SetBoolean(value); });
-			yesno.first->SetActive(prop->GetBoolean());
-			yesno.second->SetActive(!prop->GetBoolean());
-			elements.push_back(yesno.first);
-			elements.push_back(yesno.second);
-			cnt += 0.12f;
-			break;
-		}
+			case IProperty::STRING: {
+				BGui::Button* bg = AddSettingButton(name.c_str(), name.c_str(), cnt);
+				bg->SetAlignment(ALIGN_TOP);
+				bg->SetFont(ExecuteBB::GAMEFONT_03);
+				bg->SetZOrder(15);
+				bg->SetOffset(offset);
+				elements.push_back(bg);
+				BGui::Input* input = AddTextInput(name.c_str(), ExecuteBB::GAMEFONT_03, 0.43f, cnt + 0.05f, 0.18f, 0.025f);
+				input->SetText(prop->GetString());
+				input->SetCallback([this, prop, input](CKDWORD) { prop->SetString(input->GetText()); });
+				elements.push_back(input);
+				BGui::Panel* panel = AddPanel(name.c_str(), VxColor(0, 0, 0, 110), 0.43f, cnt + 0.05f, 0.18f, 0.025f);
+				elements.push_back(panel);
+				m_inputs.push_back({ input, nullptr });
+				cnt += 0.12f;
+				break;
+			}
+			case IProperty::INTEGER: {
+				BGui::Button* bg = AddSettingButton(name.c_str(), name.c_str(), cnt);
+				bg->SetAlignment(ALIGN_TOP);
+				bg->SetFont(ExecuteBB::GAMEFONT_03);
+				bg->SetZOrder(15);
+				bg->SetOffset(offset);
+				elements.push_back(bg);
+				BGui::Input* input = AddTextInput(name.c_str(), ExecuteBB::GAMEFONT_03, 0.43f, cnt + 0.05f, 0.18f, 0.025f);
+				input->SetText(std::to_string(prop->GetInteger()).c_str());
+				input->SetCallback([this, prop, input](CKDWORD) { prop->SetInteger(atoi(input->GetText())); });
+				elements.push_back(input);
+				BGui::Panel* panel = AddPanel(name.c_str(), VxColor(0, 0, 0, 110), 0.43f, cnt + 0.05f, 0.18f, 0.025f);
+				elements.push_back(panel);
+				m_inputs.push_back({ input, nullptr });
+				cnt += 0.12f;
+				break;
+			}
+			case IProperty::FLOAT: {
+				BGui::Button* bg = AddSettingButton(name.c_str(), name.c_str(), cnt);
+				bg->SetAlignment(ALIGN_TOP);
+				bg->SetFont(ExecuteBB::GAMEFONT_03);
+				bg->SetZOrder(15);
+				bg->SetOffset(offset);
+				elements.push_back(bg);
+				BGui::Input* input = AddTextInput(name.c_str(), ExecuteBB::GAMEFONT_03, 0.43f, cnt + 0.05f, 0.18f, 0.025f);
+				input->SetText(std::to_string(prop->GetFloat()).c_str());
+				input->SetCallback([this, prop, input](CKDWORD) { prop->SetFloat((float) atof(input->GetText())); });
+				elements.push_back(input);
+				BGui::Panel* panel = AddPanel(name.c_str(), VxColor(0, 0, 0, 110), 0.43f, cnt + 0.05f, 0.18f, 0.025f);
+				elements.push_back(panel);
+				m_inputs.push_back({ input, nullptr });
+				cnt += 0.12f;
+				break;
+			}
+			case IProperty::KEY: {
+				std::pair<BGui::Button*, BGui::KeyInput*> key = AddKeyButton(name.c_str(), name.c_str(), cnt);
+				key.second->SetKey(prop->GetKey());
+				key.second->SetCallback([this, prop](CKDWORD key) { prop->SetKey(CKKEYBOARD(key)); });
+				elements.push_back(key.first);
+				elements.push_back(key.second);
+				m_inputs.push_back({ key.second, nullptr });
+				cnt += 0.06f;
+				break;
+			}
+			case IProperty::BOOLEAN: {
+				BGui::Button* bg = AddSettingButton(name.c_str(), name.c_str(), cnt);
+				bg->SetAlignment(ALIGN_TOP);
+				bg->SetFont(ExecuteBB::GAMEFONT_03);
+				bg->SetZOrder(15);
+				bg->SetOffset(offset);
+				elements.push_back(bg);
+				std::pair<BGui::Button*, BGui::Button*> yesno = AddYesNoButton(name.c_str(), cnt + 0.043f, 0.4350f, 0.5200f,
+					[this, prop](bool value) { prop->SetBoolean(value); });
+				yesno.first->SetActive(prop->GetBoolean());
+				yesno.second->SetActive(!prop->GetBoolean());
+				elements.push_back(yesno.first);
+				elements.push_back(yesno.second);
+				m_inputs.push_back(yesno);
+				cnt += 0.12f;
+				break;
+			}
 		}
 
 		if (cnt > 0.7f) {
@@ -1544,7 +1549,27 @@ GuiModCategory::GuiModCategory(GuiModMenu* parent, Config* config, std::string c
 
 void GuiModCategory::SetVisible(bool visible) {
 	Gui::SetVisible(visible);
-	if (visible) SetPage(0);
+	if (visible) {
+		std::vector<Property*> &props = m_config->GetCategory(m_category.c_str()).props;
+		for (int i = 0; i < props.size(); i++) {
+			Property* prop = props[i];
+			m_data[i]->CopyValue(prop);
+			std::pair<BGui::Element*, BGui::Element*> input = m_inputs[i];
+			switch (prop->GetType()) {
+				case IProperty::STRING: reinterpret_cast<BGui::Input*>(input.first)->SetText(prop->GetString()); break;
+				case IProperty::INTEGER: reinterpret_cast<BGui::Input*>(input.first)->SetText(std::to_string(prop->GetInteger()).c_str()); break;
+				case IProperty::FLOAT: reinterpret_cast<BGui::Input*>(input.first)->SetText(std::to_string(prop->GetFloat()).c_str()); break;
+				case IProperty::KEY: reinterpret_cast<BGui::KeyInput*>(input.first)->SetKey(prop->GetKey()); break;
+				case IProperty::BOOLEAN: {
+					reinterpret_cast<BGui::Button*>(input.first)->SetActive(prop->GetBoolean());
+					reinterpret_cast<BGui::Button*>(input.second)->SetActive(!prop->GetBoolean());
+					break;
+				}
+			}
+		}
+
+		SetPage(m_curpage);
+	}
 }
 
 void GuiModCategory::SetPage(int page) {
