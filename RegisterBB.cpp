@@ -124,7 +124,8 @@ void RegisterCallback(XObjectDeclarationArray* reg, CKSTRING name, CKSTRING desc
 		->SetProcessFunction([callback](HookParams* params) {
 			callback();
 			return false;
-			})->Build());
+			})
+		->Build());
 }
 
 void RegisterBBs(XObjectDeclarationArray* reg) {

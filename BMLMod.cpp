@@ -887,42 +887,42 @@ void BMLMod::OnProcess() {
 		}
 
 		if (IsInTravelCam()) {
-			if (im->IsKeyDown(CKKEY_W)) m_travelCam->Translate(&VxVector(0, 0, 0.2f * deltaTime), m_travelCam);
-			if (im->IsKeyDown(CKKEY_S)) m_travelCam->Translate(&VxVector(0, 0, -0.2f * deltaTime), m_travelCam);
-			if (im->IsKeyDown(CKKEY_A)) m_travelCam->Translate(&VxVector(-0.2f * deltaTime, 0, 0), m_travelCam);
-			if (im->IsKeyDown(CKKEY_D)) m_travelCam->Translate(&VxVector(0.2f * deltaTime, 0, 0), m_travelCam);
-			if (im->IsKeyDown(CKKEY_SPACE)) m_travelCam->Translate(&VxVector(0, 0.2f * deltaTime, 0));
-			if (im->IsKeyDown(CKKEY_LSHIFT)) m_travelCam->Translate(&VxVector(0, -0.2f * deltaTime, 0));
+			if (im->IsKeyDown(CKKEY_W)) m_travelCam->Translate(VxVector(0, 0, 0.2f * deltaTime), m_travelCam);
+			if (im->IsKeyDown(CKKEY_S)) m_travelCam->Translate(VxVector(0, 0, -0.2f * deltaTime), m_travelCam);
+			if (im->IsKeyDown(CKKEY_A)) m_travelCam->Translate(VxVector(-0.2f * deltaTime, 0, 0), m_travelCam);
+			if (im->IsKeyDown(CKKEY_D)) m_travelCam->Translate(VxVector(0.2f * deltaTime, 0, 0), m_travelCam);
+			if (im->IsKeyDown(CKKEY_SPACE)) m_travelCam->Translate(VxVector(0, 0.2f * deltaTime, 0));
+			if (im->IsKeyDown(CKKEY_LSHIFT)) m_travelCam->Translate(VxVector(0, -0.2f * deltaTime, 0));
 			VxVector delta;
 			im->GetMouseRelativePosition(delta);
-			m_travelCam->Rotate(&VxVector(0, 1, 0), -delta.x * 2 / m_bml->GetRenderContext()->GetWidth());
-			m_travelCam->Rotate(&VxVector(1, 0, 0), -delta.y * 2 / m_bml->GetRenderContext()->GetWidth(), m_travelCam);
+			m_travelCam->Rotate(VxVector(0, 1, 0), -delta.x * 2 / m_bml->GetRenderContext()->GetWidth());
+			m_travelCam->Rotate(VxVector(1, 0, 0), -delta.y * 2 / m_bml->GetRenderContext()->GetWidth(), m_travelCam);
 		}
 		else if (m_camOn->GetBoolean()) {
 			if (im->IsKeyPressed(m_cam45->GetKey())) {
-				m_camOrientRef->Rotate(&VxVector(0, 1, 0), PI / 4, m_camOrientRef);
-				m_camOrient->SetQuaternion(&VxQuaternion(), m_camOrientRef);
+				m_camOrientRef->Rotate(VxVector(0, 1, 0), PI / 4, m_camOrientRef);
+				m_camOrient->SetQuaternion(VxQuaternion(), m_camOrientRef);
 			}
 			if (im->IsKeyDown(m_camRot[0]->GetKey())) {
-				m_camOrientRef->Rotate(&VxVector(0, 1, 0), -0.01f * deltaTime, m_camOrientRef);
-				m_camOrient->SetQuaternion(&VxQuaternion(), m_camOrientRef);
+				m_camOrientRef->Rotate(VxVector(0, 1, 0), -0.01f * deltaTime, m_camOrientRef);
+				m_camOrient->SetQuaternion(VxQuaternion(), m_camOrientRef);
 			}
 			if (im->IsKeyDown(m_camRot[1]->GetKey())) {
-				m_camOrientRef->Rotate(&VxVector(0, 1, 0), 0.01f * deltaTime, m_camOrientRef);
-				m_camOrient->SetQuaternion(&VxQuaternion(), m_camOrientRef);
+				m_camOrientRef->Rotate(VxVector(0, 1, 0), 0.01f * deltaTime, m_camOrientRef);
+				m_camOrient->SetQuaternion(VxQuaternion(), m_camOrientRef);
 			}
 			if (im->IsKeyDown(m_camY[0]->GetKey()))
-				m_camPos->Translate(&VxVector(0, 0.15f * deltaTime, 0), m_camOrientRef);
+				m_camPos->Translate(VxVector(0, 0.15f * deltaTime, 0), m_camOrientRef);
 			if (im->IsKeyDown(m_camY[1]->GetKey()))
-				m_camPos->Translate(&VxVector(0, -0.15f * deltaTime, 0), m_camOrientRef);
+				m_camPos->Translate(VxVector(0, -0.15f * deltaTime, 0), m_camOrientRef);
 			if (im->IsKeyDown(m_camZ[0]->GetKey())) {
 				VxVector position;
 				m_camPos->GetPosition(&position, m_camOrientRef);
 				position.z = (std::min)(position.z + 0.1f * deltaTime, -0.1f);
-				m_camPos->SetPosition(&position, m_camOrientRef);
+				m_camPos->SetPosition(position, m_camOrientRef);
 			}
 			if (im->IsKeyDown(m_camZ[1]->GetKey()))
-				m_camPos->Translate(&VxVector(0, 0, -0.1f * deltaTime), m_camOrientRef);
+				m_camPos->Translate(VxVector(0, 0, -0.1f * deltaTime), m_camOrientRef);
 			if (im->IsKeyDown(m_camReset->GetKey())) {
 				VxQuaternion rotation;
 				m_camOrientRef->GetQuaternion(&rotation, m_camTarget);
@@ -932,9 +932,9 @@ void BMLMod::OnProcess() {
 					rotation = rotation + VxQuaternion();
 					rotation *= 0.5f;
 				}
-				m_camOrientRef->SetQuaternion(&rotation, m_camTarget);
-				m_camOrient->SetQuaternion(&VxQuaternion(), m_camOrientRef);
-				m_camPos->SetPosition(&VxVector(0, 35, -22), m_camOrient);
+				m_camOrientRef->SetQuaternion(rotation, m_camTarget);
+				m_camOrient->SetQuaternion(VxQuaternion(), m_camOrientRef);
+				m_camPos->SetPosition(VxVector(0, 35, -22), m_camOrient);
 			}
 		}
 
@@ -961,17 +961,17 @@ void BMLMod::OnProcess() {
 
 				if (m_curSel >= 0) {
 					m_curObj = static_cast<CK3dEntity*>(ctx->CopyObject(m_pBalls[m_curSel]));
-					m_curObj->SetPosition(&VxVector(0, 5, 0), m_camTarget);
+					m_curObj->SetPosition(VxVector(0, 5, 0), m_camTarget);
 					m_curObj->Show();
 				}
 			}
 			else if (im->oIsKeyDown(m_addBall[m_curSel]->GetKey())) {
-				if (im->oIsKeyDown(m_moveKeys[0]->GetKey())) m_curObj->Translate(&VxVector(0, 0, 0.1f * deltaTime), m_camOrientRef);
-				if (im->oIsKeyDown(m_moveKeys[1]->GetKey())) m_curObj->Translate(&VxVector(0, 0, -0.1f * deltaTime), m_camOrientRef);
-				if (im->oIsKeyDown(m_moveKeys[2]->GetKey())) m_curObj->Translate(&VxVector(-0.1f * deltaTime, 0, 0), m_camOrientRef);
-				if (im->oIsKeyDown(m_moveKeys[3]->GetKey())) m_curObj->Translate(&VxVector(0.1f * deltaTime, 0, 0), m_camOrientRef);
-				if (im->oIsKeyDown(m_moveKeys[4]->GetKey())) m_curObj->Translate(&VxVector(0, 0.1f * deltaTime, 0), m_camOrientRef);
-				if (im->oIsKeyDown(m_moveKeys[5]->GetKey())) m_curObj->Translate(&VxVector(0, -0.1f * deltaTime, 0), m_camOrientRef);
+				if (im->oIsKeyDown(m_moveKeys[0]->GetKey())) m_curObj->Translate(VxVector(0, 0, 0.1f * deltaTime), m_camOrientRef);
+				if (im->oIsKeyDown(m_moveKeys[1]->GetKey())) m_curObj->Translate(VxVector(0, 0, -0.1f * deltaTime), m_camOrientRef);
+				if (im->oIsKeyDown(m_moveKeys[2]->GetKey())) m_curObj->Translate(VxVector(-0.1f * deltaTime, 0, 0), m_camOrientRef);
+				if (im->oIsKeyDown(m_moveKeys[3]->GetKey())) m_curObj->Translate(VxVector(0.1f * deltaTime, 0, 0), m_camOrientRef);
+				if (im->oIsKeyDown(m_moveKeys[4]->GetKey())) m_curObj->Translate(VxVector(0, 0.1f * deltaTime, 0), m_camOrientRef);
+				if (im->oIsKeyDown(m_moveKeys[5]->GetKey())) m_curObj->Translate(VxVector(0, -0.1f * deltaTime, 0), m_camOrientRef);
 			}
 			else {
 				CKMesh* mesh = m_curObj->GetMesh(0);
@@ -1551,7 +1551,7 @@ void GuiModCategory::SetVisible(bool visible) {
 	Gui::SetVisible(visible);
 	if (visible) {
 		std::vector<Property*> &props = m_config->GetCategory(m_category.c_str()).props;
-		for (int i = 0; i < props.size(); i++) {
+		for (size_t i = 0; i < props.size(); i++) {
 			Property* prop = props[i];
 			m_data[i]->CopyValue(prop);
 			std::pair<BGui::Element*, BGui::Element*> input = m_inputs[i];

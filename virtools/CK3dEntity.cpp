@@ -116,7 +116,7 @@ NAKED CKERROR CK3dEntity::RemoveMesh(CKMesh* mesh) {
 	JUMPV(0x100);
 }
 
-NAKED void CK3dEntity::LookAt(const VxVector* Pos, CK3dEntity* Ref, CKBOOL KeepChildren) {
+NAKED void CK3dEntity::LookAt(const VxVector& Pos, CK3dEntity* Ref, CKBOOL KeepChildren) {
 	JUMPV(0x104);
 }
 
@@ -124,7 +124,7 @@ NAKED void CK3dEntity::Rotate(float X, float Y, float Z, float Angle, CK3dEntity
 	JUMPV(0x108);
 }
 
-NAKED void CK3dEntity::Rotate(const VxVector* Axis, float Angle, CK3dEntity* Ref, CKBOOL KeepChildren) {
+NAKED void CK3dEntity::Rotate(const VxVector& Axis, float Angle, CK3dEntity* Ref, CKBOOL KeepChildren) {
 	JUMPV(0x10c);
 }
 
@@ -132,7 +132,7 @@ NAKED void CK3dEntity::Translate(float X, float Y, float Z, CK3dEntity* Ref, CKB
 	JUMPV(0x110);
 }
 
-NAKED void CK3dEntity::Translate(const VxVector* Vect, CK3dEntity* Ref, CKBOOL KeepChildren) {
+NAKED void CK3dEntity::Translate(const VxVector& Vect, CK3dEntity* Ref, CKBOOL KeepChildren) {
 	JUMPV(0x114);
 }
 
@@ -140,7 +140,7 @@ NAKED void CK3dEntity::AddScale(float X, float Y, float Z, CKBOOL KeepChildren, 
 	JUMPV(0x118);
 }
 
-NAKED void CK3dEntity::AddScale(const VxVector* Scale, CKBOOL KeepChildren, CKBOOL Local) {
+NAKED void CK3dEntity::AddScale(const VxVector& Scale, CKBOOL KeepChildren, CKBOOL Local) {
 	JUMPV(0x11c);
 }
 
@@ -148,7 +148,7 @@ NAKED void CK3dEntity::SetPosition(float X, float Y, float Z, CK3dEntity* Ref, C
 	JUMPV(0x120);
 }
 
-NAKED void CK3dEntity::SetPosition(const VxVector* Pos, CK3dEntity* Ref, CKBOOL KeepChildren) {
+NAKED void CK3dEntity::SetPosition(const VxVector& Pos, CK3dEntity* Ref, CKBOOL KeepChildren) {
 	JUMPV(0x124);
 }
 
@@ -156,7 +156,7 @@ NAKED void CK3dEntity::GetPosition(VxVector* Pos, CK3dEntity* Ref) const {
 	JUMPV(0x128);
 }
 
-NAKED void CK3dEntity::SetOrientation(const VxVector* Dir, const VxVector* Up, const VxVector* Right, CK3dEntity* Ref, CKBOOL KeepChildren) {
+NAKED void CK3dEntity::SetOrientation(const VxVector& Dir, const VxVector& Up, const VxVector* Right, CK3dEntity* Ref, CKBOOL KeepChildren) {
 	JUMPV(0x12c);
 }
 
@@ -164,7 +164,7 @@ NAKED void CK3dEntity::GetOrientation(VxVector* Dir, VxVector* Up, VxVector* Rig
 	JUMPV(0x130);
 }
 
-NAKED void CK3dEntity::SetQuaternion(const VxQuaternion* Quat, CK3dEntity* Ref, CKBOOL KeepChildren, BOOL KeepScale) {
+NAKED void CK3dEntity::SetQuaternion(const VxQuaternion& Quat, CK3dEntity* Ref, CKBOOL KeepChildren, BOOL KeepScale) {
 	JUMPV(0x134);
 }
 
@@ -176,7 +176,7 @@ NAKED void CK3dEntity::SetScale(float X, float Y, float Z, CKBOOL KeepChildren, 
 	JUMPV(0x13c);
 }
 
-NAKED void CK3dEntity::SetScale(const VxVector* Scale, CKBOOL KeepChildren, CKBOOL Local) {
+NAKED void CK3dEntity::SetScale(const VxVector& Scale, CKBOOL KeepChildren, CKBOOL Local) {
 	JUMPV(0x140);
 }
 
@@ -184,19 +184,19 @@ NAKED void CK3dEntity::GetScale(VxVector* Scale, CKBOOL Local) {
 	JUMPV(0x144);
 }
 
-NAKED CKBOOL CK3dEntity::ConstructWorldMatrix(const VxVector* Pos, const VxVector* Scale, const VxQuaternion* Quat) {
+NAKED CKBOOL CK3dEntity::ConstructWorldMatrix(const VxVector& Pos, const VxVector& Scale, const VxQuaternion& Quat) {
 	JUMPV(0x148);
 }
 
-NAKED CKBOOL CK3dEntity::ConstructWorldMatrixEx(const VxVector* Pos, const VxVector* Scale, const VxQuaternion* Quat, const VxQuaternion* Shear, float Sign) {
+NAKED CKBOOL CK3dEntity::ConstructWorldMatrixEx(const VxVector& Pos, const VxVector& Scale, const VxQuaternion& Quat, const VxQuaternion& Shear, float Sign) {
 	JUMPV(0x14c);
 }
 
-NAKED CKBOOL CK3dEntity::ConstructLocalMatrix(const VxVector* Pos, const VxVector* Scale, const VxQuaternion* Quat) {
+NAKED CKBOOL CK3dEntity::ConstructLocalMatrix(const VxVector& Pos, const VxVector& Scale, const VxQuaternion& Quat) {
 	JUMPV(0x150);
 }
 
-NAKED CKBOOL CK3dEntity::ConstructLocalMatrixEx(const VxVector* Pos, const VxVector* Scale, const VxQuaternion* Quat, const VxQuaternion* Shear, float Sign) {
+NAKED CKBOOL CK3dEntity::ConstructLocalMatrixEx(const VxVector& Pos, const VxVector& Scale, const VxQuaternion& Quat, const VxQuaternion& Shear, float Sign) {
 	JUMPV(0x154);
 }
 
@@ -204,7 +204,7 @@ NAKED CKBOOL CK3dEntity::Render(CKRenderContext* Dev, CKDWORD Flags) {
 	JUMPV(0x158);
 }
 
-NAKED int CK3dEntity::RayIntersection(const VxVector* Pos1, const VxVector* Pos2, VxIntersectionDesc* Desc, CK3dEntity* Ref, CK_RAYINTERSECTION iOptions) {
+NAKED int CK3dEntity::RayIntersection(const VxVector& Pos1, const VxVector& Pos2, VxIntersectionDesc* Desc, CK3dEntity* Ref, CK_RAYINTERSECTION iOptions) {
 	JUMPV(0x15c);
 }
 
@@ -236,27 +236,27 @@ NAKED const VxMatrix& CK3dEntity::GetInverseWorldMatrix() const {
 	JUMPV(0x178);
 }
 
-NAKED void CK3dEntity::Transform(VxVector* Dest, const VxVector* Src, CK3dEntity* Ref) const {
+NAKED void CK3dEntity::Transform(VxVector* Dest, const VxVector& Src, CK3dEntity* Ref) const {
 	JUMPV(0x17c);
 }
 
-NAKED void CK3dEntity::InverseTransform(VxVector* Dest, const VxVector* Src, CK3dEntity* Ref) const {
+NAKED void CK3dEntity::InverseTransform(VxVector* Dest, const VxVector& Src, CK3dEntity* Ref) const {
 	JUMPV(0x180);
 }
 
-NAKED void CK3dEntity::TransformVector(VxVector* Dest, const VxVector* Src, CK3dEntity* Ref) const {
+NAKED void CK3dEntity::TransformVector(VxVector* Dest, const VxVector& Src, CK3dEntity* Ref) const {
 	JUMPV(0x184);
 }
 
-NAKED void CK3dEntity::InverseTransformVector(VxVector* Dest, const VxVector* Src, CK3dEntity* Ref) const {
+NAKED void CK3dEntity::InverseTransformVector(VxVector* Dest, const VxVector& Src, CK3dEntity* Ref) const {
 	JUMPV(0x188);
 }
 
-NAKED void CK3dEntity::TransformMany(VxVector* Dest, const VxVector* Src, int count, CK3dEntity* Ref) const {
+NAKED void CK3dEntity::TransformMany(VxVector* Dest, const VxVector& Src, int count, CK3dEntity* Ref) const {
 	JUMPV(0x18c);
 }
 
-NAKED void CK3dEntity::InverseTransformMany(VxVector* Dest, const VxVector* Src, int count, CK3dEntity* Ref) const {
+NAKED void CK3dEntity::InverseTransformMany(VxVector* Dest, const VxVector& Src, int count, CK3dEntity* Ref) const {
 	JUMPV(0x190);
 }
 
@@ -308,7 +308,7 @@ NAKED const VxBbox& CK3dEntity::GetBoundingBox(CKBOOL Local) {
 	JUMPV(0x1c0);
 }
 
-NAKED CKBOOL CK3dEntity::SetBoundingBox(const VxBbox* BBox, CKBOOL Local) {
+NAKED CKBOOL CK3dEntity::SetBoundingBox(const VxBbox& BBox, CKBOOL Local) {
 	JUMPV(0x1c4);
 }
 

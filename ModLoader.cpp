@@ -93,9 +93,16 @@ void ModLoader::Init() {
 
 	m_logger->Info("Step Hook created");
 
-	if (MH_CreateHook(reinterpret_cast<LPVOID>(0x25681C30), &ObjectLoader,
+	HMODULE narratives = GetModuleHandle("Narratives.dll");
+	if (narratives == nullptr) {
+		m_logger->Error("Get Narratives Address Failed");
+		return;
+	}
+
+	LPVOID objectLoadAddr = reinterpret_cast<LPBYTE>(narratives) + 0x1C30;
+	if (MH_CreateHook(objectLoadAddr, &ObjectLoader,
 		reinterpret_cast<LPVOID*>(&m_objectLoader)) != MH_OK
-		|| MH_EnableHook(reinterpret_cast<LPVOID>(0x25681C30)) != MH_OK) {
+		|| MH_EnableHook(objectLoadAddr) != MH_OK) {
 		m_logger->Error("Create Object Loader Hook Failed");
 		return;
 	}
@@ -368,8 +375,7 @@ int ModLoader::ObjectLoader(const CKBehaviorContext& behcontext) {
 		beh->GetLocalParameterValue(0, &dynamic);
 
 		XObjectArray* oarray = *(XObjectArray**)beh->GetOutputParameterWriteDataPtr(0);
-		CKObject* masterobject = NULL;
-		beh->GetOutputParameterObject(1);
+		CKObject* masterobject = beh->GetOutputParameterObject(1);
 		BOOL isMap = !strcmp(beh->GetOwnerScript()->GetName(), "Levelinit_build");
 
 		m_instance->BroadcastCallback(&IMod::OnLoadObject, std::bind(&IMod::OnLoadObject, std::placeholders::_1, filename, isMap,

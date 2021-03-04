@@ -5,11 +5,11 @@ NAKED void Vx3DMatrixIdentity(VxMatrix& Mat) {
 	JUMP(0x2429A990);
 }
 
-NAKED void Vx3DMultiplyMatrixVector(VxVector* ResultVector, const VxMatrix& Mat, const VxVector* Vector) {
+NAKED void Vx3DMultiplyMatrixVector(VxVector* ResultVector, const VxMatrix& Mat, const VxVector& Vector) {
 	JUMP(0x242838F0);
 }
 
-NAKED void Vx3DMultiplyMatrixVectorMany(VxVector* ResultVectors, const VxMatrix& Mat, const VxVector* Vectors, int count, int stride) {
+NAKED void Vx3DMultiplyMatrixVectorMany(VxVector* ResultVectors, const VxMatrix& Mat, const VxVector& Vectors, int count, int stride) {
 	JUMP(0x242839B0);
 }
 
@@ -17,15 +17,15 @@ NAKED void Vx3DMultiplyMatrixVector4(VxVector4* ResultVector, const VxMatrix& Ma
 	JUMP(0x24283B70);
 }
 
-NAKED void Vx3DMultiplyMatrixVector4(VxVector4* ResultVector, const VxMatrix& Mat, const VxVector* Vector) {
+NAKED void Vx3DMultiplyMatrixVector4(VxVector4* ResultVector, const VxMatrix& Mat, const VxVector& Vector) {
 	JUMP(0x24283C60);
 }
 
-NAKED void Vx3DRotateVector(VxVector* ResultVector, const VxMatrix& Mat, const VxVector* Vector) {
+NAKED void Vx3DRotateVector(VxVector* ResultVector, const VxMatrix& Mat, const VxVector& Vector) {
 	JUMP(0x24283E80);
 }
 
-NAKED void Vx3DRotateVectorMany(VxVector* ResultVector, const VxMatrix& Mat, const VxVector* Vector, int count, int stride) {
+NAKED void Vx3DRotateVectorMany(VxVector* ResultVector, const VxMatrix& Mat, const VxVector& Vector, int count, int stride) {
 	JUMP(0x24283F30);
 }
 
@@ -101,10 +101,10 @@ NAKED XBOOL VxMatrix::Compare(const VxMatrix& mat) const {
 	UNDEFINED;
 }
 
-NAKED void VxMatrix::RecomposeMatrixEx(const VxVector* Pos, const VxVector* Scale, const VxQuaternion* Quat, const VxQuaternion* Shear, float Sign) {
+NAKED void VxMatrix::RecomposeMatrixEx(const VxVector& Pos, const VxVector& Scale, const VxQuaternion& Quat, const VxQuaternion& Shear, float Sign) {
 	UNDEFINED;
 }
 
-NAKED void VxMatrix::RecomposeMatrix(const VxVector* Pos, const VxVector* Scale, const VxQuaternion* Quat) {
+NAKED void VxMatrix::RecomposeMatrix(const VxVector& Pos, const VxVector& Scale, const VxQuaternion& Quat) {
 	UNDEFINED;
 }

@@ -124,7 +124,7 @@ public:
 
 		// hsize is now used as position
 		VxVector v = box.GetCenter();
-		Vx3DMultiplyMatrixVector(&hsize,mat,&v);
+		Vx3DMultiplyMatrixVector(&hsize,mat,v);
 		
 		float d =	DotProduct(hsize,m_Normal) + m_D;
 		if	(d > r)	return (d-r);

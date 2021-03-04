@@ -99,73 +99,76 @@ CKBOOL InputHook::oIsKeyReleased(CKDWORD iKey) {
 }
 
 bool InputHook::InitHook() {
-	if (MH_CreateHook(reinterpret_cast<LPVOID>(0x24ac12a0),
+	LPBYTE imAddr = reinterpret_cast<LPBYTE>(GetModuleHandle("Dx5InputManager.dll"));
+	if (imAddr == nullptr) return false;
+
+	if (MH_CreateHook(imAddr + 0x12a0,
 		*reinterpret_cast<LPVOID*>(&InputHook::mIsKeyDown),
 		reinterpret_cast<LPVOID*>(&InputHook::mIsKeyDown)) != MH_OK
-		|| MH_EnableHook(reinterpret_cast<LPVOID>(0x24ac12a0)) != MH_OK) {
+		|| MH_EnableHook(imAddr + 0x12a0) != MH_OK) {
 		return false;
 	}
 
-	if (MH_CreateHook(reinterpret_cast<LPVOID>(0x24ac12e0),
+	if (MH_CreateHook(imAddr + 0x12e0,
 		*reinterpret_cast<LPVOID*>(&InputHook::mIsKeyUp),
 		reinterpret_cast<LPVOID*>(&InputHook::mIsKeyUp)) != MH_OK
-		|| MH_EnableHook(reinterpret_cast<LPVOID>(0x24ac12e0)) != MH_OK) {
+		|| MH_EnableHook(imAddr + 0x12e0) != MH_OK) {
 		return false;
 	}
 
-	if (MH_CreateHook(reinterpret_cast<LPVOID>(0x24ac1310),
+	if (MH_CreateHook(imAddr + 0x1310,
 		*reinterpret_cast<LPVOID*>(&InputHook::mIsKeyToggled),
 		reinterpret_cast<LPVOID*>(&InputHook::mIsKeyToggled)) != MH_OK
-		|| MH_EnableHook(reinterpret_cast<LPVOID>(0x24ac1310)) != MH_OK) {
+		|| MH_EnableHook(imAddr + 0x1310) != MH_OK) {
 		return false;
 	}
 
-	if (MH_CreateHook(reinterpret_cast<LPVOID>(0x24ac1220),
+	if (MH_CreateHook(imAddr + 0x1220,
 		*reinterpret_cast<LPVOID*>(&InputHook::mGetKeyboardState),
 		reinterpret_cast<LPVOID*>(&InputHook::mGetKeyboardState)) != MH_OK
-		|| MH_EnableHook(reinterpret_cast<LPVOID>(0x24ac1220)) != MH_OK) {
+		|| MH_EnableHook(imAddr + 0x1220) != MH_OK) {
 		return false;
 	}
 
-	if (MH_CreateHook(reinterpret_cast<LPVOID>(0x24ac1230),
+	if (MH_CreateHook(imAddr + 0x1230,
 		*reinterpret_cast<LPVOID*>(&InputHook::mGetNumberOfKeyInBuffer),
 		reinterpret_cast<LPVOID*>(&InputHook::mGetNumberOfKeyInBuffer)) != MH_OK
-		|| MH_EnableHook(reinterpret_cast<LPVOID>(0x24ac1230)) != MH_OK) {
+		|| MH_EnableHook(imAddr + 0x1230) != MH_OK) {
 		return false;
 	}
 
-	if (MH_CreateHook(reinterpret_cast<LPVOID>(0x24ac1240),
+	if (MH_CreateHook(imAddr + 0x1240,
 		*reinterpret_cast<LPVOID*>(&InputHook::mGetKeyFromBuffer),
 		reinterpret_cast<LPVOID*>(&InputHook::mGetKeyFromBuffer)) != MH_OK
-		|| MH_EnableHook(reinterpret_cast<LPVOID>(0x24ac1240)) != MH_OK) {
+		|| MH_EnableHook(imAddr + 0x1240) != MH_OK) {
 		return false;
 	}
 
-	if (MH_CreateHook(reinterpret_cast<LPVOID>(0x24ac1360),
+	if (MH_CreateHook(imAddr + 0x1360,
 		*reinterpret_cast<LPVOID*>(&InputHook::mIsMouseButtonDown),
 		reinterpret_cast<LPVOID*>(&InputHook::mIsMouseButtonDown)) != MH_OK
-		|| MH_EnableHook(reinterpret_cast<LPVOID>(0x24ac1360)) != MH_OK) {
+		|| MH_EnableHook(imAddr + 0x1360) != MH_OK) {
 		return false;
 	}
 
-	if (MH_CreateHook(reinterpret_cast<LPVOID>(0x24ac1370),
+	if (MH_CreateHook(imAddr + 0x1370,
 		*reinterpret_cast<LPVOID*>(&InputHook::mIsMouseClicked),
 		reinterpret_cast<LPVOID*>(&InputHook::mIsMouseClicked)) != MH_OK
-		|| MH_EnableHook(reinterpret_cast<LPVOID>(0x24ac1370)) != MH_OK) {
+		|| MH_EnableHook(imAddr + 0x1370) != MH_OK) {
 		return false;
 	}
 
-	if (MH_CreateHook(reinterpret_cast<LPVOID>(0x24ac1390),
+	if (MH_CreateHook(imAddr + 0x1390,
 		*reinterpret_cast<LPVOID*>(&InputHook::mIsMouseToggled),
 		reinterpret_cast<LPVOID*>(&InputHook::mIsMouseToggled)) != MH_OK
-		|| MH_EnableHook(reinterpret_cast<LPVOID>(0x24ac1390)) != MH_OK) {
+		|| MH_EnableHook(imAddr + 0x1390) != MH_OK) {
 		return false;
 	}
 
-	if (MH_CreateHook(reinterpret_cast<LPVOID>(0x24ac13b0),
+	if (MH_CreateHook(imAddr + 0x13b0,
 		*reinterpret_cast<LPVOID*>(&InputHook::mGetMouseButtonsState),
 		reinterpret_cast<LPVOID*>(&InputHook::mGetMouseButtonsState)) != MH_OK
-		|| MH_EnableHook(reinterpret_cast<LPVOID>(0x24ac13b0)) != MH_OK) {
+		|| MH_EnableHook(imAddr + 0x13b0) != MH_OK) {
 		return false;
 	}
 

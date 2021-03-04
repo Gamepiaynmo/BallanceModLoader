@@ -120,7 +120,7 @@ VX_EXPORT	VxFrustum(const VxVector& origin,const VxVector& right,const VxVector&
 		axis[1] = mat[1]*((b.Max.y - b.Min.y)*0.5f);
 		axis[2] = mat[2]*((b.Max.z - b.Min.z)*0.5f);
 		VxVector v = b.GetCenter();
-		Vx3DMultiplyMatrixVector(axis+3,mat,&v);
+		Vx3DMultiplyMatrixVector(axis+3,mat,v);
 
 		// Classification of the bounding box to the 6 planes
 		float f = XClassify(axis,m_NearPlane);

@@ -15,12 +15,12 @@ class VxMatrix;
 
 BML_EXPORT	void			Vx3DMatrixIdentity		(VxMatrix& Mat);
 
-BML_EXPORT	void			Vx3DMultiplyMatrixVector(VxVector *ResultVector,const VxMatrix& Mat,const VxVector *Vector);
-BML_EXPORT	void			Vx3DMultiplyMatrixVectorMany(VxVector *ResultVectors,const VxMatrix& Mat,const  VxVector *Vectors,int count,int stride);
+BML_EXPORT	void			Vx3DMultiplyMatrixVector(VxVector *ResultVector,const VxMatrix& Mat,const VxVector &Vector);
+BML_EXPORT	void			Vx3DMultiplyMatrixVectorMany(VxVector *ResultVectors,const VxMatrix& Mat,const  VxVector &Vectors,int count,int stride);
 BML_EXPORT	void			Vx3DMultiplyMatrixVector4(VxVector4 *ResultVector,const VxMatrix& Mat,const  VxVector4 *Vector);
-BML_EXPORT	void			Vx3DMultiplyMatrixVector4(VxVector4 *ResultVector,const VxMatrix& Mat,const  VxVector *Vector); // w=1
-BML_EXPORT	void			Vx3DRotateVector		(VxVector *ResultVector,const VxMatrix& Mat,const VxVector *Vector);
-BML_EXPORT	void			Vx3DRotateVectorMany	(VxVector *ResultVector,const VxMatrix& Mat,const VxVector *Vector,int count,int stride);
+BML_EXPORT	void			Vx3DMultiplyMatrixVector4(VxVector4 *ResultVector,const VxMatrix& Mat,const  VxVector &Vector); // w=1
+BML_EXPORT	void			Vx3DRotateVector		(VxVector *ResultVector,const VxMatrix& Mat,const VxVector &Vector);
+BML_EXPORT	void			Vx3DRotateVectorMany	(VxVector *ResultVector,const VxMatrix& Mat,const VxVector &Vector,int count,int stride);
 BML_EXPORT	void			Vx3DMultiplyMatrix		(VxMatrix& ResultMat,const VxMatrix& MatA,const VxMatrix& MatB);
 BML_EXPORT	void			Vx3DMultiplyMatrix4		(VxMatrix& ResultMat,const VxMatrix& MatA,const VxMatrix& MatB);
 BML_EXPORT	void			Vx3DInverseMatrix		(VxMatrix& InverseMat,const VxMatrix& Mat);
@@ -61,8 +61,8 @@ public:
 	void Perspective(float Fov,float Aspect,float Near_plane,float Far_plane);
 	void OrthographicRect(float Left,float Right,float Top,float Bottom,float Near_plane,float Far_plane);
 	void PerspectiveRect(float Left,float Right,float Top,float Bottom,float Near_plane,float Far_plane);
-	void RecomposeMatrixEx(const VxVector *Pos,const VxVector *Scale,const VxQuaternion *Quat, const VxQuaternion *Shear, float Sign);
-	void RecomposeMatrix(const VxVector *Pos, const VxVector *Scale, const VxQuaternion *Quat);
+	void RecomposeMatrixEx(const VxVector &Pos,const VxVector &Scale,const VxQuaternion &Quat, const VxQuaternion &Shear, float Sign);
+	void RecomposeMatrix(const VxVector &Pos, const VxVector &Scale, const VxQuaternion &Quat);
 	
 // operators
 	const VxVector4& operator[] (int i) const {return (const VxVector4&)(*(VxVector4*)(m_Data+i));}

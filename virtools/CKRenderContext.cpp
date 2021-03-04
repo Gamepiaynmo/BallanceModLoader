@@ -356,15 +356,15 @@ NAKED void CKRenderContext::Activate(CKBOOL active) {
     JUMPV(0x1ac);
 }
 
-NAKED int CKRenderContext::DumpToMemory(const VxRect* iRect, VXBUFFER_TYPE buffer, VxImageDescEx& desc) {
+NAKED int CKRenderContext::DumpToMemory(const VxRect& iRect, VXBUFFER_TYPE buffer, VxImageDescEx& desc) {
     JUMPV(0x1b0);
 }
 
-NAKED int CKRenderContext::CopyToVideo(const VxRect* iRect, VXBUFFER_TYPE buffer, VxImageDescEx& desc) {
+NAKED int CKRenderContext::CopyToVideo(const VxRect& iRect, VXBUFFER_TYPE buffer, VxImageDescEx& desc) {
     JUMPV(0x1b4);
 }
 
-NAKED CKERROR CKRenderContext::DumpToFile(CKSTRING filename, const VxRect* rect, VXBUFFER_TYPE buffer) {
+NAKED CKERROR CKRenderContext::DumpToFile(CKSTRING filename, const VxRect& rect, VXBUFFER_TYPE buffer) {
     JUMPV(0x1b8);
 }
 

@@ -374,9 +374,9 @@ public:
     void GetStats(VxStats* stats);
     void SetCurrentMaterial(CKMaterial* mat, BOOL Lit = TRUE);
     void Activate(CKBOOL active = TRUE);
-    int DumpToMemory(const VxRect* iRect, VXBUFFER_TYPE buffer, VxImageDescEx& desc);
-    int CopyToVideo(const VxRect* iRect, VXBUFFER_TYPE buffer, VxImageDescEx& desc);
-    CKERROR DumpToFile(CKSTRING filename, const VxRect* rect, VXBUFFER_TYPE buffer);
+    int DumpToMemory(const VxRect& iRect, VXBUFFER_TYPE buffer, VxImageDescEx& desc);
+    int CopyToVideo(const VxRect& iRect, VXBUFFER_TYPE buffer, VxImageDescEx& desc);
+    CKERROR DumpToFile(CKSTRING filename, const VxRect& rect, VXBUFFER_TYPE buffer);
     VxDirectXData* GetDirectXInfo();
     void WarnEnterThread();
     void WarnExitThread();
