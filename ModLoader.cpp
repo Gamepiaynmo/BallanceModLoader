@@ -93,6 +93,12 @@ void ModLoader::Init() {
 
 	m_logger->Info("Step Hook created");
 
+#ifdef _DEBUG
+	m_logger->Info("Player.exe Address: 0x%08x", GetModuleHandle("Player.exe"));
+	m_logger->Info("CK2.dll Address: 0x%08x", GetModuleHandle("CK2.dll"));
+	m_logger->Info("VxMath.dll Address: 0x%08x", GetModuleHandle("VxMath.dll"));
+#endif
+
 	HMODULE narratives = GetModuleHandle("Narratives.dll");
 	if (narratives == nullptr) {
 		m_logger->Error("Get Narratives Address Failed");
@@ -212,7 +218,7 @@ CKERROR Player::Process() {
 
 // Render Tick
 CKERROR Player::Render(CK_RENDER_FLAGS flags) {
-	CKERROR result = ModLoader::m_instance->GetRenderContext()->Render(flags);
+	CKERROR result = ModLoader::m_instance->GetCKContext()->GetPlayerRenderContext()->Render(flags);
 	ModLoader::m_instance->Render(flags, result);
 	return result;
 }
