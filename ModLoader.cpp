@@ -115,6 +115,22 @@ void ModLoader::Init() {
 
 	m_logger->Info("Object Loader Hook created");
 
+	HMODULE physics_RT = GetModuleHandle("Physics_RT.dll");
+	if (physics_RT == nullptr) {
+		m_logger->Error("Get Physics_RT Address Failed");
+		return;
+	}
+
+	LPVOID physicalizeAddr = reinterpret_cast<BYTE*>(physics_RT) + 0x26B0;
+	if (MH_CreateHook(physicalizeAddr, &Physicalize,
+		reinterpret_cast<LPVOID*>(&m_physicalize)) != MH_OK
+		|| MH_EnableHook(physicalizeAddr) != MH_OK) {
+		m_logger->Error("Create Physicalize Hook Failed");
+		return;
+	}
+
+	m_logger->Info("Physicalize Hook created");
+
 	if (!InputHook::InitHook()) {
 		m_logger->Error("Create Input Manager Hooks Failed");
 		return;
@@ -398,6 +414,74 @@ int ModLoader::ObjectLoader(const CKBehaviorContext& behcontext) {
 	}
 
 	return result;
+}
+
+int ModLoader::Physicalize(const CKBehaviorContext& behcontext) {
+	CKBehavior* beh = behcontext.Behavior;
+	CKContext* ctx = behcontext.Context;
+	bool physicalize = beh->IsInputActive(0);
+	CK3dEntity* target = (CK3dEntity*)beh->GetTarget();
+
+	if (physicalize) {
+		BOOL fixed;
+		float friction, elasticity, mass;
+		beh->GetInputParameterValue(0, &fixed);
+		beh->GetInputParameterValue(1, &friction);
+		beh->GetInputParameterValue(2, &elasticity);
+		beh->GetInputParameterValue(3, &mass);
+		CKSTRING collGroup = (CKSTRING)beh->GetInputParameterReadDataPtr(4);
+		BOOL startFrozen, enableColl, calcMassCenter;
+		float linearDamp, rotDamp;
+		beh->GetInputParameterValue(5, &startFrozen);
+		beh->GetInputParameterValue(6, &enableColl);
+		beh->GetInputParameterValue(7, &calcMassCenter);
+		beh->GetInputParameterValue(8, &linearDamp);
+		beh->GetInputParameterValue(9, &rotDamp);
+		CKSTRING collSurface = (CKSTRING)beh->GetInputParameterReadDataPtr(10);
+		VxVector massCenter;
+		beh->GetLocalParameterValue(3, &massCenter);
+
+		int convexCnt, ballCnt, concaveCnt;
+		beh->GetLocalParameterValue(0, &convexCnt);
+		beh->GetLocalParameterValue(1, &ballCnt);
+		beh->GetLocalParameterValue(2, &concaveCnt);
+		CKMesh **convexMesh = nullptr, **concaveMesh = nullptr;
+		VxVector* ballCenter = nullptr; float* ballRadius = nullptr;
+
+		int paramPos = 11;
+		if (convexCnt > 0) {
+			convexMesh = new CKMesh*[convexCnt];
+			for (int i = 0; i < convexCnt; i++)
+				convexMesh[i] = (CKMesh*)beh->GetInputParameterObject(paramPos + i);
+			paramPos += convexCnt;
+		}
+
+		if (ballCnt > 0) {
+			ballCenter = new VxVector[ballCnt];
+			ballRadius = new float[ballCnt];
+			for (int i = 0; i < ballCnt; i++) {
+				beh->GetInputParameterValue(paramPos + 2 * i, ballCenter + i);
+				beh->GetInputParameterValue(paramPos + 2 * i + 1, ballRadius + i);
+			}
+			paramPos += ballCnt * 2;
+		}
+
+		if (concaveCnt > 0) {
+			concaveMesh = new CKMesh*[concaveCnt];
+			for (int i = 0; i < concaveCnt; i++)
+				concaveMesh[i] = (CKMesh*)beh->GetInputParameterObject(paramPos + i);
+			paramPos += concaveCnt;
+		}
+
+		m_instance->BroadcastCallback(&IMod::OnPhysicalize, std::bind(&IMod::OnPhysicalize, std::placeholders::_1, target,
+			fixed, friction, elasticity, mass, collGroup, startFrozen, enableColl, calcMassCenter, linearDamp, rotDamp,
+			collSurface, massCenter, convexCnt, convexMesh, ballCnt, ballCenter, ballRadius, concaveCnt, concaveMesh));
+	}
+	else {
+		m_instance->BroadcastCallback(&IMod::OnUnphysicalize, std::bind(&IMod::OnUnphysicalize, std::placeholders::_1, target));
+	}
+
+	return m_instance->m_physicalize(behcontext);
 }
 
 void ModLoader::WriteMemory(LPVOID dest, LPVOID src, int len) {
@@ -808,6 +892,11 @@ void ModLoader::FillCallbackMap(IMod* mod) {
 	CHECK_V_FUNC(index++, &IMod::OnRender);
 	CHECK_V_FUNC(index++, &IMod::OnCheatEnabled);
 
+	if (mod->GetBMLVersion() >= BMLVersion(0, 3, 34)) {
+		CHECK_V_FUNC(index++, &IMod::OnPhysicalize);
+		CHECK_V_FUNC(index++, &IMod::OnUnphysicalize);
+	}
+
 #undef CHECK_V_FUNC
 }
 
@@ -817,4 +906,12 @@ int ModLoader::GetModCount() {
 
 IMod* ModLoader::GetMod(int index) {
 	return m_mods[index];
+}
+
+float ModLoader::GetSRScore() {
+	return m_bmlmod->GetSRScore();
+}
+
+int ModLoader::GetHSScore() {
+	return m_bmlmod->GetHSScore();
 }

@@ -128,4 +128,7 @@ public:
 
 	virtual int GetModCount() = 0;
 	virtual class IMod* GetMod(int index) = 0;
+
+	virtual float GetSRScore() = 0;
+	virtual int GetHSScore() = 0;
 };

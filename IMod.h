@@ -12,13 +12,17 @@ struct BMLVersion {
 	BMLVersion() : major(BML_MAJOR_VER), minor(BML_MINOR_VER), build(BML_BUILD_VER) {}
 	BMLVersion(int mj, int mn, int bd) : major(mj), minor(mn), build(bd) {}
 	int major, minor, build;
-	bool operator <(BMLVersion& o) {
+	bool operator <(const BMLVersion& o) {
 		if (major == o.major) {
 			if (minor == o.minor)
 				return build < o.build;
 			return minor < o.minor;
 		}
 		return major < o.major;
+	}
+
+	bool operator >=(const BMLVersion& o) {
+		return !(*this < o);
 	}
 };
 
@@ -47,6 +51,12 @@ public:
 	virtual void OnRender(CK_RENDER_FLAGS flags) {};
 
 	virtual void OnCheatEnabled(bool enable) {};
+
+	virtual void OnPhysicalize(CK3dEntity* target, CKBOOL fixed, float friction, float elasticity, float mass,
+		CKSTRING collGroup, CKBOOL startFrozen, CKBOOL enableColl, CKBOOL calcMassCenter, float linearDamp,
+		float rotDamp, CKSTRING collSurface, VxVector massCenter, int convexCnt, CKMesh** convexMesh,
+		int ballCnt, VxVector* ballCenter, float* ballRadius, int concaveCnt, CKMesh** concaveMesh) {};
+	virtual void OnUnphysicalize(CK3dEntity* target) {};
 
 protected:
 	virtual ILogger* GetLogger() final;

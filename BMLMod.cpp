@@ -1171,6 +1171,14 @@ void BMLMod::ExitTravelCam() {
 	m_bml->GetRenderContext()->AttachViewpointToCamera(cam);
 }
 
+int BMLMod::GetHSScore() {
+	int points, lifes;
+	CKDataArray* energy = m_bml->GetArrayByName("Energy");
+	energy->GetElementValue(0, 0, &points);
+	energy->GetElementValue(0, 1, &lifes);
+	return points + lifes * 200;
+}
+
 void CommandTravel::Execute(IBML* bml, const std::vector<std::string>& args) {
 	if (bml->IsPlaying()) {
 		if (m_mod->IsInTravelCam()) {

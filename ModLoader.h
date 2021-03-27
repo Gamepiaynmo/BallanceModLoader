@@ -178,6 +178,9 @@ public:
 	virtual int GetModCount() override;
 	virtual IMod* GetMod(int index) override;
 
+	virtual float GetSRScore() override;
+	virtual int GetHSScore() override;
+
 private:
 	bool m_inited = false;
 	bool m_exiting = false;
@@ -217,9 +220,10 @@ private:
 	};
 	std::vector<PreloadMod> m_preloadMods;
 
+	typedef int (*BuildingBoxFunc)(const CKBehaviorContext& behcontext);
 	static int ObjectLoader(const CKBehaviorContext& behcontext);
-	typedef int (*ObjectLoaderFunc)(const CKBehaviorContext& behcontext);
-	ObjectLoaderFunc m_objectLoader;
+	static int Physicalize(const CKBehaviorContext& behcontext);
+	BuildingBoxFunc m_objectLoader, m_physicalize;
 
 	void GetContextsAndManagers();
 	ICommand* FindCommand(const std::string& name);

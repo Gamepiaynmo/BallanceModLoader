@@ -171,6 +171,9 @@ public:
 	void ShowGui(BGui::Gui* gui);
 	void CloseCurrentGui();
 
+	float GetSRScore() { return m_srtimer; }
+	int GetHSScore();
+
 	void EnterTravelCam();
 	void ExitTravelCam();
 	bool IsInTravelCam();
