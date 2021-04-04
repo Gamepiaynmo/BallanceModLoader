@@ -188,14 +188,17 @@ void BMLMod::OnEditScript_Base_EventHandler(CKBehavior* script) {
 	InsertBB(script, FindNextLink(script, FindNextBB(script, som, nullptr, 1, 0)), CreateBB(script, BML_ONEXITGAME_GUID));
 
 	GetLogger()->Info("Insert message Load Level Hook");
-	InsertBB(script, FindNextLink(script, FindNextBB(script, som, nullptr, 2, 0)), CreateBB(script, BML_ONPRELOADLEVEL_GUID));
+	CKBehaviorLink* link = FindNextLink(script, FindNextBB(script, FindNextBB(script, FindNextBB(script, som, nullptr, 2, 0))));
+	InsertBB(script, link, CreateBB(script, BML_ONPRELOADLEVEL_GUID));
 	CreateLink(script, FindEndOfChain(script, FindNextBB(script, som, nullptr, 2, 0)), CreateBB(script, BML_ONPOSTLOADLEVEL_GUID));
 
 	GetLogger()->Info("Insert message Start Level Hook");
 	CreateLink(script, FindEndOfChain(script, FindNextBB(script, som, nullptr, 3, 0)), CreateBB(script, BML_ONSTARTLEVEL_GUID));
 
 	GetLogger()->Info("Insert message Reset Level Hook");
-	InsertBB(script, FindNextLink(script, FindNextBB(script, som, nullptr, 4, 0)), CreateBB(script, BML_ONPRERESETLEVEL_GUID));
+	CKBehavior* rl = FindFirstBB(script, "reset Level");
+	link = FindNextLink(rl, FindNextBB(rl, FindNextBB(rl, rl->GetInput(0))));
+	InsertBB(script, link, CreateBB(script, BML_ONPRERESETLEVEL_GUID));
 	CreateLink(script, FindEndOfChain(script, FindNextBB(script, som, nullptr, 4, 0)), CreateBB(script, BML_ONPOSTRESETLEVEL_GUID));
 
 	GetLogger()->Info("Insert message Pause Level Hook");
@@ -207,11 +210,15 @@ void BMLMod::OnEditScript_Base_EventHandler(CKBehavior* script) {
 	CKBehavior* bs = FindNextBB(script, FindFirstBB(script, "DeleteCollisionSurfaces"));
 
 	GetLogger()->Info("Insert message Exit Level Hook");
-	InsertBB(script, FindNextLink(script, FindNextBB(script, som, nullptr, 7, 0)), CreateBB(script, BML_ONPREEXITLEVEL_GUID));
+	link = FindNextLink(script, FindNextBB(script, FindNextBB(script,
+		FindNextBB(script, FindNextBB(script, FindNextBB(script, som, nullptr, 7, 0))))));
+	InsertBB(script, link, CreateBB(script, BML_ONPREEXITLEVEL_GUID));
 	InsertBB(script, FindNextLink(script, FindNextBB(script, bs, nullptr, 0, 0)), CreateBB(script, BML_ONPOSTEXITLEVEL_GUID));
 
 	GetLogger()->Info("Insert message Next Level Hook");
-	InsertBB(script, FindNextLink(script, FindNextBB(script, som, nullptr, 8, 0)), CreateBB(script, BML_ONPRENEXTLEVEL_GUID));
+	link = FindNextLink(script, FindNextBB(script, FindNextBB(script,
+		FindNextBB(script, FindNextBB(script, FindNextBB(script, som, nullptr, 8, 0))))));
+	InsertBB(script, link, CreateBB(script, BML_ONPRENEXTLEVEL_GUID));
 	InsertBB(script, FindNextLink(script, FindNextBB(script, bs, nullptr, 1, 0)), CreateBB(script, BML_ONPOSTNEXTLEVEL_GUID));
 
 	GetLogger()->Info("Insert message Dead Hook");
