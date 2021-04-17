@@ -199,6 +199,7 @@ namespace BGui {
 		bool CanBeBlocked();
 		void SetCanBeBlocked(bool block);
 		void SetFocus(Input* input);
+		bool Intersect(float x, float y, Element* element);
 
 		static void InitMaterials();
 
@@ -211,8 +212,6 @@ namespace BGui {
 		Button* m_back = nullptr;
 		bool m_block = true;
 		int m_width = 0, m_height = 0;
-
-		bool intersect(float x, float y, Element* element);
 	};
 }
 

@@ -74,6 +74,7 @@ public:
 
 	virtual IProperty* GetProperty(CKSTRING category, CKSTRING key) override;
 
+	CKSTRING GetCategoryComment(CKSTRING category);
 	virtual void SetCategoryComment(CKSTRING category, CKSTRING comment) override;
 
 	void Load();

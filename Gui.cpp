@@ -661,7 +661,7 @@ namespace BGui {
 		if (key == CK_MOUSEBUTTON_LEFT) {
 			bool success = false;
 			for (Button* button : m_buttons) {
-				if (intersect(x, y, button)) {
+				if (Intersect(x, y, button)) {
 					button->InvokeCallback();
 					success = true;
 				}
@@ -671,7 +671,7 @@ namespace BGui {
 			else {
 				SetFocus(nullptr);
 				for (Input* input : m_inputs) {
-					if (intersect(x, y, input)) {
+					if (Intersect(x, y, input)) {
 						SetFocus(input);
 						success = true;
 					}
@@ -693,7 +693,7 @@ namespace BGui {
 	void Gui::OnMouseMove(float x, float y, float lx, float ly) {
 	}
 
-	bool Gui::intersect(float x, float y, Element* element) {
+	bool Gui::Intersect(float x, float y, Element* element) {
 		Vx2DVector pos = element->GetPosition(), size = element->GetSize();
 		return element->IsVisible() && x >= pos.x && x <= pos.x + size.x && y >= pos.y && y <= pos.y + size.y;
 	}
@@ -904,7 +904,7 @@ namespace BGui {
 		for (Button* button : m_buttons)
 			button->OnMouseLeave();
 		for (Button* button : m_buttons)
-			if (intersect(mousePos.x / rc->GetWidth(), mousePos.y / rc->GetHeight(), button)) button->OnMouseEnter();
+			if (Intersect(mousePos.x / rc->GetWidth(), mousePos.y / rc->GetHeight(), button)) button->OnMouseEnter();
 
 		VxVector relPos;
 		input->GetMouseRelativePosition(relPos);

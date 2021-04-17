@@ -1292,6 +1292,10 @@ GuiModMenu::GuiModMenu(IMod* mod) : GuiList() {
 	BGui::Label* desc = AddTextLabel("M_Opt_ModMenu_Description", mod->GetDescription(), ExecuteBB::GAMEFONT_03, 0.35f, 0.20f, 0.3f, 0.1f);
 	desc->SetTextFlags(TEXT_SCREEN | TEXT_WORDWRAP);
 	desc->SetAlignment(ALIGN_TOP);
+	m_comment_bg = AddPanel("M_Opt_ModMenu_Comment_Bg", VxColor(0, 0, 0, 110), 0.725f, 0.4f, 0.25f, 0.2f);
+	m_comment = AddTextLabel("M_Opt_ModMenu_Comment", "", ExecuteBB::GAMEFONT_03, 0.725f, 0.4f, 0.25f, 0.2f);
+	m_comment->SetTextFlags(TEXT_SCREEN | TEXT_WORDWRAP);
+	m_comment->SetAlignment(ALIGN_TOP);
 
 	m_config = ModLoader::m_instance->GetConfig(mod);
 	if (m_config) {
@@ -1302,6 +1306,49 @@ GuiModMenu::GuiModMenu(IMod* mod) : GuiList() {
 
 	Init(m_categories.size(), 6);
 	SetVisible(false);
+}
+
+void GuiModMenu::Process() {
+	bool show_cmt = false;
+	if (m_curpage >= 0 && m_curpage < m_maxpage) {
+		CKRenderContext* rc = ModLoader::m_instance->GetRenderContext();
+		InputHook* input = ModLoader::m_instance->GetInputManager();
+		Vx2DVector mousePos;
+		input->GetMousePosition(mousePos, false);
+		int size = (std::min)(m_maxsize, m_size - m_curpage * m_maxsize);
+		for (int i = 0; i < size; i++) {
+			if (Intersect(mousePos.x / rc->GetWidth(), mousePos.y / rc->GetHeight(), m_buttons[i])) {
+				if (m_curcmt != i) {
+					m_comment_bg->SetVisible(true);
+					m_comment->SetVisible(true);
+					m_comment->SetText(m_config->m_data[i + m_curpage * m_maxsize].comment.c_str());
+					m_curcmt = i;
+				}
+
+				show_cmt = true;
+				break;
+			}
+		}
+	}
+
+	if (!show_cmt) {
+		if (m_curcmt >= 0) {
+			m_comment_bg->SetVisible(false);
+			m_comment->SetVisible(false);
+			m_curcmt = -1;
+		}
+	}
+
+	GuiList::Process();
+}
+
+void GuiModMenu::SetVisible(bool visible) {
+	GuiList::SetVisible(visible);
+	if (visible) {
+		m_comment_bg->SetVisible(false);
+		m_comment->SetVisible(false);
+		m_curcmt = -1;
+	}
 }
 
 BGui::Button* GuiModMenu::CreateButton(int index) {
@@ -1441,6 +1488,7 @@ GuiModCategory::GuiModCategory(GuiModMenu* parent, Config* config, std::string c
 	for (Property* prop : config->GetCategory(category.c_str()).props) {
 		Property* newprop = new Property(nullptr, category, prop->m_key);
 		newprop->CopyValue(prop);
+		newprop->SetComment(prop->GetComment());
 		m_data.push_back(newprop);
 	}
 
@@ -1457,11 +1505,16 @@ GuiModCategory::GuiModCategory(GuiModMenu* parent, Config* config, std::string c
 	AddBackButton("M_Opt_Category_Back")->SetCallback([this]() { SaveAndExit(); });
 	m_exit = AddBackButton("M_Opt_Category_Back");
 	m_exit->SetCallback([this]() { Exit(); });
+	m_comment_bg = AddPanel("M_Opt_Comment_Bg", VxColor(0, 0, 0, 110), 0.725f, 0.4f, 0.25f, 0.2f);
+	m_comment = AddTextLabel("M_Opt_Comment", "", ExecuteBB::GAMEFONT_03, 0.725f, 0.4f, 0.25f, 0.2f);
+	m_comment->SetTextFlags(TEXT_SCREEN | TEXT_WORDWRAP);
+	m_comment->SetAlignment(ALIGN_TOP);
 
 	Vx2DVector offset(0.0f, ModLoader::m_instance->GetRenderContext()->GetHeight() * 0.015f);
 
 	float cnt = 0.25f, page = 0;
 	std::vector<BGui::Element*> elements;
+	std::vector<std::pair<Property*, BGui::Element*>> comments;
 	for (Property* prop : m_data) {
 		std::string name = prop->m_key;
 		switch (prop->GetType()) {
@@ -1479,6 +1532,7 @@ GuiModCategory::GuiModCategory(GuiModMenu* parent, Config* config, std::string c
 				BGui::Panel* panel = AddPanel(name.c_str(), VxColor(0, 0, 0, 110), 0.43f, cnt + 0.05f, 0.18f, 0.025f);
 				elements.push_back(panel);
 				m_inputs.push_back({ input, nullptr });
+				comments.push_back({ prop, bg });
 				cnt += 0.12f;
 				break;
 			}
@@ -1496,6 +1550,7 @@ GuiModCategory::GuiModCategory(GuiModMenu* parent, Config* config, std::string c
 				BGui::Panel* panel = AddPanel(name.c_str(), VxColor(0, 0, 0, 110), 0.43f, cnt + 0.05f, 0.18f, 0.025f);
 				elements.push_back(panel);
 				m_inputs.push_back({ input, nullptr });
+				comments.push_back({ prop, bg });
 				cnt += 0.12f;
 				break;
 			}
@@ -1507,12 +1562,15 @@ GuiModCategory::GuiModCategory(GuiModMenu* parent, Config* config, std::string c
 				bg->SetOffset(offset);
 				elements.push_back(bg);
 				BGui::Input* input = AddTextInput(name.c_str(), ExecuteBB::GAMEFONT_03, 0.43f, cnt + 0.05f, 0.18f, 0.025f);
-				input->SetText(std::to_string(prop->GetFloat()).c_str());
+				std::ostringstream stream;
+				stream << prop->GetFloat();
+				input->SetText(stream.str().c_str());
 				input->SetCallback([this, prop, input](CKDWORD) { prop->SetFloat((float) atof(input->GetText())); });
 				elements.push_back(input);
 				BGui::Panel* panel = AddPanel(name.c_str(), VxColor(0, 0, 0, 110), 0.43f, cnt + 0.05f, 0.18f, 0.025f);
 				elements.push_back(panel);
 				m_inputs.push_back({ input, nullptr });
+				comments.push_back({ prop, bg });
 				cnt += 0.12f;
 				break;
 			}
@@ -1523,6 +1581,7 @@ GuiModCategory::GuiModCategory(GuiModMenu* parent, Config* config, std::string c
 				elements.push_back(key.first);
 				elements.push_back(key.second);
 				m_inputs.push_back({ key.second, nullptr });
+				comments.push_back({ prop, key.first });
 				cnt += 0.06f;
 				break;
 			}
@@ -1540,6 +1599,7 @@ GuiModCategory::GuiModCategory(GuiModMenu* parent, Config* config, std::string c
 				elements.push_back(yesno.first);
 				elements.push_back(yesno.second);
 				m_inputs.push_back(yesno);
+				comments.push_back({ prop, bg });
 				cnt += 0.12f;
 				break;
 			}
@@ -1550,16 +1610,52 @@ GuiModCategory::GuiModCategory(GuiModMenu* parent, Config* config, std::string c
 			page++;
 			m_elements.push_back(elements);
 			elements.clear();
+			m_comments.push_back(comments);
+			comments.clear();
 		}
 	}
 
 	if (cnt > 0.25f) {
 		m_elements.push_back(elements);
+		m_comments.push_back(comments);
 	}
 
 	m_maxpage = m_elements.size();
 
 	SetVisible(false);
+}
+
+void GuiModCategory::Process() {
+	bool show_cmt = false;
+	if (m_curpage >= 0 && m_curpage < m_comments.size()) {
+		CKRenderContext* rc = ModLoader::m_instance->GetRenderContext();
+		InputHook* input = ModLoader::m_instance->GetInputManager();
+		Vx2DVector mousePos;
+		input->GetMousePosition(mousePos, false);
+		for (auto& pair : m_comments[m_curpage]) {
+			if (Intersect(mousePos.x / rc->GetWidth(), mousePos.y / rc->GetHeight(), pair.second)) {
+				if (m_curcmt != pair.first) {
+					m_comment_bg->SetVisible(true);
+					m_comment->SetVisible(true);
+					m_comment->SetText(pair.first->GetComment());
+					m_curcmt = pair.first;
+				}
+
+				show_cmt = true;
+				break;
+			}
+		}
+	}
+
+	if (!show_cmt) {
+		if (m_curcmt != nullptr) {
+			m_comment_bg->SetVisible(false);
+			m_comment->SetVisible(false);
+			m_curcmt = nullptr;
+		}
+	}
+
+	Gui::Process();
 }
 
 void GuiModCategory::SetVisible(bool visible) {
@@ -1573,7 +1669,12 @@ void GuiModCategory::SetVisible(bool visible) {
 			switch (prop->GetType()) {
 				case IProperty::STRING: reinterpret_cast<BGui::Input*>(input.first)->SetText(prop->GetString()); break;
 				case IProperty::INTEGER: reinterpret_cast<BGui::Input*>(input.first)->SetText(std::to_string(prop->GetInteger()).c_str()); break;
-				case IProperty::FLOAT: reinterpret_cast<BGui::Input*>(input.first)->SetText(std::to_string(prop->GetFloat()).c_str()); break;
+				case IProperty::FLOAT: {
+					std::ostringstream stream;
+					stream << prop->GetFloat();
+					reinterpret_cast<BGui::Input*>(input.first)->SetText(stream.str().c_str());
+					break;
+				}
 				case IProperty::KEY: reinterpret_cast<BGui::KeyInput*>(input.first)->SetKey(prop->GetKey()); break;
 				case IProperty::BOOLEAN: {
 					reinterpret_cast<BGui::Button*>(input.first)->SetActive(prop->GetBoolean());
@@ -1582,6 +1683,10 @@ void GuiModCategory::SetVisible(bool visible) {
 				}
 			}
 		}
+
+		m_comment_bg->SetVisible(false);
+		m_comment->SetVisible(false);
+		m_curcmt = nullptr;
 
 		SetPage(m_curpage);
 	}

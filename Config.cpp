@@ -179,6 +179,10 @@ Property* Config::Category::GetProperty(CKSTRING name) {
 	return props.back();
 }
 
+CKSTRING Config::GetCategoryComment(CKSTRING category) {
+	return GetCategory(category).comment.c_str();
+}
+
 void Config::SetCategoryComment(CKSTRING category, CKSTRING comment) {
 	GetCategory(category).comment = comment;
 }

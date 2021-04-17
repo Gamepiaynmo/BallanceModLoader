@@ -50,6 +50,8 @@ class GuiModMenu : public GuiList {
 public:
 	GuiModMenu(IMod* mod);
 
+	virtual void Process() override;
+	virtual void SetVisible(bool visible) override;
 	virtual BGui::Button* CreateButton(int index) override;
 	virtual std::string GetButtonText(int index) override;
 	virtual BGui::Gui* CreateSubGui(int index) override;
@@ -58,6 +60,10 @@ public:
 private:
 	Config* m_config;
 	std::vector<std::string> m_categories;
+
+	BGui::Panel* m_comment_bg;
+	BGui::Label* m_comment;
+	int m_curcmt = -1;
 };
 
 class GuiCustomMap : public GuiList {
@@ -91,6 +97,7 @@ class GuiModCategory : public BGui::Gui {
 public:
 	GuiModCategory(GuiModMenu* parent, Config* config, std::string category);
 
+	virtual void Process() override;
 	virtual void SetVisible(bool visible) override;
 	void SetPage(int page);
 	void PreviousPage() { if (m_curpage > 0) SetPage(m_curpage - 1); }
@@ -110,6 +117,11 @@ private:
 	Config* m_config;
 	std::string m_category;
 	BGui::Button* m_exit;
+
+	std::vector<std::vector<std::pair<Property*, BGui::Element*>>> m_comments;
+	BGui::Panel* m_comment_bg;
+	BGui::Label* m_comment;
+	Property* m_curcmt = nullptr;
 };
 
 class ScreenModeHook : public BGui::Gui {
