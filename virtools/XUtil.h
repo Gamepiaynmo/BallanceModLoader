@@ -10,6 +10,7 @@
 #define _XUTIL_H_
 
 #include "math.h"
+#include "stdlib.h"
 
 
 #ifdef macintosh

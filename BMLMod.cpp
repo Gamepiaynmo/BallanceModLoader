@@ -1627,7 +1627,7 @@ GuiModCategory::GuiModCategory(GuiModMenu* parent, Config* config, std::string c
 
 void GuiModCategory::Process() {
 	bool show_cmt = false;
-	if (m_curpage >= 0 && m_curpage < m_comments.size()) {
+	if (m_curpage >= 0 && m_curpage < (int) m_comments.size()) {
 		CKRenderContext* rc = ModLoader::m_instance->GetRenderContext();
 		InputHook* input = ModLoader::m_instance->GetInputManager();
 		Vx2DVector mousePos;
