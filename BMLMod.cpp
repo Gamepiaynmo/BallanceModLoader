@@ -162,6 +162,16 @@ void BMLMod::OnEditScript_Base_DefaultLevel(CKBehavior* script) {
 		DeleteBB(sm, rrs[0]);
 		DeleteBB(sm, rrs[3]);
 		CreateLink(sm, it, gc, 0, 0);
+
+		CKBehavior* ss = FindFirstBB(script, "Synch to Screen");
+		CKBehavior* dl = FindFirstBB(ss, "Delayer");
+		CKBehavior* ii = FindFirstBB(ss, "Iterator If");
+		CreateLink(ss, ii, dl);
+		FindBB(ss, [ss](CKBehavior* csm) {
+			CKBehavior* smc = FindNextBB(ss, csm, "Show Mouse Cursor");
+			CreateLink(ss, csm, smc, 1, 0);
+			return true;
+			}, "TT Change ScreenMode");
 	}
 
 	if (m_skipAnim->GetBoolean()) {
