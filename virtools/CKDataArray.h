@@ -8,10 +8,10 @@ typedef XSArray<CKDWORD> CKDataRow;
 
 class BML_EXPORT CKDataArray : public CKBeObject {
 public:
-	void InsertColumn(int cdest, CK_ARRAYTYPE type, char* name, CKGUID paramguid = CKGUID(0, 0));
+	void InsertColumn(int cdest, CK_ARRAYTYPE type, CKSTRING name, CKGUID paramguid = CKGUID(0, 0));
 	void MoveColumn(int csrc, int cdest);
 	void RemoveColumn(int c);
-	void SetColumnName(int c, char* name);
+	void SetColumnName(int c, CKSTRING name);
 	char* GetColumnName(int c);
 	void SetColumnType(int c, CK_ARRAYTYPE type, CKGUID paramguid = CKGUID(0, 0));
 	CK_ARRAYTYPE GetColumnType(int c);
@@ -24,7 +24,7 @@ public:
 	CKBOOL GetElementValue(int i, int c, void* value);
 	CKObject* GetElementObject(int i, int c);
 
-	CKBOOL SetElementValue(int i, int c, void* value, int size = 0);
+	CKBOOL SetElementValue(int i, int c, const void* value, int size = 0);
 	CKBOOL SetElementValueFromParameter(int i, int c, CKParameter* pout);
 	CKBOOL SetElementObject(int i, int c, CKObject* object);
 

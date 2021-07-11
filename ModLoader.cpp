@@ -234,9 +234,13 @@ CKERROR Player::Process() {
 
 // Render Tick
 CKERROR Player::Render(CK_RENDER_FLAGS flags) {
-	CKERROR result = ModLoader::m_instance->GetCKContext()->GetPlayerRenderContext()->Render(flags);
-	ModLoader::m_instance->Render(flags, result);
-	return result;
+	if (!ModLoader::m_instance->IsSkipRender()) {
+		CKERROR result = ModLoader::m_instance->GetCKContext()->GetPlayerRenderContext()->Render(flags);
+		ModLoader::m_instance->Render(flags, result);
+		return result;
+	}
+
+	return CK_OK;
 }
 
 CKERROR ModLoader::Step(CKDWORD result) {
@@ -361,6 +365,7 @@ void ModLoader::RegisterModBBs(XObjectDeclarationArray* reg) {
 }
 
 void ModLoader::Process(CKERROR result) {
+	m_skipRender = false;
 	for (auto iter = m_timers.begin(); iter != m_timers.end(); ) {
 		if (!iter->Process(m_timeManager->GetMainTickCount(), m_timeManager->GetAbsoluteTime()))
 			iter = m_timers.erase(iter);
@@ -368,6 +373,8 @@ void ModLoader::Process(CKERROR result) {
 	}
 
 	BroadcastCallback(&IMod::OnProcess, &IMod::OnProcess);
+	if (m_inputManager->IsKeyDown(CKKEY_F))
+		SkipRenderForNextTick();
 
 	m_inputManager->Process();
 }

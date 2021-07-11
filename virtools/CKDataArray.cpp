@@ -1,6 +1,6 @@
 #include "CKDataArray.h"
 
-NAKED void CKDataArray::InsertColumn(int cdest, CK_ARRAYTYPE type, char* name, CKGUID paramguid) {
+NAKED void CKDataArray::InsertColumn(int cdest, CK_ARRAYTYPE type, CKSTRING name, CKGUID paramguid) {
 	JUMP(0x2402696F);
 }
 
@@ -12,7 +12,7 @@ NAKED void CKDataArray::RemoveColumn(int c) {
 	JUMP(0x24026C3D);
 }
 
-NAKED void CKDataArray::SetColumnName(int c, char* name) {
+NAKED void CKDataArray::SetColumnName(int c, CKSTRING name) {
 	JUMP(0x24026D82);
 }
 
@@ -56,7 +56,7 @@ NAKED CKObject* CKDataArray::GetElementObject(int i, int c) {
 	JUMP(0x240273EE);
 }
 
-NAKED CKBOOL CKDataArray::SetElementValue(int i, int c, void* value, int size) {
+NAKED CKBOOL CKDataArray::SetElementValue(int i, int c, const void* value, int size) {
 	JUMP(0x24027410);
 }
 

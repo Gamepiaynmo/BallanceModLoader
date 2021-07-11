@@ -131,4 +131,6 @@ public:
 
 	virtual float GetSRScore() = 0;
 	virtual int GetHSScore() = 0;
+
+	virtual void SkipRenderForNextTick() = 0;
 };

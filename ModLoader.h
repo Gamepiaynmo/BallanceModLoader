@@ -181,6 +181,9 @@ public:
 	virtual float GetSRScore() override;
 	virtual int GetHSScore() override;
 
+	virtual void SkipRenderForNextTick() override { m_skipRender = true; }
+	bool IsSkipRender() { return m_skipRender; }
+
 private:
 	bool m_inited = false;
 	bool m_exiting = false;
@@ -229,6 +232,7 @@ private:
 	ICommand* FindCommand(const std::string& name);
 
 	bool m_ingame = false, m_paused = false;
+	bool m_skipRender = false;
 
 	std::map<void*, std::vector<IMod*>> m_callback_map;
 	void FillCallbackMap(IMod* mod);
