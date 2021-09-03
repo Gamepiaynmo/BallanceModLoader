@@ -273,6 +273,8 @@
     <ClCompile Include="ScriptHelper.cpp" />
     <ClCompile Include="Timer.cpp" />
     <ClCompile Include="Util.cpp" />
+    <ClCompile Include="virtools\CK2dCurve.cpp" />
+    <ClCompile Include="virtools\CK2dCurvePoint.cpp" />
     <ClCompile Include="virtools\CK2dEntity.cpp" />
     <ClCompile Include="virtools\CK3dEntity.cpp" />
     <ClCompile Include="virtools\CKAttributeManager.cpp" />
@@ -353,6 +355,8 @@
     <ClInclude Include="Timer.h" />
     <ClInclude Include="Util.h" />
     <ClInclude Include="Version.h" />
+    <ClInclude Include="virtools\CK2dCurve.h" />
+    <ClInclude Include="virtools\CK2dCurvePoint.h" />
     <ClInclude Include="virtools\CK2dEntity.h" />
     <ClInclude Include="virtools\CK3dEntity.h" />
     <ClInclude Include="virtools\CKAll.h" />
