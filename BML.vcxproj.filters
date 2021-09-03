@@ -237,6 +237,12 @@
     <ClCompile Include="virtools\CKPluginManager.cpp">
       <Filter>源文件\virtools</Filter>
     </ClCompile>
+    <ClCompile Include="virtools\CK2dCurve.cpp">
+      <Filter>源文件\virtools</Filter>
+    </ClCompile>
+    <ClCompile Include="virtools\CK2dCurvePoint.cpp">
+      <Filter>源文件\virtools</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BMLAll.h">
@@ -555,6 +561,12 @@
       <Filter>头文件\virtools</Filter>
     </ClInclude>
     <ClInclude Include="virtools\CKPluginManager.h">
+      <Filter>头文件\virtools</Filter>
+    </ClInclude>
+    <ClInclude Include="virtools\CK2dCurve.h">
+      <Filter>头文件\virtools</Filter>
+    </ClInclude>
+    <ClInclude Include="virtools\CK2dCurvePoint.h">
       <Filter>头文件\virtools</Filter>
     </ClInclude>
   </ItemGroup>
