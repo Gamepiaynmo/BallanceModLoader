@@ -4,7 +4,7 @@
 
 #define VX_EXPORT
 #define NAKED __declspec(naked)
-#define UNDEFINED throw "Unimplemented function called."
+#define UNDEFINED throw "Unimplemented function called.";__asm ret
 
 #include "../Export.h"
 #include "VxMathDefines.h"
