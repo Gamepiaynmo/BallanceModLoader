@@ -56,3 +56,5 @@
 #include "CKObjectArray.h"
 #include "CKObjectDeclaration.h"
 #include "CKDependencies.h"
+#include "CK2dCurve.h"
+#include "CK2dCurvePoint.h"
