@@ -165,6 +165,35 @@ namespace ExecuteBB {
 		bbPhysConv->Execute(0);
 	}
 
+	CKBehavior* bbSetForce;
+	CKBehavior* CreateSetPhysicsForce(CK3dEntity* target, VxVector position, CK3dEntity* posRef, VxVector direction, CK3dEntity* directionRef, float force) {
+		CKBehavior* beh = CreateBB(ownerScript, TT_SETPHYSICSFORCE, true);
+		beh->GetTargetParameter()->SetDirectSource(CreateParamObject(CKPGUID_3DENTITY, "Target", target));
+		beh->GetInputParameter(0)->SetDirectSource(CreateParamValue(CKPGUID_VECTOR, "Position", position));
+		beh->GetInputParameter(1)->SetDirectSource(CreateParamObject(CKPGUID_3DENTITY, "Pos Referential", posRef));
+		beh->GetInputParameter(2)->SetDirectSource(CreateParamValue(CKPGUID_VECTOR, "Direction", direction));
+		beh->GetInputParameter(3)->SetDirectSource(CreateParamObject(CKPGUID_3DENTITY, "Direction Ref", directionRef));
+		beh->GetInputParameter(4)->SetDirectSource(CreateParamValue(CKPGUID_FLOAT, "Force Value", force));
+		return beh;
+	}
+
+	void SetPhysicsForce(CK3dEntity* target, VxVector position, CK3dEntity* posRef, VxVector direction, CK3dEntity* directionRef, float force) {
+		SetParamObject(bbSetForce->GetTargetParameter()->GetDirectSource(), target);
+		SetParamValue(bbSetForce->GetInputParameter(0)->GetDirectSource(), position);
+		SetParamObject(bbSetForce->GetInputParameter(1)->GetDirectSource(), posRef);
+		SetParamValue(bbSetForce->GetInputParameter(2)->GetDirectSource(), direction);
+		SetParamObject(bbSetForce->GetInputParameter(3)->GetDirectSource(), directionRef);
+		SetParamValue(bbSetForce->GetInputParameter(4)->GetDirectSource(), force);
+		bbSetForce->ActivateInput(0);
+		bbSetForce->Execute(0);
+	}
+
+	void UnsetPhysicsForce(CK3dEntity* target) {
+		SetParamObject(bbSetForce->GetTargetParameter()->GetDirectSource(), target);
+		bbSetForce->ActivateInput(1);
+		bbSetForce->Execute(0);
+	}
+
 	CKBehavior* bbObjLoad;
 	CKBehavior* CreateObjectLoad(CKSTRING file, CKSTRING mastername, CK_CLASSID filter, CKBOOL addToScene,
 		CKBOOL reuseMesh, CKBOOL reuseMtl, CKBOOL dynamic) {
@@ -242,5 +271,6 @@ namespace ExecuteBB {
 		bbPhysConc = CreatePhysicalizeConcave();
 		bbObjLoad = CreateObjectLoad();
 		bbPhyImpul = CreatePhysicsImpulse();
+		bbSetForce = CreateSetPhysicsForce();
 	}
 }

@@ -76,6 +76,12 @@ namespace ExecuteBB {
 
 	BML_EXPORT void Unphysicalize(CK3dEntity* target);
 
+	BML_EXPORT CKBehavior* CreateSetPhysicsForce(CK3dEntity* target = nullptr, VxVector position = VxVector(0, 0, 0), CK3dEntity* posRef = nullptr, VxVector direction = VxVector(0, 0, 0), CK3dEntity* directionRef = nullptr, float force = 0.0f);
+
+	BML_EXPORT void SetPhysicsForce(CK3dEntity* target = nullptr, VxVector position = VxVector(0, 0, 0), CK3dEntity* posRef = nullptr, VxVector direction = VxVector(0, 0, 0), CK3dEntity* directionRef = nullptr, float force = 0.0f);
+
+	BML_EXPORT void UnsetPhysicsForce(CK3dEntity* target = nullptr);
+
 	BML_EXPORT CKBehavior* CreateObjectLoad(CKSTRING file = "", CKSTRING mastername = "", CK_CLASSID filter = CKCID_3DOBJECT,
 		CKBOOL addToScene = true, CKBOOL reuseMesh = true, CKBOOL reuseMtl = true, CKBOOL dynamic = true);
 
