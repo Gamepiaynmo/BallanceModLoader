@@ -194,6 +194,19 @@ namespace ExecuteBB {
 		bbSetForce->Execute(0);
 	}
 
+	CKBehavior* bbPhysicsWakeUp;
+	CKBehavior* CreatePhysicsWakeUp(CK3dEntity* target) {
+		CKBehavior* beh = CreateBB(ownerScript, TT_PHYSICSWAKEUP, true);
+		beh->GetTargetParameter()->SetDirectSource(CreateParamObject(CKPGUID_3DENTITY, "Target", target));
+		return beh;
+	}
+
+	void PhysicsWakeUp(CK3dEntity* target) {
+		SetParamObject(bbPhysicsWakeUp->GetTargetParameter()->GetDirectSource(), target);
+		bbPhysicsWakeUp->ActivateInput(0);
+		bbPhysicsWakeUp->Execute(0);
+	}
+
 	CKBehavior* bbObjLoad;
 	CKBehavior* CreateObjectLoad(CKSTRING file, CKSTRING mastername, CK_CLASSID filter, CKBOOL addToScene,
 		CKBOOL reuseMesh, CKBOOL reuseMtl, CKBOOL dynamic) {
@@ -272,5 +285,6 @@ namespace ExecuteBB {
 		bbObjLoad = CreateObjectLoad();
 		bbPhyImpul = CreatePhysicsImpulse();
 		bbSetForce = CreateSetPhysicsForce();
+		bbPhysicsWakeUp = CreatePhysicsWakeUp();
 	}
 }

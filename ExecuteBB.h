@@ -93,4 +93,8 @@ namespace ExecuteBB {
 
 	BML_EXPORT void PhysicsImpulse(CK3dEntity* target = nullptr, VxVector position = VxVector(), CK3dEntity* posRef = nullptr,
 		VxVector direction = VxVector(), CK3dEntity* dirRef = nullptr, float impulse = 0.0f);
+
+	BML_EXPORT CKBehavior* CreatePhysicsWakeUp(CK3dEntity* target = nullptr);
+
+	BML_EXPORT void PhysicsWakeUp(CK3dEntity* target = nullptr);
 }
