@@ -744,6 +744,8 @@ bool ModLoader::IsCheatEnabled() {
 }
 
 void ModLoader::EnableCheat(bool enable) {
+	if (!enable)
+		ModLoader::m_instance->ExecuteCommand("speed 1");
 	m_cheatEnabled = enable;
 	m_bmlmod->ShowCheatBanner(enable);
 	BroadcastCallback(&IMod::OnCheatEnabled, std::bind(&IMod::OnCheatEnabled, std::placeholders::_1, enable));
