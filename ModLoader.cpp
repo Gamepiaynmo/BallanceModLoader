@@ -483,6 +483,11 @@ int ModLoader::Physicalize(const CKBehaviorContext& behcontext) {
 		m_instance->BroadcastCallback(&IMod::OnPhysicalize, std::bind(&IMod::OnPhysicalize, std::placeholders::_1, target,
 			fixed, friction, elasticity, mass, collGroup, startFrozen, enableColl, calcMassCenter, linearDamp, rotDamp,
 			collSurface, massCenter, convexCnt, convexMesh, ballCnt, ballCenter, ballRadius, concaveCnt, concaveMesh));
+
+		if (convexMesh) delete[] convexMesh;
+		if (ballCenter) delete[] ballCenter;
+		if (ballRadius) delete[] ballRadius;
+		if (concaveMesh) delete[] concaveMesh;
 	}
 	else {
 		m_instance->BroadcastCallback(&IMod::OnUnphysicalize, std::bind(&IMod::OnUnphysicalize, std::placeholders::_1, target));
