@@ -30,6 +30,11 @@ std::vector<std::string> SplitString(const std::string& str, const std::string& 
 	return res;
 }
 
+void ToLower(std::string& data) {
+	std::transform(data.begin(), data.end(), data.begin(),
+								 [](unsigned char c) { return std::tolower(c); });
+}
+
 bool StartWith(const std::string& str, const std::string& start) {
 	return str.substr(0, start.size()) == start;
 }
@@ -373,7 +378,7 @@ void ModLoader::Process(CKERROR result) {
 	}
 
 	BroadcastCallback(&IMod::OnProcess, &IMod::OnProcess);
-	if (m_inputManager->IsKeyDown(CKKEY_F))
+	if (m_inputManager->IsKeyDown(CKKEY_F) && IsCheatEnabled())
 		SkipRenderForNextTick();
 
 	m_inputManager->Process();
@@ -701,6 +706,7 @@ ICommand* ModLoader::FindCommand(const std::string& name) {
 void ModLoader::ExecuteCommand(CKSTRING cmd) {
 	m_logger->Info("Execute Command: %s", cmd);
 	std::vector<std::string> args = SplitString(cmd, " ");
+	ToLower(args[0]);
 	ICommand* command = FindCommand(args[0]);
 	if (command) command->Execute(this, args);
 	else m_bmlmod->AddIngameMessage(("Error: Unknown Command " + args[0]).c_str());
