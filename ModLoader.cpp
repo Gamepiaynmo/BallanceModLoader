@@ -37,6 +37,7 @@ bool StartWith(const std::string& str, const std::string& start) {
 ModLoader::ModLoader() {
 	m_instance = this;
 
+	std::filesystem::create_directories("..\\ModLoader\\");
 	std::filesystem::create_directories("..\\ModLoader\\Cache\\");
 	std::filesystem::create_directories("..\\ModLoader\\Config\\");
 	std::filesystem::create_directories("..\\ModLoader\\Maps\\");
