@@ -608,6 +608,10 @@ void BMLMod::OnLoad() {
 	m_fixLifeBall->SetComment("Game won't freeze when picking up life balls");
 	m_fixLifeBall->SetDefaultBoolean(true);
 
+	m_customMapNumber = GetConfig()->GetProperty("Misc", "CustomMapNumber");
+	m_customMapNumber->SetComment("Level number to use for custom maps (affects level bonus and sky textures). Must be in the range of 1~13; 0 to randomly select one between 2 and 11");
+	m_customMapNumber->SetDefaultInteger(0);
+
 	GetConfig()->SetCategoryComment("Debug", "Debug Utilities");
 	m_suicide = GetConfig()->GetProperty("Debug", "Suicide");
 	m_suicide->SetComment("Suicide");
@@ -1447,7 +1451,8 @@ BGui::Button* GuiCustomMap::CreateButton(int index) {
 		GuiList::Exit();
 		SetParamString(m_mod->m_mapFile, m_searchRes[m_curpage * m_maxsize + index]->filepath.c_str());
 		SetParamValue(m_mod->m_loadCustom, TRUE);
-		int level = rand() % 10 + 2;
+		int level = m_mod->GetConfig()->GetProperty("Misc", "CustomMapNumber")->GetInteger();
+		level = (level >= 1 && level <= 13) ? level : rand() % 10 + 2;
 		m_mod->m_curLevel->SetElementValue(0, 0, &level);
 		level--;
 		SetParamValue(m_mod->m_levelRow, level);
