@@ -232,6 +232,7 @@ private:
 	IProperty* m_showFPS;
 	IProperty* m_showSR;
 	IProperty* m_fixLifeBall;
+	IProperty* m_customMapNumber;
 
 	IProperty* m_ballCheat[2];
 	IProperty* m_suicide;

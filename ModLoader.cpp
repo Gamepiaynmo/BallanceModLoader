@@ -756,7 +756,7 @@ bool ModLoader::IsCheatEnabled() {
 }
 
 void ModLoader::EnableCheat(bool enable) {
-	if (!enable)
+	if (!enable && IsCheatEnabled())
 		ModLoader::m_instance->ExecuteCommand("speed 1");
 	m_cheatEnabled = enable;
 	m_bmlmod->ShowCheatBanner(enable);
