@@ -120,6 +120,18 @@ private:
 	CKParameter* m_curSector;
 };
 
+class CommandWatermark : public ICommand {
+	virtual std::string GetName() override { return "watermark"; };
+	virtual std::string GetAlias() override { return ""; };
+	virtual std::string GetDescription() override { return "Enable or Disable the BML watermark."; };
+	virtual bool IsCheat() override { return false; };
+
+	virtual void Execute(IBML* bml, const std::vector<std::string>& args) override;
+	virtual const std::vector<std::string> GetTabCompletion(IBML* bml, const std::vector<std::string>& args) override {
+		return args.size() == 2 ? std::vector<std::string>({ "true", "false" }) : std::vector<std::string>();
+	};
+};
+
 class CommandWin : public ICommand {
 	virtual std::string GetName() override { return "win"; };
 	virtual std::string GetAlias() override { return ""; };

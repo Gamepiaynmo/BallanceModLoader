@@ -48,7 +48,7 @@ void BMLMod::OnLoadObject(CKSTRING filename, BOOL isMap, CKSTRING masterName, CK
 
 		GetLogger()->Info("Create BML Gui");
 		m_ingameBanner = new BGui::Gui();
-		m_ingameBanner->AddTextLabel("M_Use_BML", "Ballance Mod Loader " BML_VERSION, ExecuteBB::GAMEFONT_01, 0, 0, 1, 0.03f);
+		m_watermark = m_ingameBanner->AddTextLabel("M_Use_BML", "Ballance Mod Loader " BML_VERSION, ExecuteBB::GAMEFONT_01, 0, 0, 1, 0.03f);
 		m_cheat = m_ingameBanner->AddTextLabel("M_Use_Cheat", "Cheat Mode Enabled", ExecuteBB::GAMEFONT_01, 0, 0.85f, 1, 0.05f);
 		//m_cheat[1] = m_ingameBanner->AddTextLabel("M_Use_Cheat", "Cheat Mode Enabled", ExecuteBB::GAMEFONT_03A, 0.001f, 0.901f, 1, 0.03f);
 		//m_cheat[2] = m_ingameBanner->AddTextLabel("M_Use_Cheat", "Cheat Mode Enabled", ExecuteBB::GAMEFONT_03A, 0.002f, 0.902f, 1, 0.03f);
@@ -736,6 +736,7 @@ void BMLMod::OnLoad() {
 	m_bml->RegisterCommand(new CommandKill());
 	m_bml->RegisterCommand(new CommandSetSpawn());
 	m_bml->RegisterCommand(new CommandSector());
+	m_bml->RegisterCommand(new CommandWatermark());
 	m_bml->RegisterCommand(new CommandWin());
 	m_bml->RegisterCommand(new CommandTravel(this));
 
@@ -1157,6 +1158,10 @@ void BMLMod::ShowCheatBanner(bool show) {
 	m_cheat->SetVisible(show);
 }
 
+void BMLMod::ShowWatermark(bool show) {
+	m_watermark->SetVisible(show);
+}
+
 void BMLMod::ShowModOptions() {
 	ShowGui(m_modOption);
 	m_modOption->SetPage(0);
@@ -1175,6 +1180,10 @@ void BMLMod::ShowGui(BGui::Gui* gui) {
 void BMLMod::CloseCurrentGui() {
 	m_currentGui->SetVisible(false);
 	m_currentGui = nullptr;
+}
+
+bool BMLMod::IsWatermarkEnabled() {
+	return m_watermark->IsVisible();
 }
 
 void BMLMod::EnterTravelCam() {
