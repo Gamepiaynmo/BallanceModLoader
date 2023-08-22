@@ -613,6 +613,10 @@ void BMLMod::OnLoad() {
 	m_customMapNumber->SetDefaultInteger(0);
 
 	GetConfig()->SetCategoryComment("Debug", "Debug Utilities");
+	m_suicideOn = GetConfig()->GetProperty("Debug", "EnableSuicideKey");
+	m_suicideOn->SetComment("Enable the Suicide Hotkey.");
+	m_suicideOn->SetDefaultBoolean(true);
+
 	m_suicide = GetConfig()->GetProperty("Debug", "Suicide");
 	m_suicide->SetComment("Suicide");
 	m_suicide->SetDefaultKey(CKKEY_R);
@@ -814,7 +818,7 @@ void BMLMod::OnProcess() {
 
 	if (m_bml->IsPlaying()) {
 		if (!m_suicideCd) {
-			if (m_bml->IsPlaying() && im->IsKeyPressed(m_suicide->GetKey())) {
+			if (m_suicideOn->GetBoolean() && im->IsKeyPressed(m_suicide->GetKey())) {
 				ModLoader::m_instance->ExecuteCommand("kill");
 				m_suicideCd = true;
 				m_bml->AddTimer(1000.0f, [this]() { m_suicideCd = false; });

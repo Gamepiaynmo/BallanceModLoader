@@ -237,7 +237,7 @@ private:
 	IProperty* m_customMapNumber;
 
 	IProperty* m_ballCheat[2];
-	IProperty* m_suicide;
+	IProperty* m_suicide, * m_suicideOn;
 	CKParameterLocal* m_ballForce[2] = { 0 };
 	bool m_suicideCd = false;
 
