@@ -273,6 +273,17 @@ void CommandSector::ResetBall(IBML* bml, CKContext* ctx) {
 		});
 }
 
+void CommandWatermark::Execute(IBML* bml, const std::vector<std::string>& args) {
+	BMLMod* mod = ModLoader::m_instance->m_bmlmod;
+	if (args.size() == 1) {
+		mod->ShowWatermark(!mod->IsWatermarkEnabled());
+	}
+	else {
+		mod->ShowWatermark(ParseBoolean(args[1]));
+	}
+	bml->SendIngameMessage(mod->IsWatermarkEnabled() ? "Watermark On" : "Watermark Off");
+}
+
 void CommandWin::Execute(IBML* bml, const std::vector<std::string>& args) {
 	if (bml->IsPlaying()) {
 		CKMessageManager* mm = bml->GetMessageManager();

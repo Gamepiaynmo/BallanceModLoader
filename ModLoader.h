@@ -32,6 +32,7 @@ class ModLoader : public IBML {
 	friend class CommandCheat;
 	friend class CommandClear;
 	friend class CommandSector;
+	friend class CommandWatermark;
 	friend class GuiList;
 	friend class GuiModOption;
 	friend class GuiModMenu;

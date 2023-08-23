@@ -179,9 +179,11 @@ public:
 
 	void AddIngameMessage(CKSTRING msg);
 	void ShowCheatBanner(bool show);
+	void ShowWatermark(bool show);
 	void ShowModOptions();
 	void ShowGui(BGui::Gui* gui);
 	void CloseCurrentGui();
+	bool IsWatermarkEnabled();
 
 	float GetSRScore() { return m_srtimer; }
 	int GetHSScore();
@@ -218,7 +220,7 @@ private:
 	} m_msg[MSG_MAXSIZE];
 
 	BGui::Gui* m_ingameBanner = nullptr;
-	BGui::Label* m_cheat, * m_fps, * m_srScore, * m_srTitle = nullptr;
+	BGui::Label* m_watermark, * m_cheat, * m_fps, * m_srScore, * m_srTitle = nullptr;
 	int m_fpscnt = 0, m_fpstimer = 0;
 	float m_srtimer = 0.0f;
 	bool m_sractive = false;
@@ -235,7 +237,7 @@ private:
 	IProperty* m_customMapNumber;
 
 	IProperty* m_ballCheat[2];
-	IProperty* m_suicide;
+	IProperty* m_suicide, * m_suicideOn;
 	CKParameterLocal* m_ballForce[2] = { 0 };
 	bool m_suicideCd = false;
 

@@ -636,6 +636,7 @@ void ModLoader::OnPostCheckpointReached() {
 
 void ModLoader::OnLevelFinish() {
 	BroadcastMessage("LevelFinish", &IMod::OnLevelFinish);
+	m_bmlmod->ShowWatermark(true);
 }
 
 void ModLoader::OnGameOver() {
