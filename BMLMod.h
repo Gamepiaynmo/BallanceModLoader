@@ -216,8 +216,9 @@ private:
 	struct {
 		BGui::Panel* m_bg;
 		BGui::Label* m_text;
-		int timer;
+		float timer;
 	} m_msg[MSG_MAXSIZE];
+	float m_msgMaxTimer = 6000; // in milliseconds
 
 	BGui::Gui* m_ingameBanner = nullptr;
 	BGui::Label* m_watermark, * m_cheat, * m_fps, * m_srScore, * m_srTitle = nullptr;
@@ -235,6 +236,7 @@ private:
 	IProperty* m_showSR;
 	IProperty* m_fixLifeBall;
 	IProperty* m_customMapNumber;
+	IProperty* m_msgDisplayDuration; // in seconds
 
 	IProperty* m_ballCheat[2];
 	IProperty* m_suicide, * m_suicideOn;
