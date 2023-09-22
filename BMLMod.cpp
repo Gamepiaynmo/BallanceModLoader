@@ -576,6 +576,12 @@ void BMLMod::OnModifyConfig(CKSTRING category, CKSTRING key, IProperty* prop) {
 		m_srScore->SetVisible(m_showSR->GetBoolean());
 		m_srTitle->SetVisible(m_showSR->GetBoolean());
 	}
+	if (prop == m_msgDisplayDuration) {
+		m_msgMaxTimer = m_msgDisplayDuration->GetFloat() * 1e3f;
+		if (m_msgMaxTimer < 2e3f) {
+			m_msgDisplayDuration->SetFloat(2.0f);
+		}
+	}
 }
 
 void BMLMod::OnLoad() {
@@ -611,6 +617,11 @@ void BMLMod::OnLoad() {
 	m_customMapNumber = GetConfig()->GetProperty("Misc", "CustomMapNumber");
 	m_customMapNumber->SetComment("Level number to use for custom maps (affects level bonus and sky textures). Must be in the range of 1~13; 0 to randomly select one between 2 and 11");
 	m_customMapNumber->SetDefaultInteger(0);
+
+	m_msgDisplayDuration = GetConfig()->GetProperty("Misc", "MessageDuration");
+	m_msgDisplayDuration->SetComment("Maximum visible time of each notification message, measured in seconds (default: 6)");
+	m_msgDisplayDuration->SetDefaultFloat(m_msgMaxTimer / 1e3f);
+	m_msgMaxTimer = m_msgDisplayDuration->GetFloat() * 1e3f;
 
 	GetConfig()->SetCategoryComment("Debug", "Debug Utilities");
 	m_suicideOn = GetConfig()->GetProperty("Debug", "EnableSuicideKey");
@@ -766,9 +777,9 @@ void BMLMod::OnProcess() {
 		}
 	}
 
+	CKStats stats;
+	ctx->GetProfileStats(&stats);
 	if (m_ingameBanner) {
-		CKStats stats;
-		ctx->GetProfileStats(&stats);
 		m_fpscnt += int(1000 / stats.TotalFrameTime);
 		if (++m_fpstimer == 60) {
 			m_fps->SetText(("FPS: " + std::to_string(m_fpscnt / 60)).c_str());
@@ -804,15 +815,15 @@ void BMLMod::OnProcess() {
 		}
 		else {
 			for (int i = 0; i < min(MSG_MAXSIZE, m_msgCnt); i++) {
-				int &timer = m_msg[i].timer;
+				float &timer = m_msg[i].timer;
 				m_msg[i].m_bg->SetVisible(timer > 0);
-				m_msg[i].m_bg->SetColor(VxColor(0, 0, 0, min(110, timer / 2)));
-				m_msg[i].m_text->SetVisible(timer > 100);
+				m_msg[i].m_bg->SetColor(VxColor(0, 0, 0, min(110, int(timer) / 20)));
+				m_msg[i].m_text->SetVisible(timer > 1000);
 			}
 		}
 
 		for (int i = 0; i < min(MSG_MAXSIZE, m_msgCnt); i++) {
-			m_msg[i].timer--;
+			m_msg[i].timer -= stats.TotalFrameTime;
 		}
 	}
 
@@ -1152,7 +1163,7 @@ void BMLMod::AddIngameMessage(CKSTRING msg) {
 	}
 
 	m_msg[0].m_text->SetText(msg);
-	m_msg[0].timer = 1000;
+	m_msg[0].timer = m_msgMaxTimer;
 	m_msgCnt++;
 
 	GetLogger()->Info(msg);
