@@ -1132,11 +1132,18 @@ void BMLMod::OnCmdEdit(CKDWORD key) {
 		else {
 			AddIngameMessage(m_cmdInput->GetText());
 		}
+		[[fallthrough]];
 	case CKKEY_ESCAPE:
 		m_cmdTyping = false;
-		InputHook::SetBlock(false);
 		m_cmdBar->SetVisible(false);
 		m_cmdInput->SetText("");
+		ModLoader::m_instance->AddTimerLoop(CKDWORD(1), [this, key] {
+			if (m_cmdTyping) return false;
+			if (ModLoader::m_instance->GetInputManager()->oIsKeyDown(key))
+				return true;
+			InputHook::SetBlock(false);
+			return false;
+		});
 		break;
 	case CKKEY_TAB:
 		if (m_cmdInput->GetText()[0] == '/') {
