@@ -147,6 +147,7 @@ private:
 class BMLMod : public IMod {
 	friend class CommandClear;
 	friend class CommandSector;
+	friend class CommandSpeed;
 	friend class GuiModMenu;
 	friend class GuiCustomMap;
 public:
@@ -255,7 +256,7 @@ private:
 	CKParameter* m_curTrafo;
 	CKDataArray* m_curLevel, * m_ingameParam;
 	int m_changeBallCd = 0;
-	IProperty* m_speedupBall;
+	IProperty* m_speedupBall, * m_speedNotification;
 	bool m_speedup;
 
 	IProperty* m_resetBall;

@@ -379,7 +379,7 @@ void ModLoader::Process(CKERROR result) {
 	}
 
 	BroadcastCallback(&IMod::OnProcess, &IMod::OnProcess);
-	if (m_inputManager->IsKeyDown(CKKEY_F) && IsCheatEnabled())
+	if (IsCheatEnabled() && m_skipRenderKey && m_inputManager->IsKeyDown(m_skipRenderKey->GetKey()))
 		SkipRenderForNextTick();
 
 	m_inputManager->Process();

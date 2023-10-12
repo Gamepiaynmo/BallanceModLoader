@@ -32,6 +32,7 @@ class ModLoader : public IBML {
 	friend class CommandCheat;
 	friend class CommandClear;
 	friend class CommandSector;
+	friend class CommandSpeed;
 	friend class CommandWatermark;
 	friend class GuiList;
 	friend class GuiModOption;
@@ -234,6 +235,7 @@ private:
 
 	bool m_ingame = false, m_paused = false;
 	bool m_skipRender = false;
+	IProperty* m_skipRenderKey{};
 
 	std::map<void*, std::vector<IMod*>> m_callback_map;
 	void FillCallbackMap(IMod* mod);
