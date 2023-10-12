@@ -120,7 +120,7 @@ void CommandSpeed::Execute(IBML* bml, const std::vector<std::string>& args) {
 				}
 			}
 
-			if (notify)
+			if (notify && ModLoader::m_instance->m_bmlmod->m_speedNotification->GetBoolean())
 				bml->SendIngameMessage(("Current Ball Speed Changed to " + std::to_string(time) + " times").c_str());
 		}
 	}

@@ -628,6 +628,10 @@ void BMLMod::OnLoad() {
 	m_suicideOn->SetComment("Enable the Suicide Hotkey.");
 	m_suicideOn->SetDefaultBoolean(true);
 
+	m_speedNotification = GetConfig()->GetProperty("Debug", "SpeedNotification");
+	m_speedNotification->SetComment("Notify the player when speed of the ball changes.");
+	m_speedNotification->SetDefaultBoolean(true);
+
 	m_suicide = GetConfig()->GetProperty("Debug", "Suicide");
 	m_suicide->SetComment("Suicide");
 	m_suicide->SetDefaultKey(CKKEY_R);
@@ -663,6 +667,10 @@ void BMLMod::OnLoad() {
 	m_speedupBall = GetConfig()->GetProperty("Debug", "BallSpeedUp");
 	m_speedupBall->SetComment("Change to 3 times ball speed");
 	m_speedupBall->SetDefaultKey(CKKEY_LCONTROL);
+
+	ModLoader::m_instance->m_skipRenderKey = GetConfig()->GetProperty("Debug", "SkipRender");
+	ModLoader::m_instance->m_skipRenderKey->SetComment("Skip rendering of current frames while holding.");
+	ModLoader::m_instance->m_skipRenderKey->SetDefaultKey(CKKEY_F);
 
 	GetConfig()->SetCategoryComment("Auxiliaries", "Temporal Auxiliary Moduls");
 	m_addBall[0] = GetConfig()->GetProperty("Auxiliaries", "PaperBall");
@@ -1132,11 +1140,18 @@ void BMLMod::OnCmdEdit(CKDWORD key) {
 		else {
 			AddIngameMessage(m_cmdInput->GetText());
 		}
+		[[fallthrough]];
 	case CKKEY_ESCAPE:
 		m_cmdTyping = false;
-		InputHook::SetBlock(false);
 		m_cmdBar->SetVisible(false);
 		m_cmdInput->SetText("");
+		ModLoader::m_instance->AddTimerLoop(CKDWORD(1), [this, key] {
+			if (m_cmdTyping) return false;
+			if (ModLoader::m_instance->GetInputManager()->oIsKeyDown(key))
+				return true;
+			InputHook::SetBlock(false);
+			return false;
+		});
 		break;
 	case CKKEY_TAB:
 		if (m_cmdInput->GetText()[0] == '/') {
